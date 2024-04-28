@@ -1,5 +1,5 @@
 {
-	"name": "{{cookiecutter.underscored}}",
+	"name": "mysoc_popolo",
 	"build": {
 		"dockerfile": "../Dockerfile"
 	},

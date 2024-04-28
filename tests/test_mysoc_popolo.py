@@ -1,4 +1,4 @@
-import {{cookiecutter.underscored}} as package
+import mysoc_popolo as package
 
 
 def test_true_is_true():
