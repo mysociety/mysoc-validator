@@ -14,7 +14,7 @@ include = [
 [tool.poetry_bumpversion.file."src/mysoc_popolo/__init__.py"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 pydantic = "^2.7.1"
 typing-extensions = "^4.11.0"
 rich = "^13.7.1"
