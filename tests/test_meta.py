@@ -2,8 +2,9 @@
 Run meta tests on package (apply to muliple packages)
 
 """
+
 from pathlib import Path
-import mysoc_popolo as package
+import mysoc_validator as package
 import toml
 
 

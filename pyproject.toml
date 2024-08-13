@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "mysoc-popolo"
+name = "mysoc-validator"
 version = "0.1.0"
 description = "null"
 authors = ["mySociety <alex.parsons@mysociety.org>"]
 readme = "README.md"
 license = "MIT"
-homepage = "https://github.com/mysociety/mysoc-popolo"
-repository = "https://github.com/mysociety/mysoc-popolo"
+homepage = "https://github.com/mysociety/mysoc-validator"
+repository = "https://github.com/mysociety/mysoc-validator"
 include = [
     "LICENSE.md",
 ]
@@ -15,14 +15,19 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
+pydantic = "^2.7.1"
+typing-extensions = "^4.11.0"
+rich = "^13.7.1"
+typer = "^0.12.3"
+lxml = "^5.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.2"
 pytest-cov = "^3.0.0"
-pylint = "^2.12.2"
-black = "^22.3.0"
 pyright = "^1.1"
 toml = "^0.10.2"
+ruff = "^0.5.5"
+lxml-stubs = "^0.5.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
