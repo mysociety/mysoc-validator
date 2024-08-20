@@ -503,7 +503,9 @@ class Person(ModelInList):
         )
         return [m for m in members if not isinstance(m, MembershipRedirect)]
 
-    def membership_on_date(self, date: date, chamber: Chamber) -> Optional[Membership]:
+    def membership_on_date(
+        self, date: date, *, chamber: Chamber
+    ) -> Optional[Membership]:
         memberships = self.memberships()
         if memberships:
             for m in memberships:
@@ -956,7 +958,7 @@ class IndexedPeopleList(
         super().invalidate_indexes()
         self._name_to_id_lookups = {}
 
-    def from_identifier(self, *, scheme: str, identifer: str) -> Person:
+    def from_identifier(self, identifer: str, *, scheme: str) -> Person:
         def lookup_identifier(person: Union[Person, PersonRedirect]) -> Optional[str]:
             if isinstance(person, PersonRedirect):
                 return None
