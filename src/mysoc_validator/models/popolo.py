@@ -21,6 +21,7 @@ from typing import (
     get_origin,
 )
 
+import requests
 from mysoc_validator.models.dates import ApproxDate, FixedDate
 from pydantic import (
     AliasChoices,
@@ -1137,6 +1138,10 @@ class Popolo(StrictBaseModel):
     @classmethod
     def from_path(cls, json_path: Path) -> Popolo:
         return cls.model_validate_json(json_path.read_text())
+
+    @classmethod
+    def from_url(cls, url: str) -> Popolo:
+        return cls.model_validate_json(requests.get(url).text)
 
     def to_path(self, json_path: Path) -> None:
         data = self.model_dump_json(
