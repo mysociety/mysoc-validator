@@ -483,6 +483,9 @@ class Person(ModelInList):
     )
     shortcuts: Optional[Shortcuts] = None
 
+    def reduced_id(self) -> str:
+        return self.id.split("/")[-1]
+
     def self_or_redirect(self) -> Person:
         return self
 
