@@ -102,6 +102,13 @@ class Chamber(str, Enum):
     LONDON = "london-assembly"
     NORTHERN_IRELAND = "northern-ireland-assembly"
 
+class IdentifierScheme(str, Enum):
+    DATADOTPARL = "datadotparl_id"
+    MNIS = "datadotparl_id"
+    PIMS = "pims_id"
+    HISTORIC_HANSARD = "historichansard_id"
+    PEERAGE_TYPE = "peeragetype"
+    WIKIDATA = "wikidata"
 
 def reduce_to_slug(s: str) -> str:
     """
