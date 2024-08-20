@@ -13,6 +13,9 @@ include = [
 
 [tool.poetry_bumpversion.file."src/mysoc_popolo/__init__.py"]
 
+[tool.poetry.scripts]
+mysoc-validator = "mysoc_validator.__main__:app"
+
 [tool.poetry.dependencies]
 python = "^3.9"
 pydantic = "^2.7.1"

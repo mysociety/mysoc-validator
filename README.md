@@ -17,7 +17,7 @@ transcript = Transcript.from_path(<path to xml file>)
 ```
 
 ```bash
-python -m validate_transcript <path-to-transcript.xml>
+python -m mysoc_validator validate --path <path-to-transcript.xml> --type transcript
 ```
 
 ## Popolo
@@ -39,7 +39,7 @@ popolo = Popolo.from_path(<path to people.json>)
 ```
 
 ```bash
-python -m validate_popolo <path-to-people.json>
+python -m mysoc_validator validate --path <path-to-people.json> --type popolo
 ```
 
 ### People.json

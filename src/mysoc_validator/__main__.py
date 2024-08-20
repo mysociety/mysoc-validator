@@ -1,4 +1,6 @@
+from enum import Enum
 from pathlib import Path
+from typing import Optional
 
 import rich
 import typer
@@ -8,9 +10,40 @@ from .models.transcripts import Transcript
 
 app = typer.Typer()
 
+class ValidateOptions(str, Enum):
+    POPOLO = "popolo"
+    TRANSCRIPT = "transcript"
 
 @app.command()
-def validate_popolo(file: Path):
+def blank():
+    """
+    Holding command to make 'validate' not the default.
+    """
+    pass
+
+
+@app.command()
+def validate(file: Optional[Path] = None, url: Optional[str] = None, type: ValidateOptions=ValidateOptions.POPOLO):
+    # must be at least one of file or url, but not both
+    if not file and not url:
+        typer.echo("Must provide either a file or a URL.")
+        raise typer.Exit(code=1)
+    if file and url:
+        typer.echo("Must provide either a file or a URL, not both.")
+        raise typer.Exit(code=1)
+    if type == ValidateOptions.POPOLO:
+        if file:
+            validate_popolo_file(file)
+        if url:
+            validate_popolo_url_file(url)
+    elif type == ValidateOptions.TRANSCRIPT:
+        if not file:
+            typer.echo("Must provide a file for a transcript.")
+            raise typer.Exit(code=1)
+        validate_transcript(file)
+
+
+def validate_popolo_file(file: Path):
     """
     Validate a mysoc style Popolo file.
     Returns Exit 1 if a validation error.
@@ -26,9 +59,7 @@ def validate_popolo(file: Path):
     )
     rich.print("[green]Valid Popolo file[/green]")
 
-
-@app.command()
-def validate_popolo_url(url: str):
+def validate_popolo_url_file(url: str):
     """
     Validate a mysoc style Popolo file.
     Returns Exit 1 if a validation error.
@@ -45,7 +76,6 @@ def validate_popolo_url(url: str):
     rich.print("[green]Valid Popolo file[/green]")
 
 
-@app.command()
 def validate_transcript(file: Path):
     """
     Validate a mysoc style Popolo file.
