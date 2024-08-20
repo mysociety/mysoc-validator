@@ -10,7 +10,7 @@ iso = date.fromisoformat
 
 @pytest.fixture(scope="session")
 def popolo_data():
-    return Popolo.from_path(Path("data", "people.json"))
+    return Popolo.from_parlparse()
 
 
 def test_lookup_from_id(popolo_data: Popolo):
@@ -19,9 +19,7 @@ def test_lookup_from_id(popolo_data: Popolo):
 
 
 def test_lookup_from_identifer(popolo_data: Popolo):
-    person = popolo_data.persons.from_identifier(
-        scheme="datadotparl_id", identifer="172"
-    )
+    person = popolo_data.persons.from_identifier("172", scheme="datadotparl_id")
     assert "Diane Abbott" in person.names_on_date(date=iso("2024-07-31"))
 
 
