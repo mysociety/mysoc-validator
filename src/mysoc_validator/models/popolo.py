@@ -534,9 +534,9 @@ class Post(ModelInList):
     id: PostID
     area: Area
     identifiers: Optional[list[PostIdentifier]] = None
-    label: Optional[str] = None
+    label: str
     organization_id: OrgID
-    role: Optional[str] = None
+    role: str
     start_date: Optional[FlexiDate] = None
     end_date: Optional[FlexiDate] = None
 
