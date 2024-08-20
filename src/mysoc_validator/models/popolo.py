@@ -512,14 +512,17 @@ class Person(ModelInList):
         memberships = self.memberships()
         if memberships:
             for m in memberships:
-                if m.organization_id == chamber:
+                post = m.post()
+                if post and post.organization_id == chamber:
                     if m.start_date <= date <= m.end_date:
                         return m
 
     def latest_membership(self, chamber: Chamber) -> Optional[Membership]:
-        chamber_memberships = [
-            m for m in self.memberships() if m.organization_id == chamber
-        ]
+        chamber_memberships: list[Membership] = []
+        for m in self.memberships():
+            post = m.post()
+            if post and post.organization_id == chamber:
+                chamber_memberships.append(m)
         if chamber_memberships:
             return max(chamber_memberships, key=lambda m: m.start_date)
 
