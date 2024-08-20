@@ -1161,6 +1161,12 @@ class Popolo(StrictBaseModel):
     def from_url(cls, url: str) -> Popolo:
         return cls.model_validate_json(requests.get(url).text)
 
+    @classmethod
+    def from_parlparse(cls, branch: str = "master") -> Popolo:
+        return cls.from_url(
+            f"https://raw.githubusercontent.com/mysociety/parlparse/{branch}/members/people.json"
+        )
+
     def to_path(self, json_path: Path) -> None:
         data = self.model_dump_json(
             indent=2, exclude_unset=True, exclude_defaults=True, exclude_none=True
