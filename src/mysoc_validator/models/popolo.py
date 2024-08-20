@@ -503,10 +503,20 @@ class Person(ModelInList):
         )
         return [m for m in members if not isinstance(m, MembershipRedirect)]
 
-    def latest_membership(self) -> Optional[Membership]:
+    def membership_on_date(self, date: date, chamber: Chamber) -> Optional[Membership]:
         memberships = self.memberships()
         if memberships:
-            return max(memberships, key=lambda m: m.start_date)
+            for m in memberships:
+                if m.organization_id == chamber:
+                    if m.start_date <= date <= m.end_date:
+                        return m
+
+    def latest_membership(self, chamber: Chamber) -> Optional[Membership]:
+        chamber_memberships = [
+            m for m in self.memberships() if m.organization_id == chamber
+        ]
+        if chamber_memberships:
+            return max(chamber_memberships, key=lambda m: m.start_date)
 
 
 class Area(ModelInList):
