@@ -10,9 +10,11 @@ from .models.transcripts import Transcript
 
 app = typer.Typer()
 
+
 class ValidateOptions(str, Enum):
     POPOLO = "popolo"
     TRANSCRIPT = "transcript"
+
 
 @app.command()
 def blank():
@@ -23,7 +25,11 @@ def blank():
 
 
 @app.command()
-def validate(file: Optional[Path] = None, url: Optional[str] = None, type: ValidateOptions=ValidateOptions.POPOLO):
+def validate(
+    file: Optional[Path] = None,
+    url: Optional[str] = None,
+    type: ValidateOptions = ValidateOptions.POPOLO,
+):
     # must be at least one of file or url, but not both
     if not file and not url:
         typer.echo("Must provide either a file or a URL.")
@@ -58,6 +64,7 @@ def validate_popolo_file(file: Path):
         f"Loaded {len(people.organizations)} organizations, {len(people.posts)} posts, {len(people.persons)} people, and {len(people.memberships)} memberships."
     )
     rich.print("[green]Valid Popolo file[/green]")
+
 
 def validate_popolo_url_file(url: str):
     """
