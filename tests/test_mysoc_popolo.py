@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 from mysoc_validator.models.dates import FixedDate
 from mysoc_validator.models.popolo import Chamber, Membership, Popolo
+import tempfile
 
 iso = date.fromisoformat
 
@@ -104,11 +105,15 @@ def add_invalid_membership_not_a_person(popolo_data: Popolo):
 
 
 def test_write_popolo(popolo_data: Popolo):
-    dest = Path("data", "people_test_dump.json")
-    popolo_data.to_path(dest)
-    assert dest.exists()
-    Popolo.from_path(dest)  # test reimport parses ok
-    dest.unlink()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        data_dir = Path(temp_dir, "data")
+        data_dir.mkdir()
+        dest = Path(data_dir, "people_test_dump.json")
+        popolo_data.to_path(dest)
+        assert dest.exists()
+        Popolo.from_path(dest)  # test reimport parses ok
+        dest.unlink()
+        data_dir.rmdir()
 
 
 def test_true_is_true():
