@@ -41,11 +41,3 @@ popolo = Popolo.from_path(<path to people.json>)
 ```bash
 python -m mysoc_validator validate --path <path-to-people.json> --type popolo
 ```
-
-### People.json
-
-The currently committed people.json is not the authoriative one - currently has some tweaks to pass validation. 
-
-In the long run - do not store this in this repo, fetch the live one before running tests.
-
-curl -o data/people.json https://raw.githubusercontent.com/mysociety/parlparse/master/members/people.json
