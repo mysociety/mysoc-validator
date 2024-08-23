@@ -69,26 +69,42 @@ PostID = Annotated[
 ]
 OrgType = Literal["party", "chamber", "metro"]
 
+def approx_date_or_default(default: Any = None):
+    def inner(v: Union[str, date]) -> Optional[Union[ApproxDate, date]]:
+        if v:
+            if isinstance(v, date):
+                return v
+            try:
+                return date.fromisoformat(v)
+            except ValueError:
+                return ApproxDate.fromisoformat(v)
+        # the issue is this should get default rather than none
+        return default
+    return inner
 
-def approx_date_or_none(v: Union[str, date]) -> Optional[Union[ApproxDate, date]]:
-    if v:
-        if isinstance(v, date):
-            return v
-        try:
-            return date.fromisoformat(v)
-        except ValueError:
-            return ApproxDate.fromisoformat(v)
-
+def empty_string_if_none(obj: Any) -> str:
+    # default values will *be* these values, not just match them
+    if obj is FixedDate.PAST or obj is FixedDate.FUTURE:
+        return ""
+    return str(obj)
 
 # Fall back to more flexible ApproxDate if it's not a full ISO
 # comparisons still work
-FlexiDate = Annotated[
+FlexiDatePast = Annotated[
     Union[ApproxDate, date],
-    PlainValidator(approx_date_or_none),
-    PlainSerializer(lambda x: str(x), return_type=str),
+    Field(default=FixedDate.PAST),
+    PlainValidator(approx_date_or_default(FixedDate.PAST)),
+    PlainSerializer(empty_string_if_none, return_type=str),
     WithJsonSchema({"type": "string", "pattern": r"^\d{4}(-\d{2})?(-\d{2})?$"}),
 ]
 
+FlexiDateFuture = Annotated[
+    Union[ApproxDate, date],
+    Field(default=FixedDate.FUTURE),
+    PlainValidator(approx_date_or_default(FixedDate.FUTURE)),
+    PlainSerializer(empty_string_if_none, return_type=str),
+    WithJsonSchema({"type": "string", "pattern": r"^\d{4}(-\d{2})?(-\d{2})?$"}),
+]
 
 class StrictBaseModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -239,21 +255,20 @@ class Membership(ModelInList):
     """
     A timed connection between a person and a post.
     """
-
-    id: MemberID
-    person_id: PersonID
-    start_date: FlexiDate = FixedDate.PAST
-    end_date: FlexiDate = FixedDate.FUTURE
-    start_reason: str = ""
+    end_date: FlexiDateFuture
     end_reason: Optional[str] = None
+    id: MemberID
     identifiers: Optional[list[SimpleIdentifier]] = None
-    post_id: Optional[PostID] = None
-    on_behalf_of_id: Optional[OrgID] = None
     label: Optional[str] = None
-    organization_id: Optional[OrgID] = None
-    role: Optional[str] = None
-    reason: Optional[str] = None
     name: Optional[Name] = None
+    on_behalf_of_id: Optional[OrgID] = None
+    organization_id: Optional[OrgID] = None
+    person_id: PersonID
+    post_id: Optional[PostID] = None
+    reason: Optional[str] = None
+    role: Optional[str] = None
+    start_date: FlexiDatePast
+    start_reason: str = ""
 
     def self_or_redirect(self) -> Membership:
         return self
@@ -357,11 +372,11 @@ class PersonIdentifier(ModelInList):
 
 
 class AltName(StrictBaseModel):
+    end_date: FlexiDateFuture
     name: str
     note: Literal["Alternate"]
     organization_id: Optional[OrgID] = None
-    start_date: FlexiDate = FixedDate.PAST
-    end_date: FlexiDate = FixedDate.FUTURE
+    start_date: FlexiDatePast
 
     @model_validator(mode="after")
     def correct_date_range_order(self):
@@ -378,13 +393,12 @@ class BasicPersonName(StrictBaseModel):
     """
     Basic name for for most elected persons
     """
-
+    end_date: FlexiDateFuture
     family_name: str
     given_name: Optional[str] = None
     honorific_prefix: Optional[str] = None
     note: Literal["Main", "Alternate"]
-    start_date: FlexiDate = FixedDate.PAST
-    end_date: FlexiDate = FixedDate.FUTURE
+    start_date: FlexiDatePast
 
     @model_validator(mode="after")
     def correct_date_range_order(self):
@@ -405,18 +419,18 @@ class LordName(StrictBaseModel):
     There's so many optional fields here because of all the lords types.
     """
 
-    surname: Optional[str] = None  # The surname of the lord
-    honorific_prefix: Optional[str] = None  # Viscount etc
+    additional_name: Optional[str] = None  # first name
     county: Optional[str] = None  # county
+    end_date: FlexiDateFuture
+    given_name: Optional[str] = None  # first name
+    honorific_prefix: Optional[str] = None  # Viscount etc
+    honorific_suffix: Optional[str] = None  # KCMG
     lordname: Optional[str] = None  # the styled lord name, when different from surname
     lordofname: Optional[str] = None  # of place
     lordofname_full: Optional[str] = None  # the second of place - of place, of place
-    honorific_suffix: Optional[str] = None  # KCMG
-    given_name: Optional[str] = None  # first name
-    additional_name: Optional[str] = None  # first name
     note: Literal["Main", "Alternate"]
-    start_date: FlexiDate = FixedDate.PAST
-    end_date: FlexiDate = FixedDate.FUTURE
+    start_date: FlexiDatePast
+    surname: Optional[str] = None  # The surname of the lord
 
     def nice_name(self) -> str:
         """
@@ -559,14 +573,16 @@ class PostIdentifier(StrictBaseModel):
 
 class Post(ModelInList):
     _int_style_id: ClassVar[bool] = False
-    id: PostID
+
     area: Area
+    end_date: Optional[FlexiDateFuture] = None
+    id: PostID
     identifiers: Optional[list[PostIdentifier]] = None
     label: str
     organization_id: OrgID
     role: str
-    start_date: Optional[FlexiDate] = None
-    end_date: Optional[FlexiDate] = None
+    start_date: Optional[FlexiDatePast] = None
+
 
     @model_validator(mode="after")
     def correct_date_range_order(self):
