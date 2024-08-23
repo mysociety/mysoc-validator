@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from bisect import bisect_left
 from datetime import date
 from enum import Enum
@@ -12,6 +13,7 @@ from typing import (
     Callable,
     ClassVar,
     Literal,
+    Match,
     NamedTuple,
     Optional,
     Type,
@@ -39,8 +41,21 @@ from pydantic import (
 from pydantic.functional_validators import BeforeValidator
 from typing_extensions import Self
 
-BLANK_ID = "BLANK_ID"
+NON_ASCII_RE = re.compile(r'[^\x00-\x7F]')
 
+def escape_unicode_characters(text: str) -> str:
+    """
+    Currently people json uses escaped unicode characters
+    Enforce this on outputs while preserviing escape
+    sequences like newlines
+    """
+    def escape(match: Match[str]) -> str:
+        char = match.group(0)
+        return f'\\u{ord(char):04x}'
+    
+    return NON_ASCII_RE.sub(escape, text)
+
+BLANK_ID = "BLANK_ID"
 
 def BlankID(blank_id: str):
     def inner(v: Any) -> Optional[str]:
@@ -1192,10 +1207,14 @@ class Popolo(StrictBaseModel):
             f"https://raw.githubusercontent.com/mysociety/parlparse/{branch}/members/people.json"
         )
 
-    def to_path(self, json_path: Path) -> None:
-        data = self.model_dump_json(
-            indent=2, exclude_unset=True, exclude_defaults=True, exclude_none=True
+    def to_json_str(self) -> str:
+        txt = self.model_dump_json(
+            indent=2, exclude_unset=True, exclude_defaults=False, exclude_none=True, by_alias=True
         )
+        return escape_unicode_characters(txt)
+
+    def to_path(self, json_path: Path) -> None:
+        data = self.to_json_str()
         json_path.write_text(data)
 
     def __enter__(self, json_path: Path) -> Popolo:
