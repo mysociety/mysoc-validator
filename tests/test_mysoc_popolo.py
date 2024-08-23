@@ -1,10 +1,11 @@
+import tempfile
 from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
+import requests
 from mysoc_validator.models.dates import FixedDate
 from mysoc_validator.models.popolo import Chamber, Membership, Popolo
-import tempfile
 
 iso = date.fromisoformat
 
@@ -102,6 +103,18 @@ def add_invalid_membership_not_a_person(popolo_data: Popolo):
     )
     with pytest.raises(ValueError):
         popolo_data.memberships.extend([new_membership])
+
+
+def test_round_trip():
+    branch = "master"
+    parlparse_url = f"https://raw.githubusercontent.com/mysociety/parlparse/{branch}/members/people.json"
+    original_text = requests.get(parlparse_url).text
+    popolo = Popolo.model_validate_json(original_text)
+    dumped_text = popolo.to_json_str()
+    popolo2 = Popolo.model_validate_json(dumped_text)
+    dumped_text2 = popolo2.to_json_str()
+    assert dumped_text == dumped_text2, "Internal round trip failed"
+    assert original_text == dumped_text, "External round trip failed"
 
 
 def test_write_popolo(popolo_data: Popolo):

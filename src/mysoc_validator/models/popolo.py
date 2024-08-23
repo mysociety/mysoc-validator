@@ -41,7 +41,8 @@ from pydantic import (
 from pydantic.functional_validators import BeforeValidator
 from typing_extensions import Self
 
-NON_ASCII_RE = re.compile(r'[^\x00-\x7F]')
+NON_ASCII_RE = re.compile(r"[^\x00-\x7F]")
+
 
 def escape_unicode_characters(text: str) -> str:
     """
@@ -49,13 +50,16 @@ def escape_unicode_characters(text: str) -> str:
     Enforce this on outputs while preserviing escape
     sequences like newlines
     """
+
     def escape(match: Match[str]) -> str:
         char = match.group(0)
-        return f'\\u{ord(char):04x}'
-    
+        return f"\\u{ord(char):04x}"
+
     return NON_ASCII_RE.sub(escape, text)
 
+
 BLANK_ID = "BLANK_ID"
+
 
 def BlankID(blank_id: str):
     def inner(v: Any) -> Optional[str]:
@@ -84,6 +88,7 @@ PostID = Annotated[
 ]
 OrgType = Literal["party", "chamber", "metro"]
 
+
 def approx_date_or_default(default: Any = None):
     def inner(v: Union[str, date]) -> Optional[Union[ApproxDate, date]]:
         if v:
@@ -95,13 +100,16 @@ def approx_date_or_default(default: Any = None):
                 return ApproxDate.fromisoformat(v)
         # the issue is this should get default rather than none
         return default
+
     return inner
+
 
 def empty_string_if_none(obj: Any) -> str:
     # default values will *be* these values, not just match them
     if obj is FixedDate.PAST or obj is FixedDate.FUTURE:
         return ""
     return str(obj)
+
 
 # Fall back to more flexible ApproxDate if it's not a full ISO
 # comparisons still work
@@ -120,6 +128,7 @@ FlexiDateFuture = Annotated[
     PlainSerializer(empty_string_if_none, return_type=str),
     WithJsonSchema({"type": "string", "pattern": r"^\d{4}(-\d{2})?(-\d{2})?$"}),
 ]
+
 
 class StrictBaseModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -270,6 +279,7 @@ class Membership(ModelInList):
     """
     A timed connection between a person and a post.
     """
+
     end_date: FlexiDateFuture
     end_reason: Optional[str] = None
     id: MemberID
@@ -408,6 +418,7 @@ class BasicPersonName(StrictBaseModel):
     """
     Basic name for for most elected persons
     """
+
     end_date: FlexiDateFuture
     family_name: str
     given_name: Optional[str] = None
@@ -597,7 +608,6 @@ class Post(ModelInList):
     organization_id: OrgID
     role: str
     start_date: Optional[FlexiDatePast] = None
-
 
     @model_validator(mode="after")
     def correct_date_range_order(self):
@@ -1209,7 +1219,11 @@ class Popolo(StrictBaseModel):
 
     def to_json_str(self) -> str:
         txt = self.model_dump_json(
-            indent=2, exclude_unset=True, exclude_defaults=False, exclude_none=True, by_alias=True
+            indent=2,
+            exclude_unset=True,
+            exclude_defaults=False,
+            exclude_none=True,
+            by_alias=True,
         )
         return escape_unicode_characters(txt)
 
