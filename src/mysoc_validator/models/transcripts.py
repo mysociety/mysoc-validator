@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import (
     Annotated,
+    Any,
     Iterator,
     Literal,
     Optional,
@@ -12,17 +13,18 @@ from typing import (
     runtime_checkable,
 )
 
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Discriminator, Field, Tag
 
-from .xml_base import BaseXMLModel, XmlTypeMetaData
+from .xml_base import (
+    AsAttr,
+    BaseXMLModel,
+    Items,
+    MixedContent,
+    StrictBaseXMLModel,
+    TextStr,
+)
 
 T = TypeVar("T", bound=BaseXMLModel)
-StrItemContents = Annotated[str, XmlTypeMetaData.ItemContents]
-StrItemContentsReadOnly = Annotated[
-    str, XmlTypeMetaData.ItemContents, XmlTypeMetaData.ReadOnly
-]
-XMLItemContents = Annotated[str, XmlTypeMetaData.XMLItemContents]
-StrXMLTag = Annotated[str, XmlTypeMetaData.XMLTag]
 
 
 @runtime_checkable
@@ -33,62 +35,65 @@ class HasText(Protocol):
     def id(self) -> str: ...
 
 
-class GIDRedirect(BaseXMLModel, tag="gidredirect"):
+class GIDRedirect(StrictBaseXMLModel, tags=["gidredirect"]):
     oldgid: str
     newgid: str
     matchtype: str
 
 
-class OralHeading(BaseXMLModel, tag="oral-heading"):
+class OralHeading(StrictBaseXMLModel, tags=["oral-heading"]):
     id: str
     nospeaker: str
     colnum: str
     time: str
     url: str
-    text: StrItemContents
+    content: MixedContent
 
     def as_str(self):
-        return self.text
+        return self.content.text
 
 
-class MajorHeading(BaseXMLModel, tag="major-heading"):
+class MajorHeading(StrictBaseXMLModel, tags=["major-heading"]):
     id: str
     nospeaker: Optional[str] = None
     colnum: Optional[str] = None
     time: Optional[str] = None
     url: str = ""
-    text: StrItemContents
+    content: MixedContent
 
     def as_str(self):
-        return self.text
+        return self.content.text
 
 
-class MinorHeading(BaseXMLModel, tag="minor-heading"):
+class MinorHeading(StrictBaseXMLModel, tags=["minor-heading"]):
     id: str
     nospeaker: Optional[str] = None
     colnum: Optional[str] = None
     time: Optional[str] = None
     url: Optional[str] = None
-    text: StrItemContents
+    content: MixedContent
 
     def as_str(self):
-        return self.text
+        return self.content.text
 
 
-class SpeechItem(BaseXMLModel, tag="*"):
-    tag: StrXMLTag
+class SpeechItem(StrictBaseXMLModel, tags=["speech.*"]):
     pid: Optional[str] = None
     qnum: Optional[str] = None
-    contents_xml: XMLItemContents
-    contents_text: StrItemContentsReadOnly
     class_: Optional[str] = Field(
         validation_alias="class", serialization_alias="class", default=None
     )
     pwmotiontext: Optional[str] = None
+    content: MixedContent
+
+    def as_str(self):
+        return self.content.text
 
 
-class Speech(BaseXMLModel, tag="speech"):
+class Speech(StrictBaseXMLModel, tags=["speech"]):
     id: str
+    type: str = ""
+    nospeaker: Optional[str] = None
     speakername: Optional[str] = None
     speech_type: Optional[str] = Field(
         validation_alias="speech", serialization_alias="speech", default=None
@@ -100,13 +105,10 @@ class Speech(BaseXMLModel, tag="speech"):
     oral_qnum: Optional[str] = Field(
         validation_alias="oral-qnum", serialization_alias="oral-qnum", default=None
     )
-    items: list[SpeechItem]
-
-    def as_str(self):
-        return "\n".join(item.contents_text for item in self.items)
+    items: Items[SpeechItem]
 
 
-class DivisionCount(BaseXMLModel, tag="divisioncount"):
+class DivisionCount(StrictBaseXMLModel, tags=["divisioncount"]):
     content: Optional[int] = None
     not_content: Optional[int] = Field(
         default=None, validation_alias="not-content", serialization_alias="not-content"
@@ -117,76 +119,92 @@ class DivisionCount(BaseXMLModel, tag="divisioncount"):
     absent: Optional[int] = None
 
 
-class RepName(BaseXMLModel, tag=["mpname", "mspname", "msname", "mlaname", "lord"]):
-    tag: StrXMLTag
+class MSPName(StrictBaseXMLModel, tags=["mspname"]):
     person_id: str = Field(
-        validation_alias=AliasChoices("person_id", "id")
+        validation_alias=AliasChoices("person_id", "id"), serialization_alias="id"
     )  # scotland uses id rather than person_id
     vote: str
     proxy: Optional[str] = None
-    name: StrItemContents
+    name: TextStr
 
 
-class RepList(BaseXMLModel, tag=["mplist", "msplist", "mslist", "mlalist", "lordlist"]):
-    tag: StrXMLTag
+class RepName(
+    StrictBaseXMLModel, tags=["repname", "mpname", "msname", "mlaname", "lord"]
+):
+    person_id: str
+    vote: str
+    teller: Optional[str] = None
+    proxy: Optional[str] = None
+    name: TextStr
+
+
+class RepList(
+    StrictBaseXMLModel,
+    tags=["replist", "mplist", "msplist", "mslist", "mlalist", "lordlist"],
+):
     vote: Literal[
         "aye",
         "no",
-        "absent",
         "neutral",
         "content",
         "not-content",
         "for",
         "against",
-        "abstentions",
         "spoiledvotes",
         "abstain",
+        "absent",
+        "abstentions",
         "didnotvote",
     ]
-    items: list[RepName]
+    items: Items[Union[MSPName, RepName]]
 
 
-class Motion(BaseXMLModel, tag="motion"):
+class Motion(StrictBaseXMLModel, tags=["motion"]):
     speech_id: str
-    text: StrItemContents
+    content: MixedContent
 
 
-class Agreement(BaseXMLModel, tag="agreement"):
+class Agreement(StrictBaseXMLModel, tags=["agreement"]):
     speech_id: str
     nospeaker: Optional[bool] = True
     motion: Optional[Motion] = None
 
 
-class Division(BaseXMLModel, tag="division"):
+class Division(StrictBaseXMLModel, tags=["division"]):
+    id: str = Field(validation_alias=AliasChoices("id", "division_id"))
     nospeaker: Optional[bool] = None
     divdate: str
     divnumber: int
     colnum: Optional[int] = None
     time: Optional[str] = None
-    count: DivisionCount
+    count: AsAttr[Optional[DivisionCount]]
     motion: Optional[Motion] = None
-    items: list[RepList]
+    items: Items[RepList]
 
 
-class Transcript(BaseXMLModel, tag="publicwhip"):
+def extract_tag(v: Any) -> str:
+    return v["@tag"]
+
+
+class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
     scraper_version: Optional[str] = Field(
         default=None, validation_alias="scraperversion"
     )
     latest: Optional[str] = Field(default=None, validation_alias="latest")
-    items: list[
-        Union[
-            Speech,
-            Division,
-            GIDRedirect,
-            OralHeading,
-            MajorHeading,
-            MinorHeading,
-            Agreement,
+    items: Items[
+        Annotated[
+            Union[
+                Annotated[Speech, Tag("speech")],
+                Annotated[Division, Tag("division")],
+                Annotated[GIDRedirect, Tag("gidredirect")],
+                Annotated[OralHeading, Tag("oral-heading")],
+                Annotated[MajorHeading, Tag("major-heading")],
+                Annotated[MinorHeading, Tag("minor-heading")],
+                Annotated[Agreement, Tag("agreement")],
+            ],
+            Discriminator(extract_tag),
         ]
     ]
-
-    def __iter__(self):  # type: ignore
-        return iter(self.items)
 
     def iter_type(self, type: Type[T]) -> Iterator[T]:
         return (item for item in self.items if isinstance(item, type))
@@ -196,17 +214,3 @@ class Transcript(BaseXMLModel, tag="publicwhip"):
 
     def iter_has_text(self) -> Iterator[HasText]:
         return (item for item in self.items if isinstance(item, HasText))
-
-    def iter_headings_and_paragraphs(self) -> Iterator[tuple[str, str]]:
-        for speech in self.iter_has_text():
-            if isinstance(speech, Speech):
-                for paragraph in speech.items:
-                    s_id = speech.id
-                    if paragraph.pid:
-                        s_id += f"#{paragraph.pid}"
-                    yield (
-                        s_id,
-                        paragraph.contents_text.strip(),
-                    )
-            else:
-                yield speech.id, speech.as_str()
