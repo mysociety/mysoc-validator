@@ -10,6 +10,7 @@ from typing import (
     Any,
     Iterator,
     Literal,
+    NamedTuple,
     Optional,
     Protocol,
     Type,
@@ -213,6 +214,13 @@ def extract_tag(v: Any) -> str:
     return v["@tag"]
 
 
+class HeaderSpeechTuple(NamedTuple):
+    major_heading: Optional[MajorHeading]
+    minor_heading: Optional[MinorHeading]
+    speech: Speech
+    speech_index: int
+
+
 class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
     scraper_version: Optional[str] = Field(
         default=None,
@@ -240,6 +248,28 @@ class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
 
     def iter_speeches(self):
         return self.iter_type(Speech)
+
+    def iter_headed_speeches(self) -> Iterator[HeaderSpeechTuple]:
+        """
+        Return a tuple covering the major heading, minor heading, speech
+        and the speeches index within the current minor heading.
+        """
+        major_heading = None
+        minor_heading = None
+        speech_index = -1
+
+        for item in self.items:
+            if isinstance(item, MajorHeading):
+                major_heading = item
+                minor_heading = None
+            elif isinstance(item, MinorHeading):
+                minor_heading = item
+                speech_index = -1
+            elif isinstance(item, Speech):
+                speech_index += 1
+                yield HeaderSpeechTuple(
+                    major_heading, minor_heading, item, speech_index
+                )
 
     def iter_has_text(self) -> Iterator[HasText]:
         return (item for item in self.items if isinstance(item, HasText))
