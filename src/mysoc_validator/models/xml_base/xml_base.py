@@ -85,6 +85,9 @@ def convert_to_forward_refs(
                 return eval(type_name, global_scope, local_scope)
             except NameError:
                 return ForwardRef(type_name)
+        elif isinstance(node, ast.Attribute):
+            value = _convert_type(node.value)
+            return getattr(value, node.attr)
         elif isinstance(node, ast.Constant):
             return node.value
         elif isinstance(node, ast.Tuple):
