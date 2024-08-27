@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+
+## [0.2.0] - 2024-08-27
+### Added
+- New iter `iter_headed_speeches` for Transcripts.
+### Change
+- `__str__` used for consistent external API when a Transcript related object is stringable.
+
+
 ## [0.1.1] - 2024-08-27
 ### Change
 - Package description.
