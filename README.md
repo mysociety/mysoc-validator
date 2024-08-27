@@ -39,9 +39,9 @@ After first use, there is some caching behind the scenes to speed this up.
 from mysoc_validator import Popolo
 from mysoc_validator.models.popolo import Chamber, IdentifierScheme
 from datetime import date
-popolo = Popolo.from_path(<path to people.json>)
+popolo = Popolo.from_parlparse()
 
-keir_starmer_parl_id = popolo.persons.from_identifier(4514, scheme=IdentifierScheme.MNIS)
+keir_starmer_parl_id = popolo.persons.from_identifier("4514", scheme=IdentifierScheme.MNIS)
 keir_starmer_name = popolo.persons.from_name(
         "keir starmer", chamber_id=Chamber.COMMONS, date=date.fromisoformat("2022-07-31")
     )
@@ -56,8 +56,11 @@ Python validator and handler for 'publicwhip' style transcript format.
 
 ```python
 from mysoc_validator import Transcript
+from pathlib import Path
 
-transcript = Transcript.from_path(<path to xml file>)
+transcript_file = Path("data", "debates2023-03-28d.xml")
+
+transcript = Transcript.from_xml_path(transcript_file)
 ```
 
 ## Register of Interests
@@ -65,8 +68,11 @@ transcript = Transcript.from_path(<path to xml file>)
 Python validator and handler for 'publicwhip' style interests format. 
 
 ```python
-from mysoc_validator import Registry
+from mysoc_validator import Register
+from pathlib import Path
 
-interests = Registry.from_path(<path to xml file>)
+register_file = Path("data", "regmem2024-05-28.xml")
+interests = Register.from_xml_path(register_file)
+
 ```
 

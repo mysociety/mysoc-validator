@@ -43,6 +43,7 @@ jobs:
       shell: bash
       run: |
          python -m pytest -v tests
+         python -m pytest --markdown-docs README.md
 
     - name: Test with ruff
       shell: bash
