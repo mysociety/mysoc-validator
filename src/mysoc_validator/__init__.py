@@ -8,4 +8,4 @@ from .models.transcripts import Transcript
 
 __all__ = ["Popolo", "Transcript", "Register"]
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

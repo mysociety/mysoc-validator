@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "mysoc-validator"
-version = "0.1.0"
-description = "null"
+version = "0.1.1"
+description = "Pydantic validators for mySociety democracy types"
 authors = ["mySociety <alex.parsons@mysociety.org>"]
 readme = "README.md"
 license = "MIT"
@@ -11,7 +11,7 @@ include = [
     "LICENSE.md",
 ]
 
-[tool.poetry_bumpversion.file."src/mysoc_popolo/__init__.py"]
+[tool.poetry_bumpversion.file."src/mysoc_validator/__init__.py"]
 
 [tool.poetry.scripts]
 mysoc-validator = "mysoc_validator.__main__:app"
