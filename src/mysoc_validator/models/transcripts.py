@@ -43,7 +43,7 @@ GIDPattern = Annotated[str, Field(pattern=gid_pattern)]
 
 @runtime_checkable
 class HasText(Protocol):
-    def as_str(self) -> str: ...
+    def __str__(self) -> str: ...
 
     @property
     def id(self) -> str: ...
@@ -63,7 +63,7 @@ class OralHeading(StrictBaseXMLModel, tags=["oral-heading"]):
     url: str
     content: MixedContent
 
-    def as_str(self):
+    def __str__(self):
         return self.content.text
 
 
@@ -75,7 +75,7 @@ class MajorHeading(StrictBaseXMLModel, tags=["major-heading"]):
     url: str = ""
     content: MixedContent
 
-    def as_str(self):
+    def __str__(self):
         return self.content.text
 
 
@@ -87,7 +87,7 @@ class MinorHeading(StrictBaseXMLModel, tags=["minor-heading"]):
     url: Optional[str] = None
     content: MixedContent
 
-    def as_str(self):
+    def __str__(self):
         return self.content.text
 
 
@@ -100,7 +100,7 @@ class SpeechItem(StrictBaseXMLModel, tags=["speech.*"]):
     pwmotiontext: Optional[str] = None
     content: MixedContent
 
-    def as_str(self):
+    def __str__(self):
         return self.content.text
 
 
