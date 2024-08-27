@@ -1,12 +1,18 @@
+"""
+Structure for handling the main Parlparse people.json file
+Following the general shape of the popolo standard.
+
+"""
+
 from __future__ import annotations
 
+import json
 import re
 from bisect import bisect_left
 from datetime import date
 from enum import Enum
 from itertools import groupby
 from pathlib import Path
-from types import TracebackType
 from typing import (
     Annotated,
     Any,
@@ -1204,12 +1210,20 @@ class Popolo(StrictBaseModel):
         self.posts.set_parent(self)
 
     @classmethod
-    def from_path(cls, json_path: Path) -> Popolo:
-        return cls.model_validate_json(json_path.read_text())
+    def from_json_str(cls, json_str: str, *, validate: bool = True) -> Popolo:
+        if validate:
+            return cls.model_validate_json(json_str)
+        else:
+            data = json.loads(json_str)
+            return cls.model_construct(data)
 
     @classmethod
-    def from_url(cls, url: str) -> Popolo:
-        return cls.model_validate_json(requests.get(url).text)
+    def from_path(cls, json_path: Path, validate: bool = True) -> Popolo:
+        return cls.from_json_str(json_path.read_text(), validate=validate)
+
+    @classmethod
+    def from_url(cls, url: str, validate: bool = True) -> Popolo:
+        return cls.from_json_str(requests.get(url).text, validate=validate)
 
     @classmethod
     def from_parlparse(cls, branch: str = "master") -> Popolo:
@@ -1230,15 +1244,3 @@ class Popolo(StrictBaseModel):
     def to_path(self, json_path: Path) -> None:
         data = self.to_json_str()
         json_path.write_text(data)
-
-    def __enter__(self, json_path: Path) -> Popolo:
-        self._json_path = json_path
-        return self.from_path(json_path)
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        self.to_path(self._json_path)

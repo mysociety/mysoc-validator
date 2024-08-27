@@ -1,3 +1,7 @@
+"""
+Structure for handling a transcript file.
+"""
+
 from __future__ import annotations
 
 from typing import (
@@ -16,7 +20,7 @@ from typing import (
 from pydantic import AliasChoices, Discriminator, Field, Tag
 
 from .xml_base import (
-    AsAttr,
+    AsAttrSingle,
     BaseXMLModel,
     Items,
     MixedContent,
@@ -142,6 +146,8 @@ class RepList(
     StrictBaseXMLModel,
     tags=["replist", "mplist", "msplist", "mslist", "mlalist", "lordlist"],
 ):
+    # this duplication is in the sources - twfy internally converts to
+    # aye, no, both, absent
     vote: Literal[
         "aye",
         "no",
@@ -177,9 +183,9 @@ class Division(StrictBaseXMLModel, tags=["division"]):
     divnumber: int
     colnum: Optional[int] = None
     time: Optional[str] = None
-    count: AsAttr[Optional[DivisionCount]]
+    count: AsAttrSingle[Optional[DivisionCount]]
     motion: Optional[Motion] = None
-    items: Items[RepList]
+    representatives: Items[RepList]
 
 
 def extract_tag(v: Any) -> str:
@@ -188,9 +194,11 @@ def extract_tag(v: Any) -> str:
 
 class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
     scraper_version: Optional[str] = Field(
-        default=None, validation_alias="scraperversion"
+        default=None,
+        validation_alias=AliasChoices("scraper_version", "scraperversion"),
+        serialization_alias="scraperversion",
     )
-    latest: Optional[str] = Field(default=None, validation_alias="latest")
+    latest: Optional[str] = Field(default=None)
     items: Items[
         Annotated[
             Union[
