@@ -10,13 +10,20 @@ Currently supports:
 
 XML based formats are tested to round-trip with themselves, but not to be string identical with the original source.
 
+Can be installed with `pip install mysoc-validator`
+
 To use as a cli validator:
 
 ```bash
 python -m mysoc_validator validate --path <path-to-people.json> --type popolo
 python -m mysoc_validator validate --path <path-to-transcript.xml> --type transcript
 python -m mysoc_validator validate --path <path-to-interests.xml> --type interests
+```
 
+Or if using uvx (don't need to install first):
+
+```bash
+uvx mysoc-validator validate --path <path-to-people.json> --type popolo
 ```
 
 ## Popolo
