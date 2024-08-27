@@ -35,6 +35,7 @@ class PersonEntry(StrictBaseXMLModel, tags=["regmem"]):
     person_id: str = Field(
         validation_alias=AliasChoices("person_id", "personid"),
         serialization_alias="personid",
+        pattern=r"uk\.org\.publicwhip/person/\d+$",
     )
     membername: str
     date: date

@@ -102,7 +102,9 @@ class Speech(StrictBaseXMLModel, tags=["speech"]):
     speech_type: Optional[str] = Field(
         validation_alias="speech", serialization_alias="speech", default=None
     )
-    person_id: Optional[str] = None
+    person_id: Optional[str] = Field(
+        pattern=r"uk\.org\.publicwhip/person/\d+$", default=None
+    )
     colnum: Optional[str] = None
     time: Optional[str] = None
     url: Optional[str] = None
@@ -125,7 +127,9 @@ class DivisionCount(StrictBaseXMLModel, tags=["divisioncount"]):
 
 class MSPName(StrictBaseXMLModel, tags=["mspname"]):
     person_id: str = Field(
-        validation_alias=AliasChoices("person_id", "id"), serialization_alias="id"
+        validation_alias=AliasChoices("person_id", "id"),
+        serialization_alias="id",
+        pattern=r"uk\.org\.publicwhip/person/\d+$",
     )  # scotland uses id rather than person_id
     vote: str
     proxy: Optional[str] = None
@@ -135,7 +139,7 @@ class MSPName(StrictBaseXMLModel, tags=["mspname"]):
 class RepName(
     StrictBaseXMLModel, tags=["repname", "mpname", "msname", "mlaname", "lord"]
 ):
-    person_id: str
+    person_id: str = Field(pattern=r"uk\.org\.publicwhip/person/\d+$")
     vote: str
     teller: Optional[str] = None
     proxy: Optional[str] = None
