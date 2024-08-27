@@ -10,7 +10,7 @@ Currently supports:
 
 XML based formats are tested to round-trip with themselves, but not to be string identical with the original source.
 
-To use as a cli validator :
+To use as a cli validator:
 
 ```bash
 python -m mysoc_validator validate --path <path-to-people.json> --type popolo

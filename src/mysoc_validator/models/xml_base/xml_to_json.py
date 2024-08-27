@@ -75,7 +75,7 @@ And we get:
 """
 
 import json
-from typing import Annotated, Any, Dict, List, Union
+from typing import Annotated, Any, Dict, List
 
 from lxml import etree
 
@@ -215,7 +215,7 @@ def dict_to_etree(
     element = etree.Element(data["@tag"])
     for key, value in data.items():
         if not key.startswith("@"):
-            if isinstance(value, Union[int, bool]):
+            if isinstance(value, (int, bool)):
                 value = str(value).lower()
             element.attrib[key] = value
         else:
