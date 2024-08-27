@@ -1,28 +1,27 @@
 # mysoc-validator
 
-A set of pydantic based validators for common mySociety democracy formats.
+A set of pydantic-based validators and classes for common mySociety democracy formats.
 
-The long term goal is to consolidate different scripts behind a common validation system.
+Currently supports:
 
-## Transcripts
+- Popolo database
+- Transcript format
+- Interests format
 
-Python validator and handler for 'publicwhip' style transcript format. 
+XML based formats are tested to round-trip with themselves, but not to be string identical with the original source.
 
-Haven't ensured it can do round trips yet - but can read and write. Needs tests.
-
-```python
-from mysoc_validator import Transcript
-
-transcript = Transcript.from_path(<path to xml file>)
-```
+To use as a cli validator :
 
 ```bash
+python -m mysoc_validator validate --path <path-to-people.json> --type popolo
 python -m mysoc_validator validate --path <path-to-transcript.xml> --type transcript
+python -m mysoc_validator validate --path <path-to-interests.xml> --type interests
+
 ```
 
 ## Popolo
 
-A pydantic based validator for main mysociety people.json file (which mostly follows the popolo standard with a few extra bits).
+A pydantic based validator for main mySociety people.json file (which mostly follows the popolo standard with a few extra bits).
 
 Validates:
 
@@ -30,14 +29,44 @@ Validates:
 - Unique IDs and ID Patterns
 - Foreign key relationships between objects.
 
-It also has support for looking up from name or indentifer to person (see tests), and new ID generation for membership. 
+It also has support for looking up from name or identifying to person, and new ID generation for membership. 
+
+### Using name or ID lookup
+
+After first use, there is some caching behind the scenes to speed this up.
 
 ```python
 from mysoc_validator import Popolo
-
+from mysoc_validator.models.popolo import Chamber, IdentifierScheme
+from datetime import date
 popolo = Popolo.from_path(<path to people.json>)
+
+keir_starmer_parl_id = popolo.persons.from_identifier(4514, scheme=IdentifierScheme.MNIS)
+keir_starmer_name = popolo.persons.from_name(
+        "keir starmer", chamber_id=Chamber.COMMONS, date=date.fromisoformat("2022-07-31")
+    )
+
+keir_starmer_parl_id.id == keir_starmer_name.id
 ```
 
-```bash
-python -m mysoc_validator validate --path <path-to-people.json> --type popolo
+
+## Transcripts
+
+Python validator and handler for 'publicwhip' style transcript format. 
+
+```python
+from mysoc_validator import Transcript
+
+transcript = Transcript.from_path(<path to xml file>)
 ```
+
+## Register of Interests
+
+Python validator and handler for 'publicwhip' style interests format. 
+
+```python
+from mysoc_validator import Registry
+
+interests = Registry.from_path(<path to xml file>)
+```
+
