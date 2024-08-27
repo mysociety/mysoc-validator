@@ -44,35 +44,35 @@ And we get:
 
 ```
 {
-  "@tag": "headertag",
-  "attr1": "value1",
-  "attr2": "value2",
-  "@children": [
-    {
-      "@tag": "item",
-      "person_id": "10001",
-      "@foo": ["value1"],
-      "@children": [
+    "@tag": "headertag",
+    "attr1": "value1",
+    "attr2": "value2",
+    "@children": [
         {
-          "@tag": "bar",
-          "@content": {
-            "@raw": "This has <b>mixed content<b>",
-            "@text": "This has mixed content"
-          }
-        },
-        {
-          "@tag": "bar",
-          "@content": {
-            "@raw": "This also has <i>mixed content<i>",
-            "@text": "This also has mixed content"
-          }
+            "@tag": "item",
+            "person_id": "10001",
+            "@foo": [
+                "value1"
+            ],
+            "@children": [
+                {
+                    "@tag": "bar",
+                    "@content": {
+                        "@raw": "This has <b>mixed content<b>",
+                        "@text": "This has mixed content",
+                    },
+                },
+                {
+                    "@tag": "bar",
+                    "@content": {
+                        "@raw": "This also has <i>mixed content<i>",
+                        "@text": "This also has mixed content",
+                    },
+                },
+            ],
         }
-      ]
-    }
-  ]
-}
-
-"""
+    ],
+}"""
 
 import json
 from typing import Annotated, Any, Dict, List

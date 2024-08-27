@@ -39,14 +39,18 @@ After first use, there is some caching behind the scenes to speed this up.
 from mysoc_validator import Popolo
 from mysoc_validator.models.popolo import Chamber, IdentifierScheme
 from datetime import date
+
 popolo = Popolo.from_parlparse()
 
-keir_starmer_parl_id = popolo.persons.from_identifier("4514", scheme=IdentifierScheme.MNIS)
+keir_starmer_parl_id = popolo.persons.from_identifier(
+    "4514", scheme=IdentifierScheme.MNIS
+)
 keir_starmer_name = popolo.persons.from_name(
-        "keir starmer", chamber_id=Chamber.COMMONS, date=date.fromisoformat("2022-07-31")
-    )
+    "keir starmer", chamber_id=Chamber.COMMONS, date=date.fromisoformat("2022-07-31")
+)
 
 keir_starmer_parl_id.id == keir_starmer_name.id
+
 ```
 
 
