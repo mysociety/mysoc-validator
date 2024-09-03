@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mysoc-validator"
-version = "0.2.0"
+version = "0.2.1"
 description = "Pydantic validators for mySociety democracy types"
 authors = ["mySociety <alex.parsons@mysociety.org>"]
 readme = "README.md"
@@ -20,7 +20,7 @@ mysoc-validator = "mysoc_validator.__main__:app"
 python = "^3.9"
 pydantic = "^2.7.1"
 typing-extensions = "^4.11.0"
-rich = "^12.0.0"
+rich = ">=10.0.0,<14.0.0"
 typer = "^0.12.3"
 lxml = "^4.0.0"
 requests = "^2.32.3"

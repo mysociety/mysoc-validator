@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [comment]: # (Template for updates)
 
 
+## [0.2.1] - 2024-09-03
+
+### Change
+- Less restrictive rich versioning for better cross compatibility.
+
 ## [0.2.0] - 2024-08-27
 ### Added
 - New iter `iter_headed_speeches` for Transcripts.
