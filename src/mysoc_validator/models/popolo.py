@@ -1100,11 +1100,12 @@ class Popolo(StrictBaseModel):
         for _, group in groupby(
             sorted(
                 just_memberships,
-                key=lambda x: (x.post_id, x.person_id, str(x.start_date)),
+                key=lambda x: (x.post_id or x.organization_id, x.person_id),
             ),
-            key=lambda x: (x.post_id, x.person_id),
+            key=lambda x: (x.post_id or x.organization_id, x.person_id),
         ):
             group = list(group)
+            group = sorted(group, key=lambda x: x.start_date)
             for i in range(1, len(group)):
                 prev_date = group[i - 1].end_date
                 this_date = group[i].start_date
@@ -1114,9 +1115,9 @@ class Popolo(StrictBaseModel):
                     this_date, ApproxDate
                 ):
                     continue
-                if prev_date > this_date:
+                if prev_date >= this_date:
                     errors.append(
-                        f"Membership {group[i-1].id} overlaps with {group[i].id}"
+                        f"Membership {group[i-1].id} overlaps with {group[i].id} - {prev_date} is equal or after {this_date}"
                     )
 
         if errors:
