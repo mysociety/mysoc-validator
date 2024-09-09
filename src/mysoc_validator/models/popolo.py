@@ -10,7 +10,6 @@ import json
 import re
 from bisect import bisect_left
 from datetime import date
-from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from typing import (
@@ -46,6 +45,9 @@ from pydantic import (
 )
 from pydantic.functional_validators import BeforeValidator
 from typing_extensions import Self
+
+from .consts import Chamber as Chamber
+from .consts import IdentifierScheme as IdentifierScheme
 
 NON_ASCII_RE = re.compile(r"[^\x00-\x7F]")
 
@@ -138,24 +140,6 @@ FlexiDateFuture = Annotated[
 
 class StrictBaseModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
-
-
-class Chamber(str, Enum):
-    COMMONS = "house-of-commons"
-    LORDS = "house-of-lords"
-    SCOTLAND = "scottish-parliament"
-    SENEDD = "welsh-parliament"
-    LONDON = "london-assembly"
-    NORTHERN_IRELAND = "northern-ireland-assembly"
-
-
-class IdentifierScheme(str, Enum):
-    DATADOTPARL = "datadotparl_id"
-    MNIS = "datadotparl_id"
-    PIMS = "pims_id"
-    HISTORIC_HANSARD = "historichansard_id"
-    PEERAGE_TYPE = "peeragetype"
-    WIKIDATA = "wikidata"
 
 
 def reduce_to_slug(s: str) -> str:
@@ -1089,6 +1073,7 @@ class Popolo(StrictBaseModel):
     """
 
     Chamber: ClassVar[Type[Chamber]] = Chamber
+    IdentifierScheme: ClassVar[Type[IdentifierScheme]] = IdentifierScheme
     memberships: IndexedMembershipList = Field(default_factory=IndexedMembershipList)
     organizations: IndexedList[Organization] = Field(
         default_factory=IndexedList[Organization]

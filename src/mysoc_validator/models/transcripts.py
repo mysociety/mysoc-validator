@@ -8,6 +8,7 @@ import datetime
 from typing import (
     Annotated,
     Any,
+    ClassVar,
     Iterator,
     Literal,
     NamedTuple,
@@ -21,6 +22,9 @@ from typing import (
 
 from pydantic import AliasChoices, Discriminator, Field, Tag
 
+from ..utils.parlparse.downloader import get_latest_for_date
+from .consts import TranscriptType as TranscriptType
+from .popolo import Chamber as Chamber
 from .xml_base import (
     AsAttr,
     AsAttrSingle,
@@ -222,6 +226,8 @@ class HeaderSpeechTuple(NamedTuple):
 
 
 class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
+    Chamber: ClassVar[Type[Chamber]] = Chamber
+    TranscriptType: ClassVar[Type[TranscriptType]] = TranscriptType
     scraper_version: Optional[str] = Field(
         default=None,
         validation_alias=AliasChoices("scraper_version", "scraperversion"),
@@ -242,6 +248,18 @@ class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
             Discriminator(extract_tag),
         ]
     ]
+
+    @classmethod
+    def from_parlparse(
+        cls,
+        date: datetime.date,
+        chamber: Chamber = Chamber.COMMONS,
+        transcript_type: TranscriptType = TranscriptType.DEBATES,
+    ) -> Transcript:
+        file_path = get_latest_for_date(
+            date, chamber=chamber, transcript_type=transcript_type
+        )
+        return cls.from_xml_path(file_path)
 
     def iter_type(self, type: Type[T]) -> Iterator[T]:
         return (item for item in self.items if isinstance(item, type))
