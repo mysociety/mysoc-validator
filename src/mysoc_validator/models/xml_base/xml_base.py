@@ -203,7 +203,6 @@ class XMLModelMeta(ModelMetaclass):
                     )
                 if XmlTypeMetaData.XML_CHILDREN in metadata:
                     namespace[key] = Field(
-                        discriminator="@tag",
                         validation_alias=AliasChoices(key, "@children"),
                         serialization_alias="@children",
                     )
@@ -347,5 +346,4 @@ AsAttr = Annotated[
 Items = Annotated[
     list[T],
     XmlTypeMetaData.XML_CHILDREN,
-    Field(discriminator="@tag"),
 ]

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.3.1] - 2024-09-11
+
+### Fixed 
+- Removed unnecessary tag discriminators that were causing problems loading the interests model in later pydantic versions.
+
 ## [0.3.0] - 2024-09-08
 
 ### Add
