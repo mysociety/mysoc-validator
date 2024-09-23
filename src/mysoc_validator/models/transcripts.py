@@ -41,7 +41,7 @@ gid_pattern = r"^uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+"
 agreement_gid_pattern = (
     r"uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+\.a\.\d+"
 )
-person_id_pattern = r"(uk\.org\.publicwhip/person/\d+$|unknown$)"
+person_or_member_id_pattern = r"(uk\.org\.publicwhip/(person|member)/\d+$|unknown$)"
 member_id_pattern = r"(uk\.org\.publicwhip/member/\d+$|unknown$)"
 GIDPattern = Annotated[str, Field(pattern=gid_pattern)]
 
@@ -119,7 +119,7 @@ class Speech(StrictBaseXMLModel, tags=["speech"]):
     speech_type: Optional[str] = Field(
         validation_alias="speech", serialization_alias="speech", default=None
     )
-    person_id: Optional[str] = Field(pattern=person_id_pattern, default=None)
+    person_id: Optional[str] = Field(pattern=person_or_member_id_pattern, default=None)
     member_id: Optional[Annotated[str, Field(pattern=member_id_pattern)]] = Field(
         validation_alias=AliasChoices("speakerid"),
         serialization_alias="speakerid",
@@ -140,10 +140,21 @@ class DivisionCount(StrictBaseXMLModel, tags=["divisioncount"]):
     not_content: Optional[int] = Field(
         default=None, validation_alias="not-content", serialization_alias="not-content"
     )
-    ayes: Optional[int] = None
-    noes: Optional[int] = None
-    neutral: Optional[int] = None
-    absent: Optional[int] = None
+    ayes: Optional[int] = Field(
+        validation_alias=AliasChoices("ayes", "for"), default=None
+    )
+    noes: Optional[int] = Field(
+        validation_alias=AliasChoices("noes", "against"), default=None
+    )
+    neutral: Optional[int] = Field(
+        validation_alias=AliasChoices("neutral", "abstentions"), default=None
+    )
+    absent: Optional[int] = Field(validation_alias=AliasChoices("absent"), default=None)
+    spoiled: Optional[int] = Field(
+        validation_alias=AliasChoices("spoiledvotes"),
+        serialization_alias="spoiledvotes",
+        default=None,
+    )
     tellerayes: Optional[int] = None
     tellernoes: Optional[int] = None
 
@@ -152,7 +163,7 @@ class MSPName(StrictBaseXMLModel, tags=["mspname"]):
     person_id: str = Field(
         validation_alias=AliasChoices("person_id", "id"),
         serialization_alias="id",
-        pattern=person_id_pattern,
+        pattern=person_or_member_id_pattern,
         default=None,
     )  # scotland uses id rather than person_id
     vote: str
@@ -163,7 +174,7 @@ class MSPName(StrictBaseXMLModel, tags=["mspname"]):
 class RepName(
     StrictBaseXMLModel, tags=["repname", "mpname", "msname", "mlaname", "lord"]
 ):
-    person_id: Optional[str] = Field(pattern=person_id_pattern, default=None)
+    person_id: Optional[str] = Field(pattern=person_or_member_id_pattern, default=None)
     member_id: Optional[str] = Field(
         validation_alias=AliasChoices("id"),
         serialization_alias="id",
@@ -207,7 +218,11 @@ class RepList(
             Union[Annotated[MSPName, Tag("msp")], Annotated[RepName, Tag("rep")]],
             Discriminator(seperate_out_msp),
         ]
-    ]
+    ] = Field(
+        validation_alias=AliasChoices("items", "@children"),
+        serialization_alias="@children",
+        default_factory=list,
+    )
 
 
 class Motion(StrictBaseXMLModel, tags=["motion"]):
