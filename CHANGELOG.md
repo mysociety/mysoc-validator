@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.4.0] - 2024-09-23
+
+### Added
+- 'validate' option for from_xml_path. 
+
+### Fixed 
+- Expanded transcript validation options for Scottish Transcripts.
+
+
 ## [0.3.2] - 2024-09-23
 
 ### Fixed 
