@@ -41,7 +41,8 @@ gid_pattern = r"^uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+"
 agreement_gid_pattern = (
     r"uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+\.a\.\d+"
 )
-person_id_pattern = r"uk\.org\.publicwhip/person/\d+$"
+person_id_pattern = r"(uk\.org\.publicwhip/person/\d+$|unknown$)"
+member_id_pattern = r"(uk\.org\.publicwhip/member/\d+$|unknown$)"
 GIDPattern = Annotated[str, Field(pattern=gid_pattern)]
 
 
@@ -113,11 +114,17 @@ class Speech(StrictBaseXMLModel, tags=["speech"]):
     type: str = ""
     nospeaker: Optional[str] = None
     speakername: Optional[str] = None
+    speakeroffice: Optional[str] = None
+    error: Optional[str] = None
     speech_type: Optional[str] = Field(
         validation_alias="speech", serialization_alias="speech", default=None
     )
-    person_id: Optional[str] = Field(
-        pattern=r"uk\.org\.publicwhip/person/\d+$", default=None
+    person_id: Optional[str] = Field(pattern=person_id_pattern, default=None)
+    member_id: Optional[Annotated[str, Field(pattern=member_id_pattern)]] = Field(
+        validation_alias=AliasChoices("speakerid"),
+        serialization_alias="speakerid",
+        pattern=member_id_pattern,
+        default=None,
     )
     colnum: Optional[str] = None
     time: Optional[str] = None
@@ -137,6 +144,8 @@ class DivisionCount(StrictBaseXMLModel, tags=["divisioncount"]):
     noes: Optional[int] = None
     neutral: Optional[int] = None
     absent: Optional[int] = None
+    tellerayes: Optional[int] = None
+    tellernoes: Optional[int] = None
 
 
 class MSPName(StrictBaseXMLModel, tags=["mspname"]):
@@ -144,6 +153,7 @@ class MSPName(StrictBaseXMLModel, tags=["mspname"]):
         validation_alias=AliasChoices("person_id", "id"),
         serialization_alias="id",
         pattern=person_id_pattern,
+        default=None,
     )  # scotland uses id rather than person_id
     vote: str
     proxy: Optional[str] = None
@@ -153,11 +163,23 @@ class MSPName(StrictBaseXMLModel, tags=["mspname"]):
 class RepName(
     StrictBaseXMLModel, tags=["repname", "mpname", "msname", "mlaname", "lord"]
 ):
-    person_id: str = Field(pattern=person_id_pattern)
+    person_id: Optional[str] = Field(pattern=person_id_pattern, default=None)
+    member_id: Optional[str] = Field(
+        validation_alias=AliasChoices("id"),
+        serialization_alias="id",
+        pattern=member_id_pattern,
+        default=None,
+    )
     vote: str
     teller: Optional[str] = None
     proxy: Optional[str] = None
     name: TextStr
+
+
+def seperate_out_msp(value: Any) -> str:
+    if value["@tag"] == "mspname":
+        return "msp"
+    return "rep"
 
 
 class RepList(
@@ -180,7 +202,12 @@ class RepList(
         "abstentions",
         "didnotvote",
     ]
-    items: Items[Union[MSPName, RepName]]
+    items: Items[
+        Annotated[
+            Union[Annotated[MSPName, Tag("msp")], Annotated[RepName, Tag("rep")]],
+            Discriminator(seperate_out_msp),
+        ]
+    ]
 
 
 class Motion(StrictBaseXMLModel, tags=["motion"]):
@@ -209,6 +236,7 @@ class Division(StrictBaseXMLModel, tags=["division"]):
     divnumber: int
     colnum: Optional[int] = None
     time: Optional[str] = None
+    url: Optional[str] = None
     count: AsAttrSingle[Optional[DivisionCount]]
     rel_motions: AsAttr[list[Motion]] = []
     representatives: Items[RepList]
@@ -230,7 +258,9 @@ class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
     TranscriptType: ClassVar[Type[TranscriptType]] = TranscriptType
     scraper_version: Optional[str] = Field(
         default=None,
-        validation_alias=AliasChoices("scraper_version", "scraperversion"),
+        validation_alias=AliasChoices(
+            "scraper_version", "scraperversion", "scrapeversion"
+        ),
         serialization_alias="scraperversion",
     )
     latest: Optional[str] = Field(default=None)

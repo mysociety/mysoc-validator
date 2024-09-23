@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 
 from mysoc_validator.models.transcripts import Transcript
@@ -5,6 +6,14 @@ from mysoc_validator.models.transcripts import Transcript
 
 def test_transcript_load():
     Transcript.from_xml_path(Path("data", "debates2023-03-28d.xml"))
+
+
+def test_transcript_date():
+    Transcript.from_parlparse(
+        date(2015, 1, 20),
+        chamber=Transcript.Chamber.COMMONS,
+        transcript_type=Transcript.TranscriptType.DEBATES,
+    )
 
 
 def test_transcript_round_trip():

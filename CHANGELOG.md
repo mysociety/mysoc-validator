@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.3.2] - 2024-09-23
+
+### Fixed 
+- Expanded transcript validation options for pre-2015 transcripts.
+
 ## [0.3.1] - 2024-09-11
 
 ### Fixed 
