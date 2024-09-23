@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import json
 import sys
 from enum import Enum
 from pathlib import Path
@@ -281,8 +282,21 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
         return cls.model_validate_json(json_str)
 
     @classmethod
-    def from_xml_path(cls, path: Path):
-        return cls.model_validate_xml(path.read_text())
+    def model_construct_xml(cls, text: str):
+        json_str = xml_to_json(text, cls.__as_attr__, cls.__mixed_content__)
+        return cls.model_construct_json(json_str)
+
+    @classmethod
+    def model_construct_json(cls, json_str: str):
+        objs = json.loads(json_str)
+        return cls.model_construct(objs)
+
+    @classmethod
+    def from_xml_path(cls, path: Path, validate: bool = True):
+        if validate:
+            return cls.model_validate_xml(path.read_text())
+        else:
+            return cls.model_construct_xml(path.read_text())
 
     def model_dump_xml(self):
         return json_to_xml(
