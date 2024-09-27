@@ -954,11 +954,7 @@ class NameIndex(dict[str, str]):
         rel_posts = popolo.posts.get_matching_values("organization_id", chamber_id)
         post_ids = set([p.id for p in rel_posts])
         # get memberships for this post
-        rel_memberships = [
-            x
-            for x in popolo.memberships
-            if isinstance(x, Membership) and x.post_id in post_ids
-        ]
+        rel_memberships = [x for x in popolo.memberships if x.post_id in post_ids]
 
         # filter out memberships that are not current - date needs to be between start and end date
         rel_people = [
@@ -999,6 +995,12 @@ class IndexedPeopleList(
     def model_post_init(self, __context: dict[str, Any]):
         super().model_post_init(__context)
         self._name_to_id_lookups: dict[OrgDate, NameIndex] = {}
+
+    def __iter__(self):
+        return iter([x for x in self.root if isinstance(x, Person)])
+
+    def redirects(self):
+        return [x for x in self.root if isinstance(x, PersonRedirect)]
 
     def invalidate_indexes(self):
         super().invalidate_indexes()
@@ -1066,6 +1068,12 @@ class IndexedMembershipList(
     def __getitem__(self, key: str) -> Membership:
         return super().__getitem__(key).self_or_redirect()
 
+    def __iter__(self):
+        return iter([x for x in self.root if isinstance(x, Membership)])
+
+    def redirects(self):
+        return [x for x in self.root if isinstance(x, MembershipRedirect)]
+
 
 class Popolo(StrictBaseModel):
     """
@@ -1084,6 +1092,7 @@ class Popolo(StrictBaseModel):
     def check_role_date_ranges(self):
         """
         Within memberships, there should be no overlap between any instances that share a post_id
+        e.g. seperated by post_id, sorted by start_date the end_date
         e.g. seperated by post_id, sorted by start_date - the end_date of one should be before the start_date of the next
         """
 
@@ -1136,7 +1145,7 @@ class Popolo(StrictBaseModel):
         org_ids = {o.id for o in self.organizations}
         post_ids = {p.id for p in self.posts}
 
-        just_memberships = [m for m in self.memberships if isinstance(m, Membership)]
+        just_memberships = [m for m in self.memberships]
         member_person_ids = {m.person_id for m in just_memberships if m.person_id}
         member_org_ids = {
             m.organization_id for m in just_memberships if m.organization_id
