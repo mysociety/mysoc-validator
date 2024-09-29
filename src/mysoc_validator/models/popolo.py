@@ -89,6 +89,7 @@ def BlankID(blank_id: str):
     return BeforeValidator(inner)
 
 
+Url = Annotated[str, Field(pattern=r"^https?://.*$")]
 MemberID = Annotated[
     str,
     BlankID("uk.org.publicwhip/member/0"),
@@ -479,7 +480,8 @@ class Shortcuts(StrictBaseModel):
     """
     Previously calculated shortcuts between a person
     and their current consitutency and party.
-    Not sure where this is generated...
+    This is out of date in people.json, and won't work for people
+    in multiple chambers.
     """
 
     current_constituency: Optional[str] = None
@@ -510,15 +512,26 @@ class PersonRedirect(ModelInList):
         )
 
 
+class Link(StrictBaseModel):
+    note: Optional[str] = None
+    url: Url
+
+
 class Person(ModelInList):
     """
     A person who has held an office.
     """
 
+    biography: Optional[str] = None
+    birth_date: Optional[FlexiDatePast] = None
+    death_date: Optional[FlexiDateFuture] = None
+    gender: Optional[str] = None
     id: PersonID
     identifiers: IndexedList[PersonIdentifier] = Field(
         default_factory=lambda: IndexedList[PersonIdentifier](root=[])
     )
+    image: Optional[Url] = None
+    links: list[Link] = Field(default_factory=list)
     names: list[
         Annotated[
             Union[
@@ -533,6 +546,8 @@ class Person(ModelInList):
         serialization_alias="other_names",
         validation_alias=AliasChoices("names", "other_names"),
     )
+    national_identity: Optional[str] = None
+    summary: Optional[str] = None
     shortcuts: Optional[Shortcuts] = None
 
     def reduced_id(self) -> str:
