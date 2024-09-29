@@ -1244,12 +1244,38 @@ class Popolo(StrictBaseModel):
             )
 
     @classmethod
-    def from_path(cls, json_path: Path, cross_validate: bool = True) -> Popolo:
-        return cls.from_json_str(json_path.read_text(), cross_validate=cross_validate)
+    def from_path(
+        cls, json_path: Union[Path, list[Path]], cross_validate: bool = True
+    ) -> Popolo:
+        if isinstance(json_path, Path):
+            json_path = [json_path]
+
+        base = cls.from_json_str(
+            json_path[0].read_text(), cross_validate=cross_validate
+        )
+
+        # Assume these are updates that may not be complete in themselves
+        for u in json_path[1:]:
+            base.update(cls.from_json_str(u.read_text(), cross_validate=False))
+
+        return base
 
     @classmethod
-    def from_url(cls, url: str, cross_validate: bool = True) -> Popolo:
-        return cls.from_json_str(requests.get(url).text, cross_validate=cross_validate)
+    def from_url(
+        cls, url: Union[str, list[str]], cross_validate: bool = True
+    ) -> Popolo:
+        if isinstance(url, str):
+            url = [url]
+
+        base = cls.from_json_str(
+            requests.get(url[0]).text, cross_validate=cross_validate
+        )
+
+        # Assume these are updates that may not be complete in themselves
+        for u in url[1:]:
+            base.update(cls.from_json_str(requests.get(u).text, cross_validate=False))
+
+        return base
 
     def update(self, other: Popolo) -> Popolo:
         """
@@ -1263,10 +1289,18 @@ class Popolo(StrictBaseModel):
         return self
 
     @classmethod
-    def from_parlparse(cls, branch: str = "master") -> Popolo:
-        return cls.from_url(
-            f"https://raw.githubusercontent.com/mysociety/parlparse/{branch}/members/people.json"
-        )
+    def from_parlparse(
+        cls, *, extras: Optional[list[str]] = None, branch: str = "master"
+    ) -> Popolo:
+        url_format = "https://raw.githubusercontent.com/mysociety/parlparse/{branch}/members/{file}"
+
+        urls = [url_format.format(branch=branch, file="people.json")]
+
+        if extras:
+            extras = [x + ".json" if not x.endswith(".json") else x for x in extras]
+            urls.extend([url_format.format(branch=branch, file=f) for f in extras])
+
+        return cls.from_url(urls)
 
     def to_json_str(self) -> str:
         txt = self.model_dump_json(
