@@ -292,11 +292,24 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
         return cls.model_construct(objs)
 
     @classmethod
-    def from_xml_path(cls, path: Path, validate: bool = True):
-        if validate:
+    def from_xml_url(cls, url: str):
+        content = requests.get(url).text
+        return cls.model_validate_xml(content)
+
+    @classmethod
+    def from_xml_path(
+        cls, path: Path, extra: Optional[Literal["forbid", "allow", "ignore"]] = None
+    ) -> Self:
+        if extra is None:
             return cls.model_validate_xml(path.read_text())
-        else:
-            return cls.model_construct_xml(path.read_text())
+
+        class LessValidatedXMLModel(cls):
+            model_config = ConfigDict(extra=extra)
+
+        LessValidatedXMLModel.__name__ = cls.__name__
+        model = LessValidatedXMLModel.model_validate_xml(path.read_text())
+        model = cast(cls, model)
+        return model
 
     def model_dump_xml(self):
         return json_to_xml(
