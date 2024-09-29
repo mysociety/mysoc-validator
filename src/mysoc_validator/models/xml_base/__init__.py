@@ -9,6 +9,7 @@ from .xml_base import (
     StrictBaseXMLModel,
     Tag,
     TextStr,
+    XMLModelMeta,
     XmlTypeMetaData,
     xml_alias,
 )
@@ -17,6 +18,7 @@ __all__ = [
     "BaseXMLModel",
     "XmlTypeMetaData",
     "MixedContentHolder",
+    "XMLModelMeta",
     "AttrStr",
     "MixedContent",
     "TextStr",

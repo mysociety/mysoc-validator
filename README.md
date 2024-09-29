@@ -87,3 +87,31 @@ interests = Register.from_xml_path(register_file)
 
 ```
 
+## Info fields
+
+We have various XML files in [parlparse](https://github.com/mysociety/parlparse/tree/master/members) that are loaded into TWFY as extra info for people or constituencies.
+
+This library has two approaches for this - a general permissive model that can load any file, and tools to create models to add validation for particular files if needed.
+
+### Load any file
+
+```python 
+from mysoc_validator.models.info import InfoCollection, PersonInfo, ConsInfo
+
+social_media_links = InfoCollection[PersonInfo].from_parlparse("social-media-commons")
+constituency_links = InfoCollection[ConsInfo].from_parlparse("constituency-links")
+```
+
+And this is an example of creating a more bespoke model for a particular file. 
+Subclassing `PersonInfo` switches the 'extras' setting from 'allow' to 'forbid'. 
+
+
+```python 
+from mysoc_validator.models.info import InfoCollection, PersonInfo, ConsInfo
+
+class SocialInfo(PersonInfo):
+    facebook_page: str | None = None
+    twitter_username: str | None = None
+
+social_media_links = InfoCollection[SocialInfo].from_parlparse("social-media-commons")
+```
