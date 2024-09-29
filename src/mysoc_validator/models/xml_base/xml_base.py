@@ -8,9 +8,11 @@ from pathlib import Path
 from typing import (
     Annotated,
     Any,
+    ClassVar,
     ForwardRef,
     Optional,
     TypeVar,
+    cast,
     get_args,
     get_origin,
 )
@@ -21,6 +23,7 @@ from typing import (
     Union as Union,
 )
 
+import requests
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -32,6 +35,7 @@ from pydantic._internal._generics import PydanticGenericMetadata
 from pydantic._internal._model_construction import ModelMetaclass
 from pydantic.functional_serializers import WrapSerializer
 from pydantic.functional_validators import BeforeValidator
+from typing_extensions import Self, dataclass_transform
 
 from .xml_to_json import json_to_xml, xml_to_json
 
@@ -127,6 +131,7 @@ class MixedContentHolder(BaseModel):
     raw: str = xml_alias("raw", "@raw")
 
 
+@dataclass_transform(kw_only_default=True)
 class XMLModelMeta(ModelMetaclass):
     __register__: dict[str, dict[str, Any]] = {}
 
@@ -139,10 +144,13 @@ class XMLModelMeta(ModelMetaclass):
         __pydantic_reset_parent_namespace__: bool = True,
         _create_model_module: str | None = None,
         tags: Optional[list[str]] = None,
+        abstract_level: int = 1,
         **kwargs: Any,
     ) -> type:
         # from where the class is being defined
-        caller_globals = sys._getframe(1).f_globals  # type: ignore
+        caller_globals = sys._getframe(abstract_level).f_globals  # type: ignore
+        # merge caller_globals with current globals
+        caller_globals = {**caller_globals, **globals()}
 
         # add tag field based on class attribute
         if "tag" in namespace and tags:
@@ -227,10 +235,10 @@ class XMLModelMeta(ModelMetaclass):
 
 
 class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
-    __xml_tags__: list[str]
-    __as_attr__: list[str]
-    __mixed_content__: list[str]
-    __as_children__: list[str] = []
+    __xml_tags__: ClassVar[list[str]]
+    __as_attr__: ClassVar[list[str]]
+    __mixed_content__: ClassVar[list[str]]
+    __as_children__: ClassVar[list[str]] = []
     tag: str = ""
 
     @field_validator("tag")
@@ -328,7 +336,7 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
 
 
 class StrictBaseXMLModel(BaseXMLModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
 
 
 T = TypeVar("T", bound=BaseXMLModel)
