@@ -1,0 +1,4 @@
+#!/bin/bash
+
+pytest tests
+pytest --markdown-docs README.md
