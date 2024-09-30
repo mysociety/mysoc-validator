@@ -1,6 +1,7 @@
 from .xml_base import (
     AsAttr,
     AsAttrSingle,
+    AsAttrStr,
     AttrStr,
     BaseXMLModel,
     Items,
@@ -9,6 +10,7 @@ from .xml_base import (
     StrictBaseXMLModel,
     Tag,
     TextStr,
+    XMLDict,
     XMLModelMeta,
     XmlTypeMetaData,
     xml_alias,
@@ -28,4 +30,6 @@ __all__ = [
     "xml_alias",
     "Tag",
     "AsAttrSingle",
+    "XMLDict",
+    "AsAttrStr",
 ]

@@ -5,6 +5,7 @@ import json
 import sys
 from enum import Enum
 from pathlib import Path
+from types import GenericAlias
 from typing import (
     Annotated,
     Any,
@@ -25,11 +26,14 @@ from typing import (
 
 import requests
 from pydantic import (
+    AfterValidator,
     AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
+    ValidationError,
     field_validator,
+    model_validator,
 )
 from pydantic._internal._generics import PydanticGenericMetadata
 from pydantic._internal._model_construction import ModelMetaclass
@@ -157,26 +161,25 @@ class XMLModelMeta(ModelMetaclass):
             raise AttributeError("Cannot have both tag field and tags attributes")
         if "__annotations__" not in namespace:
             namespace["__annotations__"] = {}
-        if tags is None:
-            tags = ["*"]
-        namespace["__xml_tags__"] = tags
         namespace["__as_attr__"] = []
         namespace["__mixed_content__"] = []
-        if any(["*" in x for x in tags]):
-            namespace["tag"] = Field(
-                validation_alias=AliasChoices("tag", "@tag"),
-                serialization_alias="@tag",
-            )
-            namespace["__annotations__"]["tag"] = str
-        else:
-            namespace["tag"] = Field(
-                default=tags[0],
-                validation_alias=AliasChoices("tag", "@tag"),
-                serialization_alias="@tag",
-            )
-            namespace["__annotations__"]["tag"] = (
-                f'Literal[{", ".join([f"{tag!r}" for tag in tags])}]'
-            )
+        if tags:
+            namespace["__xml_tags__"] = tags
+            if any(["*" in x for x in tags]):
+                namespace["tag"] = Field(
+                    validation_alias=AliasChoices("tag", "@tag"),
+                    serialization_alias="@tag",
+                )
+                namespace["__annotations__"]["tag"] = str
+            else:
+                namespace["tag"] = Field(
+                    default=tags[0],
+                    validation_alias=AliasChoices("tag", "@tag"),
+                    serialization_alias="@tag",
+                )
+                namespace["__annotations__"]["tag"] = (
+                    f'Literal[{", ".join([f"{tag!r}" for tag in tags])}]'
+                )
 
         # add special XML fields based on metadata
         for key, value in namespace.get("__annotations__", {}).items():
@@ -194,9 +197,7 @@ class XMLModelMeta(ModelMetaclass):
                     ):
                         eval_subclass_tag = real_classes[0].__xml_tags__[0]  # type: ignore
                     else:
-                        raise AttributeError(
-                            f"Field {key} has XML_ATTR defined - but the selected type doesn't have tags"
-                        )
+                        eval_subclass_tag = key
                     if key in namespace:
                         raise AttributeError(
                             f"Cannot have both {key} field and XML_ATTR metadata"
@@ -241,6 +242,11 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
     __as_children__: ClassVar[list[str]] = []
     tag: str = ""
 
+    @model_validator(mode="after")
+    def set_tag_if_default(self):
+        self.tag = self.tag
+        return self
+
     @field_validator("tag")
     @classmethod
     def check_tag(cls, value: Optional[str]):
@@ -257,7 +263,13 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
                 cls.__mixed_content__.extend(cls.__xml_tags__)
             elif XmlTypeMetaData.XML_ATTR in data.metadata:
                 for real_class in extract_real_classes(data.annotation):
-                    if issubclass(real_class, BaseXMLModel):
+                    if isinstance(real_class, GenericAlias):
+                        # this is so dictionaries can just be injected as content
+                        for our_tag in cls.__xml_tags__:
+                            cls.__as_attr__.append(f"{our_tag}.{field}")
+                    elif isinstance(real_class, type) and issubclass(
+                        real_class, BaseXMLModel
+                    ):
                         listed_tags = real_class.__xml_tags__
                         # for all of our tags and all of listed tags, construct a.b strings.
                         for our_tag in cls.__xml_tags__:
@@ -269,9 +281,8 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
                     elif real_class is type(None):
                         pass
                     else:
-                        raise AttributeError(
-                            f"Field {field} has XML_ATTR metadata but no __xml_tags__ attribute"
-                        )
+                        for our_tag in cls.__xml_tags__:
+                            cls.__as_attr__.append(f"{our_tag}.{field}")
             elif XmlTypeMetaData.XML_CHILDREN in data.metadata:
                 cls.__as_children__.append(field)
 
@@ -349,14 +360,37 @@ Tag = Annotated[
 ]
 
 
-def single_item_list(items: list[T]) -> T:
+def single_item_list(items: Union[list[T], T]) -> T:
+    if not isinstance(items, list):
+        return items
+
     if len(items) != 1:
-        raise ValueError("Expected a single item list")
+        raise ValidationError("Expected a single item list")
     return items[0]
 
 
 def convert_to_single_item_list(value: Any, handler: Any, info: Any):
     return [handler(value, info)]
+
+
+def escape_stored_dict(v: dict[Any, Any]) -> dict[Any, Any]:
+    if "@text" in v:
+        return json.loads(v["@text"])
+    return v
+
+
+def escape_stored_dict_str(v: Union[dict[Any, Any], str]) -> str:
+    if isinstance(v, list):
+        if len(v) > 1:
+            raise ValueError("Expected a single item list")
+        v = v[0]
+    if isinstance(v, dict):
+        if "@text" in v:
+            return str(v["@text"])
+    if isinstance(v, str):
+        return v
+    else:
+        raise ValueError("Expected a dictionary or string")
 
 
 AttrStr = Annotated[str, XmlTypeMetaData.XML_ATTR]
@@ -373,6 +407,20 @@ AsAttrSingle = Annotated[
     BeforeValidator(single_item_list),
     WrapSerializer(convert_to_single_item_list),
     XmlTypeMetaData.XML_ATTR,
+]
+XMLDict = Annotated[
+    dict[Any, Any],
+    BeforeValidator(single_item_list),
+    WrapSerializer(convert_to_single_item_list),
+    AfterValidator(escape_stored_dict),
+    XmlTypeMetaData.XML_ATTR,
+]
+AsAttrStr = Annotated[
+    str,
+    XmlTypeMetaData.XML_ATTR,
+    BeforeValidator(single_item_list),
+    BeforeValidator(escape_stored_dict_str),
+    WrapSerializer(convert_to_single_item_list),
 ]
 AsAttr = Annotated[
     A,

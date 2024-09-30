@@ -153,7 +153,7 @@ def element_to_dict(
             key = key.decode()
         if isinstance(value, bytes):
             value = value.decode()
-        data[key] = value
+        data[key] = value  # type: ignore
 
     sub_content: list[dict[str, Any]] = []
     used_tag_as_attr: list[str] = []
@@ -217,6 +217,8 @@ def dict_to_etree(
         if not key.startswith("@"):
             if isinstance(value, (int, bool)):
                 value = str(value).lower()
+            if isinstance(value, dict):
+                value = json.dumps(value)
             element.attrib[key] = value
         else:
             if key == "@tag":
@@ -241,7 +243,11 @@ def dict_to_etree(
                     raise ValueError("Text should be a string")
             else:
                 for item_data in value:
-                    element.append(dict_to_etree(item_data, tag_as_attr, mixed_content))
+                    if isinstance(item_data, dict) and "@tag" not in item_data:
+                        item_data = {"@tag": key[1:], "@text": json.dumps(item_data)}
+                    elif isinstance(item_data, str):
+                        item_data = {"@tag": key[1:], "@text": item_data}
+                    element.append(dict_to_etree(item_data, tag_as_attr, mixed_content))  # type: ignore
 
     return element
 
