@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 from mysoc_validator import ConsInfo, InfoCollection, PersonInfo
 from mysoc_validator.models.xml_base import AsAttrStr, XMLDict
@@ -5,12 +7,12 @@ from pydantic import ValidationError
 
 
 class SocialInfo(PersonInfo):
-    facebook_page: str | None = None
-    twitter_username: str | None = None
+    facebook_page: Optional[str] = None
+    twitter_username: Optional[str] = None
 
 
 class SocialInfoMissingField(PersonInfo):
-    twitter_username: str | None = None
+    twitter_username: Optional[str] = None
 
 
 class DemoDataModel(PersonInfo):

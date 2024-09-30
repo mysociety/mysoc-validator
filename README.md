@@ -106,11 +106,13 @@ And this is an example of creating a more bespoke model for a particular file.
 Subclassing `PersonInfo` switches the 'extras' setting from 'allow' to 'forbid'. 
 
 ```python 
+from typing import Optional
+
 from mysoc_validator.models.info import InfoCollection, PersonInfo, ConsInfo
 
 class SocialInfo(PersonInfo):
-    facebook_page: str | None = None
-    twitter_username: str | None = None
+    facebook_page: Optional[str] = None
+    twitter_username: Optional[str]= None
 
 social_media_links = InfoCollection[SocialInfo].from_parlparse("social-media-commons")
 ```

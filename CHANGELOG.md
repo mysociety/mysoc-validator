@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.5.0] - 2024-09-30
+
+### Added
+- Added InfoCollection approach and related tests.
+- A few more fields from the popolo standard  
+- Approach to loading add-on popolo files. 
+
+### Change
+- Popolo membership and people iterators will not return the redirect objects. These are accessed seperately through `.redirects()`.
+- Popolo date range validator improved and disabled until upstream data change. 
+
+
 ## [0.4.0] - 2024-09-23
 
 ### Added
