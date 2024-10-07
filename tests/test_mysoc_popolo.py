@@ -108,7 +108,9 @@ def add_invalid_membership_not_a_person(popolo_data: Popolo):
 def test_round_trip():
     branch = "master"
     parlparse_url = f"https://raw.githubusercontent.com/mysociety/parlparse/{branch}/members/people.json"
-    original_text = requests.get(parlparse_url).text
+
+    # don't need to be consistent on final whitespace
+    original_text = requests.get(parlparse_url).text.strip()
     popolo = Popolo.model_validate_json(original_text)
     dumped_text = popolo.to_json_str()
     popolo2 = Popolo.model_validate_json(dumped_text)
