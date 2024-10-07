@@ -23,7 +23,9 @@ A json representation of the XML is then produced, with the following rules:
   and with a key called "@raw" that contains the raw content of the tag, and a key called
   "@text" that contains the text content of the tag.
 - children (not listed as attributes) are added to a key called "@children".
-
+- if serializing a dict without a @tag property - the dict is stored as a string in the @text property.
+- and the reverse of this when importing - if a @text property is a valid json string it is converted to a dict.
+- if there is a key: value, the value is a str - this is seen as equivilient to a child of {"@tag": key, "@text": value}
 The @ approach is used to avoid conflicts with normal data.
 
 e.g.

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.6.0] - 2024-10-07
+
+### Added
+- Support for devolved transcripts through downloader.
+
 ## [0.5.0] - 2024-09-30
 
 ### Added

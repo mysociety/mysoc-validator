@@ -1,6 +1,8 @@
 import asyncio
 import datetime
+import re
 import tempfile
+from functools import lru_cache
 from pathlib import Path
 from typing import ClassVar, Optional
 
@@ -23,6 +25,25 @@ def get_user_agent():
 
 def persistent_download_path():
     return Path(tempfile.gettempdir()) / "parlparse_xmls"
+
+
+@lru_cache
+def get_xmls_from_index(index_url: str) -> list[str]:
+    content = httpx.get(index_url).text
+    xml_links = re.findall(r'<a href="([^"]+\.xml)">', content)
+    return [link for link in xml_links]
+
+
+def get_scot_debate_xmls(debate_date: datetime.date) -> Optional[str]:
+    scot_debate_index = "https://www.theyworkforyou.com/pwdata/scrapedxml/sp-new/meeting-of-the-parliament/"
+    links = get_xmls_from_index(scot_debate_index)
+    debate_str = debate_date.isoformat()
+    matches = [link for link in links if debate_str in link]
+    matches.sort()
+    if matches:
+        return scot_debate_index + matches[-1]
+    else:
+        return None
 
 
 class XMLManager(BaseModel):
@@ -52,6 +73,9 @@ class XMLManager(BaseModel):
     def download_for_date(
         self, date: datetime.date, download_path: Optional[Path] = None
     ) -> Path:
+        if self.transcript_type != TranscriptType.DEBATES:
+            raise ValueError("Only debates are supported at this time.")
+
         if not download_path:
             download_path = persistent_download_path()
         download_path.mkdir(parents=True, exist_ok=True)
@@ -72,6 +96,42 @@ class XMLManager(BaseModel):
         file_path.write_text(response.text)
         return file_path
 
+    def get_latest_for_date_scot(
+        self,
+        date: datetime.date,
+        download_path: Optional[Path] = None,
+        *,
+        force_download: bool = False,
+    ) -> Path:
+        if self.transcript_type != TranscriptType.DEBATES:
+            raise ValueError("Only debates are supported for scottish parliament")
+
+        date_iso = date.isoformat()
+
+        download_path = download_path or persistent_download_path()
+        existing = list(download_path.glob(f"*{date_iso}*.xml"))
+
+        if existing and not force_download:
+            existing.sort()
+            return existing[-1]
+
+        url = get_scot_debate_xmls(date)
+        if not url:
+            raise FileNotFoundError(f"No files found for {date}")
+
+        # get the file name from the url
+        file_name = url.split("/")[-1]
+
+        if not download_path:
+            download_path = persistent_download_path()
+
+        file_path = download_path / file_name
+
+        headers = {"User-Agent": get_user_agent()}
+        response = httpx.get(url, headers=headers)
+        file_path.write_text(response.text)
+        return file_path
+
     def get_latest_for_date(
         self,
         date: datetime.date,
@@ -79,6 +139,10 @@ class XMLManager(BaseModel):
         *,
         force_download: bool = False,
     ) -> Path:
+        if self.chamber_type == Chamber.SCOTLAND:
+            return self.get_latest_for_date_scot(
+                date, download_path=download_path, force_download=force_download
+            )
         get_local = [
             self.construct_path(date, letter, download_path)
             for letter in self.letter_options
@@ -106,7 +170,7 @@ class TranscriptXMl(MiniEnum[XMLManager]):
         relative_path="scrapedxml/lordspages/",
         file_structure_pre_date="daylord",
         transcript_type=TranscriptType.DEBATES,
-        chamber_type=Chamber.COMMONS,
+        chamber_type=Chamber.LORDS,
     )
     SCOTTISH_PARLIAMENT_DEBATES = XMLManager(
         label="scottish_parliament_debates",

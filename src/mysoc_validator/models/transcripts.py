@@ -37,7 +37,7 @@ from .xml_base import (
 
 T = TypeVar("T", bound=BaseXMLModel)
 
-gid_pattern = r"^uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+"
+gid_pattern = r"^uk\.org\.publicwhip\/[a-z]+(\/(en|cy))?\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+"
 agreement_gid_pattern = (
     r"uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+\.a\.\d+"
 )
@@ -132,6 +132,7 @@ class Speech(StrictBaseXMLModel, tags=["speech"]):
     oral_qnum: Optional[str] = Field(
         validation_alias="oral-qnum", serialization_alias="oral-qnum", default=None
     )
+    original_lang: Optional[str] = None
     items: Items[SpeechItem]
 
 
@@ -241,9 +242,7 @@ class Agreement(StrictBaseXMLModel, tags=["agreement"]):
 
 
 class Division(StrictBaseXMLModel, tags=["division"]):
-    id: str = Field(
-        validation_alias=AliasChoices("id", "division_id"), pattern=gid_pattern
-    )
+    id: str = Field(validation_alias=AliasChoices("id", "division_id"))
     nospeaker: Optional[bool] = None
     date: str = Field(
         validation_alias=AliasChoices("divdate", "date"), serialization_alias="divdate"
