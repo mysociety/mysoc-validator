@@ -37,7 +37,9 @@ from .xml_base import (
 
 T = TypeVar("T", bound=BaseXMLModel)
 
-gid_pattern = r"^uk\.org\.publicwhip\/[a-z]+(\/(en|cy))?\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+"
+gid_pattern = (
+    r"^uk\.org\.publicwhip\/[a-z]+(\/(en|cy))?\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+"
+)
 agreement_gid_pattern = (
     r"uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+\.a\.\d+"
 )

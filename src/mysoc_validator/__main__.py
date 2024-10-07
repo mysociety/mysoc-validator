@@ -31,7 +31,11 @@ def validate(
     file: Optional[Path] = None,
     url: Optional[str] = None,
     type: ValidateOptions = ValidateOptions.POPOLO,
+    format: bool = False,
 ):
+    if format and type != ValidateOptions.POPOLO:
+        typer.echo("Format option is only valid for Popolo files.")
+        raise typer.Exit(code=1)
     # must be at least one of file or url, but not both
     if not file and not url:
         typer.echo("Must provide either a file or a URL.")
@@ -41,7 +45,7 @@ def validate(
         raise typer.Exit(code=1)
     if type == ValidateOptions.POPOLO:
         if file:
-            validate_popolo_file(file)
+            validate_popolo_file(file, format=format)
         if url:
             validate_popolo_url_file(url)
     elif type == ValidateOptions.TRANSCRIPT:
@@ -56,7 +60,7 @@ def validate(
         validate_interests(file)
 
 
-def validate_popolo_file(file: Path):
+def validate_popolo_file(file: Path, format: bool = False):
     """
     Validate a mysoc style Popolo file.
     Returns Exit 1 if a validation error.
@@ -71,6 +75,9 @@ def validate_popolo_file(file: Path):
         f"Loaded {len(people.organizations)} organizations, {len(people.posts)} posts, {len(people.persons)} people, and {len(people.memberships)} memberships."
     )
     rich.print("[green]Valid Popolo file[/green]")
+    if format:
+        people.to_path(file)
+        rich.print(f"[green]Formatted Popolo file saved to {file}[/green]")
 
 
 def validate_popolo_url_file(url: str):
