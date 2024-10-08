@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
-## [0.6.0] - 2024-10-07
+## [0.6.0] - 2024-10-08
 
 ### Added
 - Support for devolved transcripts through downloader.
+- Added format option for CLI.
+
+### Changed
+- Roundtrip test is less sensitive to whitespace at the start and end.
 
 ## [0.5.0] - 2024-09-30
 
