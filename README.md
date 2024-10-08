@@ -26,6 +26,12 @@ Or if using uvx (don't need to install first):
 uvx mysoc-validator validate --path <path-to-people.json> --type popolo
 ```
 
+To validate and consistently format:
+
+```bash
+uvx mysoc-validator format people.json
+```
+
 ## Popolo
 
 A pydantic based validator for main mySociety people.json file (which mostly follows the popolo standard with a few extra bits).

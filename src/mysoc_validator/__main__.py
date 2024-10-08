@@ -27,6 +27,17 @@ def blank():
 
 
 @app.command()
+def format(
+    file: Path,
+    type: ValidateOptions = ValidateOptions.POPOLO,
+):
+    if type != ValidateOptions.POPOLO:
+        typer.echo("Format option is only valid for Popolo files.")
+        raise typer.Exit(code=1)
+    validate_popolo_file(file, format=True)
+
+
+@app.command()
 def validate(
     file: Optional[Path] = None,
     url: Optional[str] = None,
