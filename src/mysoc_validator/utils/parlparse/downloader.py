@@ -48,7 +48,19 @@ def get_scot_debate_xmls(debate_date: datetime.date) -> Optional[str]:
 
 class XMLManager(BaseModel):
     twfy_base_url: ClassVar[str] = "https://www.theyworkforyou.com/pwdata/"
-    letter_options: ClassVar[list[str]] = ["", "a", "b", "c", "d", "e", "f", "g"]
+    letter_options: ClassVar[list[str]] = [
+        "",
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+    ]
     label: str
     relative_path: str
     file_structure_pre_date: str
