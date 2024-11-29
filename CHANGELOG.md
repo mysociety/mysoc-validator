@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.6.3] - 2024-11-29
+
+### Changed
+- Wider lxml requirement range.
+
+
 ## [0.6.2] - 2024-11-28
 
 ### Changed

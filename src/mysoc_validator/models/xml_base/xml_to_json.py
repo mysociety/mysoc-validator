@@ -96,6 +96,9 @@ def transfer_mixed_content(source: EtreeElement, target: EtreeElement) -> EtreeE
         new_child = etree.SubElement(target, child.tag)
         new_child.text = child.text
         new_child.tail = child.tail
+        for attrib_key, attrib_value in child.attrib.items():
+            new_child.attrib[attrib_key] = attrib_value
+        transfer_mixed_content(child, new_child)
 
     if source.tail:
         target.tail = source.tail
