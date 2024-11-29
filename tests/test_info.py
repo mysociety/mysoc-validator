@@ -41,6 +41,7 @@ def test_cons_info_validates():
 
 
 example_xml_data = """
+<?xml version="1.0" encoding="UTF-8"?>
 <twfy>
   <personinfo id="uk.org.publicwhip/person/10001">
     <regmem_info>{"hello": ["yes", "no"]}</regmem_info>

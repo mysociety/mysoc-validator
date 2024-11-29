@@ -258,6 +258,10 @@ def dict_to_etree(
 
 
 def json_to_xml(text: str, tag_as_attr: list[str], mixed_content: list[str]) -> str:
+    # need to do this manually because the lxml version uses single quotes with twfy doesn't like!
+    xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+
     data = json.loads(text)
     root = dict_to_etree(data, tag_as_attr, mixed_content)
-    return etree.tostring(root, pretty_print=True).decode()
+    text = etree.tostring(root, pretty_print=True).decode()
+    return xml_declaration + text
