@@ -28,3 +28,4 @@ class IdentifierScheme(StrEnum):
     HISTORIC_HANSARD = "historichansard_id"
     PEERAGE_TYPE = "peeragetype"
     WIKIDATA = "wikidata"
+    SCOTPARL = "scotparl_id"

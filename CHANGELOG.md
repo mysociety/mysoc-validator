@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.7.0] - 2024-12-03
+
+### Added
+- SCOTPARL identifer shortcut added.
+
 ## [0.6.5] - 2024-11-29
 
 ### Changed
