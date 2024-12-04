@@ -259,7 +259,11 @@ class Division(StrictBaseXMLModel, tags=["division"]):
 
 
 def extract_tag(v: Any) -> str:
-    return v["@tag"]
+    if isinstance(v, dict):
+        return v["@tag"]  # type: ignore
+    if hasattr(v, "tag"):
+        return v.tag
+    raise ValueError(f"Cannot extract tag from {v}")
 
 
 class HeaderSpeechTuple(NamedTuple):
