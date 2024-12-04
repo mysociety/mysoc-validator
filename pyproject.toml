@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mysoc-validator"
-version = "0.7.0"
+version = "0.8.0"
 description = "Pydantic validators for mySociety democracy types"
 authors = ["mySociety <alex.parsons@mysociety.org>"]
 readme = "README.md"

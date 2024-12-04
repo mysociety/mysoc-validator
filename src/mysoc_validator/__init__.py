@@ -7,7 +7,7 @@ from .models.interests import Register
 from .models.popolo import Popolo
 from .models.transcripts import Transcript
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 __all__ = [
     "Popolo",

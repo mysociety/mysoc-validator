@@ -173,7 +173,10 @@ class ModelInList(StrictBaseModel):
 
     def is_blank_id(self) -> bool:
         id_str: str = getattr(self, self._index_on)
-        return int(id_str.split("/")[-1]) == 0
+        try:
+            return int(id_str.split("/")[-1]) == 0
+        except ValueError:
+            return False
 
     def replace_blank_id(self, new_id: int) -> None:
         current_id: str = getattr(self, self._index_on)
@@ -399,6 +402,13 @@ class PersonIdentifier(ModelInList):
     def __str__(self) -> str:
         return f"{self.scheme}:{self.identifier}"
 
+    def parent_compatibility_check(self, parent: IndexedList[PersonIdentifier]):
+        # check there isn't already something for this identifer
+
+        for identifer in parent:
+            if identifer.scheme == self.scheme:
+                raise ValueError(f"Duplicate identifier scheme {self.scheme}")
+
 
 class AltName(StrictBaseModel):
     end_date: FlexiDateFuture
@@ -527,8 +537,8 @@ class Person(ModelInList):
     death_date: Optional[FlexiDateFuture] = None
     gender: Optional[str] = None
     id: PersonID
-    identifiers: IndexedList[PersonIdentifier] = Field(
-        default_factory=lambda: IndexedList[PersonIdentifier](root=[])
+    identifiers: IndexedPersonIdentifierList = Field(
+        default_factory=lambda: IndexedPersonIdentifierList(root=[])
     )
     image: Optional[Url] = None
     links: list[Link] = Field(default_factory=list)
@@ -549,6 +559,25 @@ class Person(ModelInList):
     national_identity: Optional[str] = None
     summary: Optional[str] = None
     shortcuts: Optional[Shortcuts] = None
+
+    @model_validator(mode="after")
+    def add_parent_ids(self):
+        self.identifiers.set_parent(self)  # type: ignore
+        return self
+
+    def add_identifer(self, *, scheme: str, identifier: str, if_missing: bool = False):
+        """
+        Add an identifier to the person.
+        """
+        if if_missing:
+            existing = self.identifiers.get(scheme)
+            if existing and existing.identifier == identifier:
+                return False
+
+        self.identifiers.root = [x for x in self.identifiers.root if x.scheme != scheme]
+
+        self.identifiers.append(PersonIdentifier(scheme=scheme, identifier=identifier))
+        return True
 
     def reduced_id(self) -> str:
         return self.id.split("/")[-1]
@@ -859,7 +888,10 @@ class IndexedList(RootModel[list[T]]):
         Getitem will behave normally for a list if an int
         But a string will be treated as an id lookup
         """
-        return self.get_single_from_index(self.get_index_field(), key)
+        try:
+            return self.get_single_from_index(self.get_index_field(), key)
+        except ValueError:
+            raise KeyError(f"Couldn't find an entry for {key}")
 
     def __contains__(self, key: str) -> bool:
         try:
@@ -871,7 +903,7 @@ class IndexedList(RootModel[list[T]]):
     def get(self, key: str, default: Optional[Any] = None) -> Optional[T]:
         try:
             return self[key]
-        except (ValueError, IndexError):
+        except KeyError:
             return default
 
     def get_index_field(self) -> str:
@@ -1083,6 +1115,22 @@ def membership_discriminator(v: dict[str, Any]) -> str:
     if "redirect" in v or hasattr(v, "redirect"):
         return "redirect"
     return "membership"
+
+
+class IndexedPersonIdentifierList(IndexedList[PersonIdentifier]):
+    def revalidate(self, *, full: bool):
+        """
+        Revalidate unique and valid id rules
+        """
+        self.check_unique_id()
+
+        # this is because we don't export not set
+        # but things set on a list this far deep
+        # don't get seen as set further up
+        if self._parent:
+            for field in self._parent.model_fields.keys():
+                if getattr(self._parent, field) == self:
+                    self._parent.__pydantic_fields_set__.add(field)
 
 
 class IndexedMembershipList(

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.8.0] - 2024-12-04
+
+### Added
+- Improved helpers for adding person identifiers.
+- New `person.add_identifer` method works as a shortcut.
+
 ## [0.7.0] - 2024-12-03
 
 ### Added
