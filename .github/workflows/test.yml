@@ -16,7 +16,7 @@ jobs:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         poetry-version: ["1.8"]
-        pydantic-version: ["2.8.0", "2.9.0"]
+        pydantic-version: ["2.8.0", "2.9.0", "2.10.3"]
 
     runs-on: ubuntu-latest
 
