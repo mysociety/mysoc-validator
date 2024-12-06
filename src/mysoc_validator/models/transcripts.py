@@ -167,7 +167,6 @@ class MSPName(StrictBaseXMLModel, tags=["mspname"]):
         validation_alias=AliasChoices("person_id", "id"),
         serialization_alias="id",
         pattern=person_or_member_id_pattern,
-        default=None,
     )  # scotland uses id rather than person_id
     vote: str
     proxy: Optional[str] = None
@@ -259,7 +258,12 @@ class Division(StrictBaseXMLModel, tags=["division"]):
 
 
 def extract_tag(v: Any) -> str:
-    return v["@tag"]
+    if isinstance(v, dict):
+        return v["@tag"]  # type: ignore
+    elif hasattr(v, "tag"):
+        return v.tag
+    else:
+        raise ValueError(f"Cannot extract tag from {v}")
 
 
 class HeaderSpeechTuple(NamedTuple):
