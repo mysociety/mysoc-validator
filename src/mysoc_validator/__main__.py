@@ -4,17 +4,34 @@ from pathlib import Path
 from typing import Annotated, Optional
 from urllib.parse import urlparse
 
+import click
 import rich
 import typer
 from tqdm import tqdm
+from trogon.trogon import Trogon  # type: ignore
 
 from .models.interests import Register
 from .models.popolo import Popolo
 from .models.transcripts import Transcript
 
+
+def init_tui(app: typer.Typer, name: Optional[str] = None):
+    def wrapped_tui():
+        Trogon(
+            typer.main.get_group(app),
+            app_name=name,
+            click_context=click.get_current_context(),
+        ).run()
+
+    app.command("tui", help="Open Textual TUI.")(wrapped_tui)
+
+    return app
+
+
 OptionalDate = Annotated[Optional[date], typer.Option(parser=date.fromisoformat)]
 
 app = typer.Typer()
+init_tui(app)
 
 transcript_app = typer.Typer(help="Commands for Transcript files")
 interests_app = typer.Typer(help="Commands for Register of Interests files")

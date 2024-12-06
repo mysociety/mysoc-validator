@@ -8,8 +8,8 @@ iso = date.fromisoformat
 test_person = "uk.org.publicwhip/person/10001"
 today = date.today()
 
-def test_change_party():
 
+def test_change_party():
     popolo = Popolo.from_parlparse()
 
     person = popolo.persons["uk.org.publicwhip/person/10001"]
@@ -27,5 +27,3 @@ def test_change_party():
     popolo.restore_whip(person, change_date=today + timedelta(days=2))
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "conservative"
-
-
