@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from bisect import bisect_left
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from itertools import groupby
 from pathlib import Path
 from typing import (
@@ -1298,7 +1298,7 @@ class Popolo(StrictBaseModel):
         self.posts.set_parent(self)
 
     @classmethod
-    def from_json_str(cls, json_str: str, *, cross_validate: bool = True) -> Popolo:
+    def from_json_str(cls, json_str: str, *, cross_validate: bool = True) -> Self:
         if cross_validate:
             return cls.model_validate_json(json_str)
         else:
@@ -1309,7 +1309,7 @@ class Popolo(StrictBaseModel):
     @classmethod
     def from_path(
         cls, json_path: Union[Path, list[Path]], cross_validate: bool = True
-    ) -> Popolo:
+    ) -> Self:
         if isinstance(json_path, Path):
             json_path = [json_path]
 
@@ -1378,3 +1378,192 @@ class Popolo(StrictBaseModel):
     def to_path(self, json_path: Path) -> None:
         data = self.to_json_str()
         json_path.write_text(data)
+
+    def add_membership(
+        self,
+        person_id: Union[str, Person],
+        organization_id: Chamber,
+        role: str,
+        start_date: date,
+        end_date: date = FixedDate.FUTURE,
+        post_id: str = "",
+        on_behalf_of_id: str = "",
+        start_reason: str = "",
+        end_reason: str = "",
+    ) -> Popolo:
+        """
+        Add a membership to a person.
+        """
+        if isinstance(person_id, Person):
+            if person_id.parent is None:
+                raise ValueError("Person has no parent Popolo object")
+            person = person_id
+        else:
+            person = self.persons[person_id].self_or_redirect()
+
+        membership = Membership(
+            id=Membership.BLANK_ID,
+            person_id=person.id,
+            organization_id=organization_id,
+            role=role,
+            start_date=start_date,
+            end_date=end_date,
+            post_id=post_id,
+            on_behalf_of_id=on_behalf_of_id,
+            start_reason=start_reason,
+            end_reason=end_reason,
+        )
+        self.memberships.append(membership)
+        return self
+
+    def merge_people(self, person1_id: str, person2_id: str):
+        """
+        Merge two people into one.
+
+        Absorb memberships and names.
+        Remove person 2 id and add a PersonRedirect
+        """
+
+        person1 = self.persons[person1_id]
+        person2 = self.persons[person2_id]
+
+        if person1 == person2:
+            return self
+
+        for n in person2.names:
+            n.note = "Alternate"
+
+        old_names = [str(x) for x in person1.names]
+        person_2_names = [x for x in person2.names if str(x) not in old_names]
+
+        person1.names.extend(person_2_names)
+
+        old_identifiers = [str(x) for x in person1.identifiers]
+        person_2_identifiers = [
+            x for x in person2.identifiers if str(x) not in old_identifiers
+        ]
+
+        person2.identifiers.extend(person_2_identifiers)
+
+        for m in person2.memberships():
+            m.person_id = person1.id
+
+        self.persons.pop(person2.id)
+        self.persons.append(PersonRedirect(id=person2.id, redirect=person1.id))
+
+        return self
+
+    def close_open_memberships_in_chamber(
+        self, chamber_id: Chamber, end_date: date, end_reason: str
+    ) -> Popolo:
+        """
+        Close all open memberships for a body.
+        """
+        for membership in self.memberships.get_matching_values(
+            "organization_id", chamber_id
+        ):
+            if isinstance(membership, Membership):
+                if membership.end_date == FixedDate.FUTURE:
+                    membership.end_date = end_date
+                    membership.end_reason = end_reason
+        return self
+
+    def end_membership_with_reason(
+        self,
+        person_id: Union[str, Person],
+        end_date: date,
+        end_reason: str,
+    ) -> Popolo:
+        """
+        End the most recent membership for a person - record reason.
+        """
+        if isinstance(person_id, Person):
+            if person_id.parent is None:
+                raise ValueError("Person has no parent Popolo object")
+            person = person_id
+        else:
+            person = self.persons[person_id].self_or_redirect()
+        last_membership = person.memberships()[-1]
+        last_membership.end_date = end_date
+        last_membership.end_reason = end_reason
+        return self
+
+    def change_party(
+        self,
+        person_id: Union[str, Person],
+        new_party_id: str,
+        change_date: Optional[date] = None,
+        change_reason: str = "",
+    ) -> Popolo:
+        """
+        Change the party of a person - close open membership and create new one.
+        """
+        if change_date is None:
+            change_date = date.today()
+
+        if isinstance(person_id, Person):
+            if person_id.parent is None:
+                raise ValueError("Person has no parent Popolo object")
+            person = person_id
+        else:
+            person = self.persons[person_id].self_or_redirect()
+        last_membership = person.memberships()[-1]
+        last_membership.end_date = change_date
+        last_membership.end_reason = change_reason
+
+        new_membership = Membership(
+            id=Membership.BLANK_ID,
+            person_id=person.id,
+            start_date=change_date + timedelta(days=1),
+            end_date=FixedDate.FUTURE,
+            organization_id=last_membership.organization_id,
+            on_behalf_of_id=new_party_id,
+            post_id=last_membership.post_id,
+            start_reason=change_reason,
+        )
+        self.memberships.append(new_membership)
+        return self
+
+    def restore_whip(
+        self, person_id: Union[str, Person], change_date: Optional[date] = None
+    ) -> Popolo:
+        """
+        Restore the whip role to a person.
+        """
+        if isinstance(person_id, Person):
+            person = person_id
+        else:
+            person = self.persons[person_id].self_or_redirect()
+
+        # get the last party that wasn't 'independent'
+
+        previous_party = None
+        for membership in reversed(person.memberships()):
+            if membership.on_behalf_of_id != "independent":
+                previous_party = membership.on_behalf_of_id
+                break
+
+        if previous_party is None:
+            raise ValueError("No previous party found")
+
+        self.change_party(
+            person,
+            new_party_id=previous_party,
+            change_reason="changed_party",
+            change_date=change_date,
+        )
+        return self
+
+    def remove_whip(
+        self, person_id: Union[str, Person], change_date: Optional[date] = None
+    ) -> Popolo:
+        """
+        Remove the whip role from a person.
+        """
+        self.change_party(
+            person_id=person_id,
+            change_date=change_date,
+            new_party_id="independent",
+            change_reason="changed_party",
+        )
+        return self
