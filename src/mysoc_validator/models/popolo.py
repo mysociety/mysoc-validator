@@ -606,6 +606,20 @@ class Person(ModelInList):
     def names_on_date(self, date: date) -> list[str]:
         return [x.nice_name() for x in self.names if x.start_date <= date <= x.end_date]
 
+    def get_main_name(
+        self, date: date = FixedDate.FUTURE
+    ) -> Optional[Union[BasicPersonName, LordName]]:
+        names = [
+            x
+            for x in self.names
+            if x.note == "Main" and x.start_date <= date <= x.end_date
+        ]
+        if len(names) > 1:
+            raise ValueError(f"Multiple main names for person {self.id}")
+        if names:
+            return names[0]
+        return None
+
     def get_identifier(self, scheme: str):
         rel = [x for x in self.identifiers if x.scheme == scheme]
         if rel:
@@ -757,6 +771,92 @@ class Person(ModelInList):
             new_party=inde_party,
             change_reason="changed_party",
         )
+
+    def add_alt_name(
+        self,
+        given_name: Optional[str] = "",
+        last_name: Optional[str] = "",
+        one_name: Optional[str] = "",
+        start_date: date = FixedDate.PAST,
+        end_date: date = FixedDate.FUTURE,
+    ):
+        """
+        Add an alternate name to a person.
+        """
+
+        alt_name = None
+
+        if given_name and last_name:
+            alt_name = BasicPersonName(
+                family_name=last_name,
+                given_name=given_name,
+                note="Alternate",
+                start_date=start_date,
+                end_date=end_date,
+            )
+
+        else:
+            if given_name or last_name:
+                raise ValueError("Both given and last name must be provided")
+            if one_name:
+                alt_name = AltName(
+                    name=one_name,
+                    start_date=start_date,
+                    note="Alternate",
+                    end_date=end_date,
+                )
+                self.names.append(alt_name)
+            else:
+                raise ValueError(
+                    "Either one_name or given and last name must be provided"
+                )
+
+        self.names.append(alt_name)
+
+    def change_main_name_to_lord(
+        self,
+        given_name: str,
+        county: str,
+        honorific_prefix: str,
+        lordname: str,
+        lordofname_full: str,
+        change_date: date,
+    ):
+        existing_name = self.get_main_name(change_date)
+
+        if existing_name:
+            existing_name.end_date = change_date - timedelta(days=1)
+
+        new_name = LordName(
+            start_date=change_date,
+            end_date=FixedDate.FUTURE,
+            note="Main",
+            given_name=given_name,
+            county=county,
+            honorific_prefix=honorific_prefix,
+            lordname=lordname,
+            lordofname_full=lordofname_full,
+        )
+
+        self.names.append(new_name)
+
+    def change_main_name(self, given_name: str, family_name: str, change_date: date):
+        """
+        Add a new main name.
+        """
+        existing_name = self.get_main_name(change_date)
+
+        if existing_name:
+            existing_name.end_date = change_date - timedelta(days=1)
+
+        new_name = BasicPersonName(
+            family_name=family_name,
+            given_name=given_name,
+            note="Main",
+            start_date=change_date,
+            end_date=FixedDate.FUTURE,
+        )
+        self.names.append(new_name)
 
 
 class Area(ModelInList):
