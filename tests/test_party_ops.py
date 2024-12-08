@@ -16,14 +16,14 @@ def test_change_party():
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "labour"
 
-    popolo.change_party(person, "conservative", change_date=today)
+    person.change_party(popolo.organizations["conservative"], change_date=today)
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "conservative"
 
-    popolo.remove_whip(person, change_date=today + timedelta(days=1))
+    person.remove_whip(change_date=today + timedelta(days=1))
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "independent"
 
-    popolo.restore_whip(person, change_date=today + timedelta(days=2))
+    person.restore_whip(change_date=today + timedelta(days=2))
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "conservative"

@@ -65,9 +65,10 @@ def change__party(
     Change the party for a given person id
     """
     popolo = Popolo.from_path(file)
-    popolo.change_party(
-        person_id=person_id,
-        new_party_id=new_party_id,
+    person = popolo.persons[person_id]
+    org = popolo.organizations[new_party_id]
+    person.change_party(
+        new_party=org,
         change_date=change_date,
         change_reason=change_reason,
     )
@@ -85,8 +86,8 @@ def remove_whip(
     Remove the whip for a given person id
     """
     popolo = Popolo.from_path(file)
-    popolo.remove_whip(
-        person_id=person_id,
+    person = popolo.persons[person_id]
+    person.remove_whip(
         change_date=change_date,
     )
     rich.print(f"[green]Removed whip for {person_id}[/green]")
@@ -103,8 +104,8 @@ def restore_whip(
     Restore the whip for a given person id
     """
     popolo = Popolo.from_path(file)
-    popolo.restore_whip(
-        person_id=person_id,
+    person = popolo.persons[person_id]
+    person.restore_whip(
         change_date=change_date,
     )
     rich.print(f"[green]Restored whip for {person_id}[/green]")
