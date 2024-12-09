@@ -1455,9 +1455,6 @@ class Popolo(StrictBaseModel):
         of one should be before the start_date of the next
         """
 
-        # disable until upstream data fixed
-        return self
-
         if info and info.context:
             if info.context.get("skip_cross_checks") is True:
                 return self
