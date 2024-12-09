@@ -48,4 +48,4 @@ class PersonEntry(StrictBaseXMLModel, tags=["regmem"]):
 
 
 class Register(StrictBaseXMLModel, tags=["twfy", "publicwhip"]):
-    person_entires: Items[PersonEntry]
+    person_entries: Items[PersonEntry]
