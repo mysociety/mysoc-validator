@@ -304,7 +304,7 @@ class ValidateOptions(str, Enum):
 
 @popolo_app.command(name="format")
 def format_cmd(
-    file: PopoloPath,
+    file: PopoloPath = Path("."),
 ):
     """
     Validate and format a mysoc style Popolo file.
