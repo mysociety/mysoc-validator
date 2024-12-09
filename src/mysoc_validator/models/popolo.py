@@ -21,6 +21,7 @@ from typing import (
     Match,
     NamedTuple,
     Optional,
+    Protocol,
     Type,
     TypeVar,
     Union,
@@ -162,6 +163,42 @@ def reduce_to_slug(s: str) -> str:
     return "".join(c for c in s if c.isalpha()).lower()
 
 
+class HasStartAndEndDate(Protocol):
+    start_date: date
+    end_date: date
+    __pydantic_fields_set__: set[str]
+
+
+class DateFormatMixin:
+    @model_validator(mode="after")
+    def default_values_are_unset(self: HasStartAndEndDate):
+        """
+        remove start_date or end_date from set list if they're the default and present in the set_list.
+        This stops us unnecessarily serializing them.
+        """
+        if (
+            self.start_date == FixedDate.PAST
+            and "start_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("start_date")
+        if (
+            self.end_date == FixedDate.FUTURE
+            and "end_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("end_date")
+        return self
+
+    @model_validator(mode="after")
+    def correct_date_range_order(self: HasStartAndEndDate):
+        if self.start_date and self.end_date:
+            if self.start_date > self.end_date:
+                print(self.start_date, self.end_date)
+                raise ValueError(
+                    f"end date {self.end_date} is before start date {self.start_date}"
+                )
+        return self
+
+
 class ModelInList(StrictBaseModel):
     BLANK_ID: ClassVar[str] = "BLANK_ID"
     _index_on: ClassVar[str] = "id"
@@ -281,7 +318,7 @@ class MembershipRedirect(ModelInList):
         )
 
 
-class Membership(ModelInList):
+class Membership(ModelInList, DateFormatMixin):
     """
     A timed connection between a person and a post.
     """
@@ -330,14 +367,6 @@ class Membership(ModelInList):
                 raise ValueError(f"Unknown organization id {post.organization_id}")
         else:
             raise ValueError("Post required for new membership to assign blank ID.")
-
-    @model_validator(mode="after")
-    def correct_date_range_order(self):
-        if self.start_date and self.end_date:
-            if self.start_date > self.end_date:
-                print(self.start_date, self.end_date)
-                raise ValueError("Membership end date is before start date")
-        return self
 
     def parent_compatibility_check(self, parent: IndexedList[Any]):
         """
@@ -428,43 +457,18 @@ class PersonIdentifier(ModelInList):
                 raise ValueError(f"Duplicate identifier scheme {self.scheme}")
 
 
-class AltName(StrictBaseModel):
+class AltName(StrictBaseModel, DateFormatMixin):
     end_date: FlexiDateFuture
     name: str
     note: Literal["Alternate"]
     organization_id: Optional[OrgID] = None
     start_date: FlexiDatePast
 
-    @model_validator(mode="after")
-    def correct_date_range_order(self):
-        if self.start_date and self.end_date:
-            if self.start_date > self.end_date:
-                raise ValueError("AltName end date is before start date")
-        return self
-
-    @model_validator(mode="after")
-    def default_values_are_unset(self):
-        """
-        remove start_date or end_date from set list if they're the default and present in the set_list.
-        This stops us unnecessarily serializing them.
-        """
-        if (
-            self.start_date == FixedDate.PAST
-            and "start_date" in self.__pydantic_fields_set__
-        ):
-            self.__pydantic_fields_set__.remove("start_date")
-        if (
-            self.end_date == FixedDate.FUTURE
-            and "end_date" in self.__pydantic_fields_set__
-        ):
-            self.__pydantic_fields_set__.remove("end_date")
-        return self
-
     def nice_name(self) -> str:
         return self.name
 
 
-class BasicPersonName(StrictBaseModel):
+class BasicPersonName(StrictBaseModel, DateFormatMixin):
     """
     Basic name for for most elected persons
     """
@@ -476,38 +480,13 @@ class BasicPersonName(StrictBaseModel):
     note: Literal["Main", "Alternate"]
     start_date: FlexiDatePast
 
-    @model_validator(mode="after")
-    def correct_date_range_order(self):
-        if self.start_date and self.end_date:
-            if self.start_date > self.end_date:
-                raise ValueError("BasicPersonName end date is before start date")
-        return self
-
-    @model_validator(mode="after")
-    def default_values_are_unset(self):
-        """
-        remove start_date or end_date from set list if they're the default and present in the set_list.
-        This stops us unnecessarily serializing them.
-        """
-        if (
-            self.start_date == FixedDate.PAST
-            and "start_date" in self.__pydantic_fields_set__
-        ):
-            self.__pydantic_fields_set__.remove("start_date")
-        if (
-            self.end_date == FixedDate.FUTURE
-            and "end_date" in self.__pydantic_fields_set__
-        ):
-            self.__pydantic_fields_set__.remove("end_date")
-        return self
-
     def nice_name(self) -> str:
         if self.given_name:
             return self.given_name + " " + self.family_name
         return self.family_name
 
 
-class LordName(StrictBaseModel):
+class LordName(StrictBaseModel):  # DateFormatMixin - needs fix to format first
     """
     A name - with all the lords options.
     There's so many optional fields here because of all the lords types.
@@ -916,7 +895,7 @@ class PostIdentifier(StrictBaseModel):
     scheme: str
 
 
-class Post(ModelInList):
+class Post(ModelInList, DateFormatMixin):
     _int_style_id: ClassVar[bool] = False
 
     area: Area
@@ -927,13 +906,6 @@ class Post(ModelInList):
     organization_id: OrgID
     role: str
     start_date: Optional[FlexiDatePast] = None
-
-    @model_validator(mode="after")
-    def correct_date_range_order(self):
-        if self.start_date and self.end_date:
-            if self.start_date > self.end_date:
-                raise ValueError("Post end date is before start date")
-        return self
 
     def organization(self) -> Organization:
         if not self.parent_popolo:
