@@ -333,7 +333,6 @@ class Membership(ModelInList, DateFormatMixin):
     organization_id: Optional[OrgID] = None
     person_id: PersonID
     post_id: Optional[PostID] = None
-    reason: Optional[str] = None
     role: Optional[str] = None
     source: Optional[str] = None
     start_date: FlexiDatePast
