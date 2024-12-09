@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.9.1] - 2024-12-09
+
+### Changed
+- Update minimum required click to 8.1
+
 ## [0.9.0] - 2024-12-09
 
 ### Added
