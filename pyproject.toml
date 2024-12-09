@@ -15,6 +15,7 @@ include = [
 
 [tool.poetry.scripts]
 mysoc-validator = "mysoc_validator.__main__:app"
+msv = "mysoc_validator.__main__:app"
 
 [tool.poetry.dependencies]
 python = "^3.9"
