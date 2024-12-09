@@ -15,15 +15,19 @@ Can be installed with `pip install mysoc-validator`
 To use as a cli validator:
 
 ```bash
-python -m mysoc_validator validate --path <path-to-people.json> --type popolo
-python -m mysoc_validator validate --path <path-to-transcript.xml> --type transcript
-python -m mysoc_validator validate --path <path-to-interests.xml> --type interests
+python -m mysoc_validator popolo validate path-to-people.json
+python -m mysoc_validator transcript validate path-to-transcript.xml
+python -m mysoc_validator transcript validate transcripts/
+python -m mysoc_validator transcript validate path-to-*.xml --glob
+python -m mysoc_validator interests validate path-to-interests.xml
 ```
+
+To see all options use `python -m mysoc_validator --help` or `python -m mysoc_validator popolo tui`.
 
 Or if using uvx (don't need to install first):
 
 ```bash
-uvx mysoc-validator validate --path <path-to-people.json> --type popolo
+uvx mysoc-validator popolo validate path-to-people.json
 ```
 
 To validate and consistently format:
@@ -31,6 +35,11 @@ To validate and consistently format:
 ```bash
 uvx mysoc-validator format people.json
 ```
+
+# Modification functions
+
+See `python -m mysoc_validator popolo --help` for functions to change parties/whip and add alt names.
+
 
 ## Popolo
 

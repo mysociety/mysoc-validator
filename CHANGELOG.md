@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.9.0] - 2024-12-09
+
+### Added
+- Added cli options for adding parties, removing whip, and adding name.
+
+## Changed
+- CLI interface now uses more sub-menus for consistent formatting.
+- Doesn't require a people.json path is one is in an expected location. 
+
 ## [0.8.0] - 2024-12-04
 
 ### Added

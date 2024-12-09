@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from bisect import bisect_left
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from itertools import groupby
 from pathlib import Path
 from typing import (
@@ -388,6 +388,24 @@ class Organization(ModelInList):
     identifiers: Optional[list[SimpleIdentifier]] = None
     name: str
 
+    def close_open_memberships(self, end_date: date, end_reason: str):
+        """
+        Close all open memberships for a body.
+        """
+
+        popolo = self.parent_popolo
+        if not popolo:
+            raise ValueError("Organization has no parent Popolo")
+
+        for membership in popolo.memberships.get_matching_values(
+            "organization_id", self.id
+        ):
+            if isinstance(membership, Membership):
+                if membership.end_date == FixedDate.FUTURE:
+                    membership.end_date = end_date
+                    membership.end_reason = end_reason
+        return self
+
 
 class PersonIdentifier(ModelInList):
     """
@@ -424,6 +442,24 @@ class AltName(StrictBaseModel):
                 raise ValueError("AltName end date is before start date")
         return self
 
+    @model_validator(mode="after")
+    def default_values_are_unset(self):
+        """
+        remove start_date or end_date from set list if they're the default and present in the set_list.
+        This stops us unnecessarily serializing them.
+        """
+        if (
+            self.start_date == FixedDate.PAST
+            and "start_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("start_date")
+        if (
+            self.end_date == FixedDate.FUTURE
+            and "end_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("end_date")
+        return self
+
     def nice_name(self) -> str:
         return self.name
 
@@ -445,6 +481,24 @@ class BasicPersonName(StrictBaseModel):
         if self.start_date and self.end_date:
             if self.start_date > self.end_date:
                 raise ValueError("BasicPersonName end date is before start date")
+        return self
+
+    @model_validator(mode="after")
+    def default_values_are_unset(self):
+        """
+        remove start_date or end_date from set list if they're the default and present in the set_list.
+        This stops us unnecessarily serializing them.
+        """
+        if (
+            self.start_date == FixedDate.PAST
+            and "start_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("start_date")
+        if (
+            self.end_date == FixedDate.FUTURE
+            and "end_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("end_date")
         return self
 
     def nice_name(self) -> str:
@@ -588,6 +642,20 @@ class Person(ModelInList):
     def names_on_date(self, date: date) -> list[str]:
         return [x.nice_name() for x in self.names if x.start_date <= date <= x.end_date]
 
+    def get_main_name(
+        self, date: date = FixedDate.FUTURE
+    ) -> Optional[Union[BasicPersonName, LordName]]:
+        names = [
+            x
+            for x in self.names
+            if x.note == "Main" and x.start_date <= date <= x.end_date
+        ]
+        if len(names) > 1:
+            raise ValueError(f"Multiple main names for person {self.id}")
+        if names:
+            return names[0]
+        return None
+
     def get_identifier(self, scheme: str):
         rel = [x for x in self.identifiers if x.scheme == scheme]
         if rel:
@@ -621,6 +689,210 @@ class Person(ModelInList):
                 chamber_memberships.append(m)
         if chamber_memberships:
             return max(chamber_memberships, key=lambda m: m.start_date)
+
+    def add_membership(
+        self,
+        organization_id: Chamber,
+        role: str,
+        start_date: date,
+        end_date: date = FixedDate.FUTURE,
+        post_id: str = "",
+        on_behalf_of_id: str = "",
+        start_reason: str = "",
+        end_reason: str = "",
+    ):
+        """
+        Add a membership to a person.
+        """
+
+        if not self.parent_popolo:
+            raise ValueError("Person has no parent Popolo object")
+
+        popolo = self.parent_popolo
+
+        membership = Membership(
+            id=Membership.BLANK_ID,
+            person_id=self.id,
+            organization_id=organization_id,
+            role=role,
+            start_date=start_date,
+            end_date=end_date,
+            post_id=post_id,
+            on_behalf_of_id=on_behalf_of_id,
+            start_reason=start_reason,
+            end_reason=end_reason,
+        )
+        popolo.memberships.append(membership)
+
+    def end_membership_with_reason(
+        self,
+        end_date: date,
+        end_reason: str,
+    ):
+        """
+        End the most recent membership for a person - record reason.
+        """
+        last_membership = self.memberships()[-1]
+        last_membership.end_date = end_date
+        last_membership.end_reason = end_reason
+
+    def change_party(
+        self,
+        new_party: Organization,
+        change_date: Optional[date] = None,
+        change_reason: str = "",
+    ):
+        """
+        Change the party of a person - close open membership and create new one.
+        """
+        if change_date is None:
+            change_date = date.today()
+
+        if not self.parent_popolo:
+            raise ValueError("Person has no parent Popolo object")
+
+        popolo = self.parent_popolo
+
+        last_membership = self.memberships()[-1]
+        last_membership.end_date = change_date
+        last_membership.end_reason = change_reason
+
+        new_membership = Membership(
+            id=Membership.BLANK_ID,
+            person_id=self.id,
+            start_date=change_date + timedelta(days=1),
+            end_date=FixedDate.FUTURE,
+            organization_id=last_membership.organization_id,
+            on_behalf_of_id=new_party.id,
+            post_id=last_membership.post_id,
+            start_reason=change_reason,
+        )
+        popolo.memberships.append(new_membership)
+
+    def restore_whip(self, change_date: Optional[date] = None):
+        """
+        Restore the whip role to a person.
+        """
+
+        # get the last party that wasn't 'independent'
+
+        previous_party = None
+        for membership in reversed(self.memberships()):
+            if membership.on_behalf_of_id != "independent":
+                previous_party = membership.on_behalf_of()
+                break
+
+        if previous_party is None:
+            raise ValueError("No previous party found")
+
+        self.change_party(
+            new_party=previous_party,
+            change_reason="changed_party",
+            change_date=change_date,
+        )
+
+    def remove_whip(self, change_date: Optional[date] = None):
+        """
+        Remove the whip role from a person.
+        """
+
+        if not self.parent_popolo:
+            raise ValueError("Person has no parent Popolo object")
+
+        popolo = self.parent_popolo
+        inde_party = popolo.organizations["independent"]
+
+        self.change_party(
+            change_date=change_date,
+            new_party=inde_party,
+            change_reason="changed_party",
+        )
+
+    def add_alt_name(
+        self,
+        given_name: Optional[str] = "",
+        family_name: Optional[str] = "",
+        one_name: Optional[str] = "",
+        start_date: date = FixedDate.PAST,
+        end_date: date = FixedDate.FUTURE,
+    ):
+        """
+        Add an alternate name to a person.
+        """
+
+        alt_name = None
+
+        if given_name and family_name:
+            alt_name = BasicPersonName(
+                family_name=family_name,
+                given_name=given_name,
+                note="Alternate",
+                start_date=start_date,
+                end_date=end_date,
+            )
+
+        else:
+            if given_name or family_name:
+                raise ValueError("Both given and last name must be provided")
+            if one_name:
+                alt_name = AltName(
+                    name=one_name,
+                    start_date=start_date,
+                    note="Alternate",
+                    end_date=end_date,
+                )
+                self.names.append(alt_name)
+            else:
+                raise ValueError(
+                    "Either one_name or given and last name must be provided"
+                )
+
+        self.names.append(alt_name)
+
+    def change_main_name_to_lord(
+        self,
+        given_name: str,
+        county: str,
+        honorific_prefix: str,
+        lordname: str,
+        lordofname_full: str,
+        change_date: date,
+    ):
+        existing_name = self.get_main_name(change_date)
+
+        if existing_name:
+            existing_name.end_date = change_date - timedelta(days=1)
+
+        new_name = LordName(
+            start_date=change_date,
+            end_date=FixedDate.FUTURE,
+            note="Main",
+            given_name=given_name,
+            county=county,
+            honorific_prefix=honorific_prefix,
+            lordname=lordname,
+            lordofname_full=lordofname_full,
+        )
+
+        self.names.append(new_name)
+
+    def change_main_name(self, given_name: str, family_name: str, change_date: date):
+        """
+        Add a new main name.
+        """
+        existing_name = self.get_main_name(change_date)
+
+        if existing_name:
+            existing_name.end_date = change_date - timedelta(days=1)
+
+        new_name = BasicPersonName(
+            family_name=family_name,
+            given_name=given_name,
+            note="Main",
+            start_date=change_date,
+            end_date=FixedDate.FUTURE,
+        )
+        self.names.append(new_name)
 
 
 class Area(ModelInList):
@@ -1110,6 +1382,43 @@ class IndexedPeopleList(
 
         return item
 
+    def merge_people(self, person1_id: str, person2_id: str):
+        """
+        Merge two people into one.
+
+        Absorb memberships and names.
+        Remove person 2 id and add a PersonRedirect
+        """
+
+        person1 = self[person1_id]
+        person2 = self[person2_id]
+
+        if person1 == person2:
+            return self
+
+        for n in person2.names:
+            n.note = "Alternate"
+
+        old_names = [str(x) for x in person1.names]
+        person_2_names = [x for x in person2.names if str(x) not in old_names]
+
+        person1.names.extend(person_2_names)
+
+        old_identifiers = [str(x) for x in person1.identifiers]
+        person_2_identifiers = [
+            x for x in person2.identifiers if str(x) not in old_identifiers
+        ]
+
+        person2.identifiers.extend(person_2_identifiers)
+
+        for m in person2.memberships():
+            m.person_id = person1.id
+
+        self.pop(person2.id)
+        self.append(PersonRedirect(id=person2.id, redirect=person1.id))
+
+        return self
+
 
 def membership_discriminator(v: dict[str, Any]) -> str:
     if "redirect" in v or hasattr(v, "redirect"):
@@ -1298,7 +1607,7 @@ class Popolo(StrictBaseModel):
         self.posts.set_parent(self)
 
     @classmethod
-    def from_json_str(cls, json_str: str, *, cross_validate: bool = True) -> Popolo:
+    def from_json_str(cls, json_str: str, *, cross_validate: bool = True) -> Self:
         if cross_validate:
             return cls.model_validate_json(json_str)
         else:
@@ -1309,7 +1618,7 @@ class Popolo(StrictBaseModel):
     @classmethod
     def from_path(
         cls, json_path: Union[Path, list[Path]], cross_validate: bool = True
-    ) -> Popolo:
+    ) -> Self:
         if isinstance(json_path, Path):
             json_path = [json_path]
 
