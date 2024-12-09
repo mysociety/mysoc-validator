@@ -775,7 +775,7 @@ class Person(ModelInList):
     def add_alt_name(
         self,
         given_name: Optional[str] = "",
-        last_name: Optional[str] = "",
+        family_name: Optional[str] = "",
         one_name: Optional[str] = "",
         start_date: date = FixedDate.PAST,
         end_date: date = FixedDate.FUTURE,
@@ -786,9 +786,9 @@ class Person(ModelInList):
 
         alt_name = None
 
-        if given_name and last_name:
+        if given_name and family_name:
             alt_name = BasicPersonName(
-                family_name=last_name,
+                family_name=family_name,
                 given_name=given_name,
                 note="Alternate",
                 start_date=start_date,
@@ -796,7 +796,7 @@ class Person(ModelInList):
             )
 
         else:
-            if given_name or last_name:
+            if given_name or family_name:
                 raise ValueError("Both given and last name must be provided")
             if one_name:
                 alt_name = AltName(
