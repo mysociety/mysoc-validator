@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.10.0] - 2024-12-09
+
+### Changed
+- Mark shortcuts as deprecated.
+- Make record optional for regmem (new format doesn't create them).
+- Enable time range overlap checks for popolo.
+- Bring LordName into consistent date approach.
+- Remove rogue reason rather than end_reason.
+
 ## [0.9.3] - 2024-12-09
 
 ### Changed
