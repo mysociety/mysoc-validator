@@ -590,7 +590,10 @@ class Person(ModelInList):
     )
     national_identity: Optional[str] = None
     summary: Optional[str] = None
-    shortcuts: Optional[Shortcuts] = None
+    shortcuts: Optional[Shortcuts] = Field(
+        deprecated="Shortcuts is not maintained - and should be blank in current versions of the database",
+        default=None,
+    )
 
     @model_validator(mode="after")
     def add_parent_ids(self):
