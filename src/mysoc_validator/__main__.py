@@ -136,7 +136,7 @@ def is_url(url: str) -> bool:
 
 @name_app.command()
 def add_alt_name(
-    file: PopoloPath = process_path("."),
+    file: PopoloPath = Path("."),
     person_id: PersonID = "",
     one_name: str = "",
     given_name: str = "",
@@ -173,7 +173,7 @@ def add_alt_name(
 
 @name_app.command()
 def change_name(
-    file: PopoloPath = process_path("."),
+    file: PopoloPath = Path("."),
     person_id: PersonID = "",
     given_name: str = "",
     family_name: str = "",
@@ -201,7 +201,7 @@ def change_name(
 
 @name_app.command()
 def ennoble(
-    file: PopoloPath = process_path("."),
+    file: PopoloPath = Path("."),
     person_id: PersonID = "",
     given_name: str = "",
     county: str = "",
@@ -235,7 +235,7 @@ def ennoble(
 
 @party_app.command()
 def change_party(
-    file: PopoloPath = process_path("."),
+    file: PopoloPath = Path("."),
     person_id: PersonID = "",
     new_party_id: str = "",
     change_date: OptionalDate = None,
@@ -262,7 +262,7 @@ def change_party(
 
 @party_app.command()
 def remove_whip(
-    file: PopoloPath = process_path("."),
+    file: PopoloPath = Path("."),
     person_id: PersonID = "",
     change_date: OptionalDate = None,
 ):
@@ -280,7 +280,7 @@ def remove_whip(
 
 @party_app.command()
 def restore_whip(
-    file: PopoloPath = process_path("."),
+    file: PopoloPath = Path("."),
     person_id: PersonID = "",
     change_date: OptionalDate = None,
 ):
