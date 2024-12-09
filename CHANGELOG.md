@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [0.9.2] - 2024-12-09
+
+### Changed
+- Extend not saving start_date when default to memberships (for whip removal).
+
 ## [0.9.1] - 2024-12-09
 
 ### Changed
