@@ -39,7 +39,11 @@ class PersonEntry(StrictBaseXMLModel, tags=["regmem"]):
     )
     membername: str
     date: date
-    record: AsAttrSingle[Optional[Record]]
+    record: AsAttrSingle[Optional[Record]] = Field(
+        default=None,
+        validation_alias=AliasChoices("record", "@record"),
+        serialization_alias="@record",
+    )
     categories: Items[Category] = Field(
         default_factory=list,
         validation_alias=AliasChoices("categories", "@children"),
