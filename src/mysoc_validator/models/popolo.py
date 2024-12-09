@@ -442,6 +442,24 @@ class AltName(StrictBaseModel):
                 raise ValueError("AltName end date is before start date")
         return self
 
+    @model_validator(mode="after")
+    def default_values_are_unset(self):
+        """
+        remove start_date or end_date from set list if they're the default and present in the set_list.
+        This stops us unnecessarily serializing them.
+        """
+        if (
+            self.start_date == FixedDate.PAST
+            and "start_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("start_date")
+        if (
+            self.end_date == FixedDate.FUTURE
+            and "end_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("end_date")
+        return self
+
     def nice_name(self) -> str:
         return self.name
 
@@ -463,6 +481,24 @@ class BasicPersonName(StrictBaseModel):
         if self.start_date and self.end_date:
             if self.start_date > self.end_date:
                 raise ValueError("BasicPersonName end date is before start date")
+        return self
+
+    @model_validator(mode="after")
+    def default_values_are_unset(self):
+        """
+        remove start_date or end_date from set list if they're the default and present in the set_list.
+        This stops us unnecessarily serializing them.
+        """
+        if (
+            self.start_date == FixedDate.PAST
+            and "start_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("start_date")
+        if (
+            self.end_date == FixedDate.FUTURE
+            and "end_date" in self.__pydantic_fields_set__
+        ):
+            self.__pydantic_fields_set__.remove("end_date")
         return self
 
     def nice_name(self) -> str:
