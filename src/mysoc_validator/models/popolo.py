@@ -485,7 +485,7 @@ class BasicPersonName(StrictBaseModel, DateFormatMixin):
         return self.family_name
 
 
-class LordName(StrictBaseModel):  # DateFormatMixin - needs fix to format first
+class LordName(StrictBaseModel, DateFormatMixin):
     """
     A name - with all the lords options.
     There's so many optional fields here because of all the lords types.
