@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from mysoc_validator.models.xml_interests import Register
-
 from mysoc_validator.models.interests import RegmemRegister
+from mysoc_validator.models.xml_interests import Register
 
 
 def test_json_interests():
@@ -11,6 +10,10 @@ def test_json_interests():
 
 def test_interests_load():
     Register.from_xml_path(Path("data", "regmem2024-05-28.xml"))
+
+
+def test_interests_xml_nonutf8():
+    Register.from_xml_path(Path("data", "regmem2015-06-08.xml"))
 
 
 def test_interests_round_trip():
