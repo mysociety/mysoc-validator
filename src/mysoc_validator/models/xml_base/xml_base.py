@@ -44,6 +44,22 @@ from typing_extensions import Self, dataclass_transform
 from .xml_to_json import json_to_xml, xml_to_json
 
 
+def str_from_xml_path(path: Path) -> str:
+    """
+    We need to pop open the file and get the first line to determine the encoding.
+    e.g. <?xml version="1.0" encoding="UTF-8"?>
+    Then read in as bytes and decode with the encoding.
+    """
+    with path.open("rb") as f:
+        first_line = f.readline().decode()
+        if "encoding=" not in first_line:
+            encoding = "UTF-8"
+        else:
+            encoding = first_line.split("encoding=")[1].strip().strip('"')
+
+    return path.read_text(encoding=encoding)
+
+
 def extract_real_classes(annotation: Any) -> list[type]:
     """
     Extract all the real classes possible from a generic construct.
@@ -320,13 +336,13 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
         cls, path: Path, extra: Optional[Literal["forbid", "allow", "ignore"]] = None
     ) -> Self:
         if extra is None:
-            return cls.model_validate_xml(path.read_text())
+            return cls.model_validate_xml(str_from_xml_path(path))
 
         class LessValidatedXMLModel(cls):
             model_config = ConfigDict(extra=extra)
 
         LessValidatedXMLModel.__name__ = cls.__name__
-        model = LessValidatedXMLModel.model_validate_xml(path.read_text())
+        model = LessValidatedXMLModel.model_validate_xml(str_from_xml_path(path))
         model = cast(cls, model)
         return model
 
