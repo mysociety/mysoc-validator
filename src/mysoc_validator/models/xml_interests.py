@@ -10,33 +10,36 @@ from typing import Optional
 
 from pydantic import AliasChoices, Field
 
-from .xml_base import AsAttrSingle, Items, MixedContent, StrictBaseXMLModel
+from .xml_base import AsAttrSingle, BaseXMLModel, Items, MixedContent
 
 
-class Item(StrictBaseXMLModel, tags=["item"]):
-    item_class: str = Field(validation_alias="class", serialization_alias="class")
+class Item(BaseXMLModel, tags=["item"]):
+    item_class: Optional[str] = Field(
+        validation_alias="class", serialization_alias="class", default=None
+    )
     contents: MixedContent
 
 
-class Record(StrictBaseXMLModel, tags=["record"]):
+class Record(BaseXMLModel, tags=["record"]):
     item_class: Optional[str] = Field(
         validation_alias="class", serialization_alias="class", default=None
     )
     items: Items[Item]
 
 
-class Category(StrictBaseXMLModel, tags=["category"]):
+class Category(BaseXMLModel, tags=["category"]):
     type: str
     name: str
     records: Items[Record]
 
 
-class PersonEntry(StrictBaseXMLModel, tags=["regmem"]):
+class PersonEntry(BaseXMLModel, tags=["regmem"]):
     person_id: str = Field(
         validation_alias=AliasChoices("person_id", "personid"),
         serialization_alias="personid",
         pattern=r"uk\.org\.publicwhip/person/\d+$",
     )
+    memberid: Optional[str] = None
     membername: str
     date: date
     record: AsAttrSingle[Optional[Record]] = Field(
@@ -51,5 +54,5 @@ class PersonEntry(StrictBaseXMLModel, tags=["regmem"]):
     )
 
 
-class Register(StrictBaseXMLModel, tags=["twfy", "publicwhip"]):
+class Register(BaseXMLModel, tags=["twfy", "publicwhip"]):
     person_entries: Items[PersonEntry]
