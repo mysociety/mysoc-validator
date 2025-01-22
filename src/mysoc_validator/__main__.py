@@ -12,9 +12,10 @@ from tqdm import tqdm
 from trogon.trogon import Trogon  # type: ignore
 
 from .models.dates import FixedDate
-from .models.interests import Register
+from .models.interests import RegmemRegister
 from .models.popolo import Popolo
 from .models.transcripts import Transcript
+from .models.xml_interests import Register
 
 
 @dataclass
@@ -101,6 +102,7 @@ PopoloPathOrUrl = Annotated[
     typer.Argument(parser=process_path_or_url, help="Path or URL to the Popolo file"),
 ]
 PersonID = Annotated[str, typer.Option(parser=enhance_person_id, help="Person ID")]
+DescPath = Annotated[Path, typer.Argument(parser=Path, help="Path to a file or folder")]
 XmlPath = Annotated[
     Path,
     typer.Argument(
@@ -353,19 +355,19 @@ def validate_transcript_cmd(
 
 @interests_app.command()
 def validate(
-    file: XmlPath,
+    file: DescPath,
     glob: bool = False,
 ):
     if file.is_dir():
-        files = list(file.glob("*.xml"))
+        files = list(file.glob("*.xml")) + list(file.glob("*.json"))
         for f in tqdm(files):
-            validate_interests(f, quiet_success=True)
+            validate_interests_xml_or_json(f, quiet_success=True)
     if glob:
         files = list(file.parent.glob(file.name))
         for f in tqdm(files):
-            validate_interests(f, quiet_success=True)
+            validate_interests_xml_or_json(f, quiet_success=True)
     else:
-        validate_interests(file)
+        validate_interests_xml_or_json(file)
 
 
 def validate_popolo_file(file: PopoloPath, format: bool = False):
@@ -420,7 +422,32 @@ def validate_transcript(file: Path, quiet_success: bool = False):
         rich.print(f"[green]Valid Transcript file: {file}[/green]")
 
 
-def validate_interests(file: Path, quiet_success: bool = False):
+def validate_interests_json(file: Path, quiet_success: bool = False):
+    """
+    Validate a mysoc style Popolo file.
+    Returns Exit 1 if a validation error.
+    """
+    try:
+        RegmemRegister.from_path(file)
+    except Exception as e:
+        typer.echo(f"Error: {e}")
+        rich.print(f"[red]Invalid Interests file: {file}[/red]")
+        raise typer.Exit(code=1)
+    if not quiet_success:
+        rich.print(f"[green]Valid Interests file: {file}[/green]")
+
+
+def validate_interests_xml_or_json(file: Path, quiet_success: bool = False):
+    # if file extention is xml or json
+    if file.suffix == ".xml":
+        validate_interests_xml(file, quiet_success)
+    elif file.suffix == ".json":
+        validate_interests_json(file, quiet_success)
+    else:
+        raise typer.BadParameter("File must be either XML or JSON")
+
+
+def validate_interests_xml(file: Path, quiet_success: bool = False):
     """
     Validate a mysoc style Popolo file.
     Returns Exit 1 if a validation error.

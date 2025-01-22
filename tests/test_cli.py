@@ -40,6 +40,14 @@ def test_validate_interests():
     assert "Valid Interests file" in result.stdout
 
 
+def test_validate_interests_json():
+    result = runner.invoke(
+        app, ["interests", "validate", "data/commons-regmem-2025-01-20.json"]
+    )
+    assert result.exit_code == 0
+    assert "Valid Interests file" in result.stdout
+
+
 def test_validate_interests_glob():
     result = runner.invoke(app, ["interests", "validate", "data/regmem*.xml", "--glob"])
     assert result.exit_code == 0

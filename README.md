@@ -5,7 +5,7 @@ A set of pydantic-based validators and classes for common mySociety democracy fo
 Currently supports:
 
 - Popolo database
-- Transcript format
+- Transcript format (old-style XML and new json format)
 - Interests format
 
 XML based formats are tested to round-trip with themselves, but not to be string identical with the original source.
@@ -93,13 +93,22 @@ transcript = Transcript.from_xml_path(transcript_file)
 
 Python validator and handler for 'publicwhip' style interests format. 
 
+For new style generic json format.  
+
 ```python
-from mysoc_validator import Register
+from mysoc_validator import RegmemRegister
+from pathlib import Path
+
+register_file = Path("data", "commons-regmem-2025-01-20.json")
+interests = RegmemRegister.from_path(register_file)
+```
+
+```python
+from mysoc_validator import XMLRegister
 from pathlib import Path
 
 register_file = Path("data", "regmem2024-05-28.xml")
-interests = Register.from_xml_path(register_file)
-
+interests = XMLRegister.from_xml_path(register_file)
 ```
 
 ## Info fields
