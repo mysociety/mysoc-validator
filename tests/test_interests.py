@@ -1,6 +1,12 @@
 from pathlib import Path
 
-from mysoc_validator.models.interests import Register
+from mysoc_validator.models.xml_interests import Register
+
+from mysoc_validator.models.interests import RegmemRegister
+
+
+def test_json_interests():
+    RegmemRegister.from_path(Path("data", "commons-regmem-2025-01-20.json"))
 
 
 def test_interests_load():
