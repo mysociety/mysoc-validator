@@ -1,0 +1,1037 @@
+{
+  "$defs": {
+    "Agreement": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "agreement",
+          "default": "agreement",
+          "title": "Tag",
+          "type": "string"
+        },
+        "agreement_id": {
+          "pattern": "uk\\.org\\.publicwhip\\/[a-z]+\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+\\.a\\.\\d+",
+          "title": "Agreement Id",
+          "type": "string"
+        },
+        "speech_id": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Speech Id",
+          "type": "string"
+        },
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "agreementnumber": {
+          "title": "Agreementnumber",
+          "type": "integer"
+        },
+        "nospeaker": {
+          "default": true,
+          "title": "Nospeaker",
+          "type": "boolean"
+        },
+        "rel_motions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Motion"
+          },
+          "title": "Rel Motions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "agreement_id",
+        "speech_id",
+        "date",
+        "agreementnumber"
+      ],
+      "title": "Agreement",
+      "type": "object"
+    },
+    "Division": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "division",
+          "default": "division",
+          "title": "Tag",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "nospeaker": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nospeaker"
+        },
+        "divdate": {
+          "title": "Divdate",
+          "type": "string"
+        },
+        "divnumber": {
+          "title": "Divnumber",
+          "type": "integer"
+        },
+        "colnum": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Colnum"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DivisionCount"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rel_motions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Motion"
+          },
+          "title": "Rel Motions",
+          "type": "array"
+        },
+        "representatives": {
+          "items": {
+            "$ref": "#/$defs/RepList"
+          },
+          "title": "Representatives",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "divdate",
+        "divnumber",
+        "count",
+        "representatives"
+      ],
+      "title": "Division",
+      "type": "object"
+    },
+    "DivisionCount": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "divisioncount",
+          "default": "divisioncount",
+          "title": "Tag",
+          "type": "string"
+        },
+        "content": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content"
+        },
+        "not-content": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Not-Content"
+        },
+        "ayes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ayes"
+        },
+        "noes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Noes"
+        },
+        "neutral": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Neutral"
+        },
+        "absent": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Absent"
+        },
+        "spoiledvotes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spoiledvotes"
+        },
+        "tellerayes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tellerayes"
+        },
+        "tellernoes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tellernoes"
+        }
+      },
+      "title": "DivisionCount",
+      "type": "object"
+    },
+    "GIDRedirect": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "gidredirect",
+          "default": "gidredirect",
+          "title": "Tag",
+          "type": "string"
+        },
+        "oldgid": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Oldgid",
+          "type": "string"
+        },
+        "newgid": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Newgid",
+          "type": "string"
+        },
+        "matchtype": {
+          "title": "Matchtype",
+          "type": "string"
+        }
+      },
+      "required": [
+        "oldgid",
+        "newgid",
+        "matchtype"
+      ],
+      "title": "GIDRedirect",
+      "type": "object"
+    },
+    "MSPName": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "mspname",
+          "default": "mspname",
+          "title": "Tag",
+          "type": "string"
+        },
+        "person_id": {
+          "pattern": "(uk\\.org\\.publicwhip/(person|member)/\\d+$|unknown$)",
+          "title": "Person Id",
+          "type": "string"
+        },
+        "vote": {
+          "title": "Vote",
+          "type": "string"
+        },
+        "proxy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proxy"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "person_id",
+        "vote",
+        "name"
+      ],
+      "title": "MSPName",
+      "type": "object"
+    },
+    "MajorHeading": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "major-heading",
+          "default": "major-heading",
+          "title": "Tag",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Id",
+          "type": "string"
+        },
+        "nospeaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nospeaker"
+        },
+        "colnum": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Colnum"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time"
+        },
+        "url": {
+          "default": "",
+          "title": "Url",
+          "type": "string"
+        },
+        "content": {
+          "$ref": "#/$defs/MixedContentHolder"
+        }
+      },
+      "required": [
+        "id",
+        "content"
+      ],
+      "title": "MajorHeading",
+      "type": "object"
+    },
+    "MinorHeading": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "minor-heading",
+          "default": "minor-heading",
+          "title": "Tag",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Id",
+          "type": "string"
+        },
+        "nospeaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nospeaker"
+        },
+        "colnum": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Colnum"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "content": {
+          "$ref": "#/$defs/MixedContentHolder"
+        }
+      },
+      "required": [
+        "id",
+        "content"
+      ],
+      "title": "MinorHeading",
+      "type": "object"
+    },
+    "MixedContentHolder": {
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "raw"
+      ],
+      "title": "MixedContentHolder",
+      "type": "object"
+    },
+    "Motion": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "motion",
+          "default": "motion",
+          "title": "Tag",
+          "type": "string"
+        },
+        "speech_id": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Speech Id",
+          "type": "string"
+        },
+        "motion_status": {
+          "title": "Motion Status",
+          "type": "string"
+        },
+        "content": {
+          "$ref": "#/$defs/MixedContentHolder"
+        }
+      },
+      "required": [
+        "speech_id",
+        "motion_status",
+        "content"
+      ],
+      "title": "Motion",
+      "type": "object"
+    },
+    "OralHeading": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "oral-heading",
+          "default": "oral-heading",
+          "title": "Tag",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Id",
+          "type": "string"
+        },
+        "nospeaker": {
+          "title": "Nospeaker",
+          "type": "string"
+        },
+        "colnum": {
+          "title": "Colnum",
+          "type": "string"
+        },
+        "time": {
+          "title": "Time",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "content": {
+          "$ref": "#/$defs/MixedContentHolder"
+        }
+      },
+      "required": [
+        "id",
+        "nospeaker",
+        "colnum",
+        "time",
+        "url",
+        "content"
+      ],
+      "title": "OralHeading",
+      "type": "object"
+    },
+    "RepList": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "default": "replist",
+          "enum": [
+            "replist",
+            "mplist",
+            "msplist",
+            "mslist",
+            "mlalist",
+            "lordlist"
+          ],
+          "title": "Tag",
+          "type": "string"
+        },
+        "vote": {
+          "enum": [
+            "aye",
+            "no",
+            "neutral",
+            "content",
+            "not-content",
+            "for",
+            "against",
+            "spoiledvotes",
+            "abstain",
+            "absent",
+            "abstentions",
+            "didnotvote"
+          ],
+          "title": "Vote",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/MSPName"
+              },
+              {
+                "$ref": "#/$defs/RepName"
+              }
+            ]
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "vote"
+      ],
+      "title": "RepList",
+      "type": "object"
+    },
+    "RepName": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "default": "repname",
+          "enum": [
+            "repname",
+            "mpname",
+            "msname",
+            "mlaname",
+            "lord"
+          ],
+          "title": "Tag",
+          "type": "string"
+        },
+        "person_id": {
+          "anyOf": [
+            {
+              "pattern": "(uk\\.org\\.publicwhip/(person|member)/\\d+$|unknown$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Person Id"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "pattern": "(uk\\.org\\.publicwhip/member/\\d+$|unknown$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "vote": {
+          "title": "Vote",
+          "type": "string"
+        },
+        "teller": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Teller"
+        },
+        "proxy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proxy"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vote",
+        "name"
+      ],
+      "title": "RepName",
+      "type": "object"
+    },
+    "Speech": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "const": "speech",
+          "default": "speech",
+          "title": "Tag",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^uk\\.org\\.publicwhip\\/[a-z]+(\\/(en|cy))?\\/\\d{4}-\\d{2}-\\d{2}[a-z]?\\.\\d+\\.\\d+",
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        },
+        "nospeaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nospeaker"
+        },
+        "speakername": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speakername"
+        },
+        "speakeroffice": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speakeroffice"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "speech": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speech"
+        },
+        "person_id": {
+          "anyOf": [
+            {
+              "pattern": "(uk\\.org\\.publicwhip/(person|member)/\\d+$|unknown$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Person Id"
+        },
+        "speakerid": {
+          "anyOf": [
+            {
+              "pattern": "(uk\\.org\\.publicwhip/member/\\d+$|unknown$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speakerid"
+        },
+        "colnum": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Colnum"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "oral-qnum": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oral-Qnum"
+        },
+        "original_lang": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Lang"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/SpeechItem"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "items"
+      ],
+      "title": "Speech",
+      "type": "object"
+    },
+    "SpeechItem": {
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "title": "Tag",
+          "type": "string"
+        },
+        "pid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pid"
+        },
+        "qnum": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Qnum"
+        },
+        "class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Class"
+        },
+        "pwmotiontext": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pwmotiontext"
+        },
+        "content": {
+          "$ref": "#/$defs/MixedContentHolder"
+        }
+      },
+      "required": [
+        "tag",
+        "content"
+      ],
+      "title": "SpeechItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "tag": {
+      "const": "publicwhip",
+      "default": "publicwhip",
+      "title": "Tag",
+      "type": "string"
+    },
+    "scraper_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scraper Version"
+    },
+    "latest": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latest"
+    },
+    "items": {
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Speech"
+          },
+          {
+            "$ref": "#/$defs/Division"
+          },
+          {
+            "$ref": "#/$defs/GIDRedirect"
+          },
+          {
+            "$ref": "#/$defs/OralHeading"
+          },
+          {
+            "$ref": "#/$defs/MajorHeading"
+          },
+          {
+            "$ref": "#/$defs/MinorHeading"
+          },
+          {
+            "$ref": "#/$defs/Agreement"
+          }
+        ]
+      },
+      "title": "Items",
+      "type": "array"
+    }
+  },
+  "required": [
+    "items"
+  ],
+  "title": "Transcript",
+  "type": "object"
+}

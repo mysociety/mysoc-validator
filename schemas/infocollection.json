@@ -1,0 +1,75 @@
+{
+  "$defs": {
+    "ConsInfo": {
+      "additionalProperties": true,
+      "properties": {
+        "tag": {
+          "const": "consinfo",
+          "default": "consinfo",
+          "title": "Tag",
+          "type": "string"
+        },
+        "canonical": {
+          "title": "Canonical",
+          "type": "string"
+        }
+      },
+      "required": [
+        "canonical"
+      ],
+      "title": "ConsInfo",
+      "type": "object"
+    },
+    "PersonInfo": {
+      "additionalProperties": true,
+      "properties": {
+        "tag": {
+          "const": "personinfo",
+          "default": "personinfo",
+          "title": "Tag",
+          "type": "string"
+        },
+        "person_id": {
+          "pattern": "uk\\.org\\.publicwhip/person/\\d+$",
+          "title": "Person Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "person_id"
+      ],
+      "title": "PersonInfo",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "tag": {
+      "default": "twfy",
+      "enum": [
+        "twfy",
+        "publicwhip"
+      ],
+      "title": "Tag",
+      "type": "string"
+    },
+    "items": {
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ConsInfo"
+          },
+          {
+            "$ref": "#/$defs/PersonInfo"
+          }
+        ]
+      },
+      "title": "Items",
+      "type": "array"
+    }
+  },
+  "required": [
+    "items"
+  ],
+  "title": "InfoCollection",
+  "type": "object"
+}

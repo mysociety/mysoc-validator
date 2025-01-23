@@ -1,0 +1,202 @@
+{
+  "$defs": {
+    "Category": {
+      "properties": {
+        "tag": {
+          "const": "category",
+          "default": "category",
+          "title": "Tag",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "records": {
+          "items": {
+            "$ref": "#/$defs/Record"
+          },
+          "title": "Records",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "records"
+      ],
+      "title": "Category",
+      "type": "object"
+    },
+    "Item": {
+      "properties": {
+        "tag": {
+          "const": "item",
+          "default": "item",
+          "title": "Tag",
+          "type": "string"
+        },
+        "class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Class"
+        },
+        "contents": {
+          "$ref": "#/$defs/MixedContentHolder"
+        }
+      },
+      "required": [
+        "contents"
+      ],
+      "title": "Item",
+      "type": "object"
+    },
+    "MixedContentHolder": {
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "raw"
+      ],
+      "title": "MixedContentHolder",
+      "type": "object"
+    },
+    "PersonEntry": {
+      "properties": {
+        "tag": {
+          "const": "regmem",
+          "default": "regmem",
+          "title": "Tag",
+          "type": "string"
+        },
+        "person_id": {
+          "pattern": "uk\\.org\\.publicwhip/person/\\d+$",
+          "title": "Person Id",
+          "type": "string"
+        },
+        "memberid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Memberid"
+        },
+        "membername": {
+          "title": "Membername",
+          "type": "string"
+        },
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Record"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/Category"
+          },
+          "title": "Categories",
+          "type": "array"
+        }
+      },
+      "required": [
+        "person_id",
+        "membername",
+        "date"
+      ],
+      "title": "PersonEntry",
+      "type": "object"
+    },
+    "Record": {
+      "properties": {
+        "tag": {
+          "const": "record",
+          "default": "record",
+          "title": "Tag",
+          "type": "string"
+        },
+        "class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Class"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Item"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "Record",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "tag": {
+      "default": "twfy",
+      "enum": [
+        "twfy",
+        "publicwhip"
+      ],
+      "title": "Tag",
+      "type": "string"
+    },
+    "person_entries": {
+      "items": {
+        "$ref": "#/$defs/PersonEntry"
+      },
+      "title": "Person Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "person_entries"
+  ],
+  "title": "Register",
+  "type": "object"
+}
