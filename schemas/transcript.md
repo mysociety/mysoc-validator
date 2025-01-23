@@ -1,0 +1,269 @@
+# Transcript
+
+## Properties
+
+- **`tag`** *(string)*: Must be: `"publicwhip"`. Default: `"publicwhip"`.
+- **`scraper_version`**: Default: `null`.
+  - **Any of**
+    - *string*
+    - *null*
+- **`latest`**: Default: `null`.
+  - **Any of**
+    - *string*
+    - *null*
+- **`items`** *(array, required)*
+  - **Items**
+    - **One of**
+      - : Refer to *[#/$defs/Speech](#%24defs/Speech)*.
+      - : Refer to *[#/$defs/Division](#%24defs/Division)*.
+      - : Refer to *[#/$defs/GIDRedirect](#%24defs/GIDRedirect)*.
+      - : Refer to *[#/$defs/OralHeading](#%24defs/OralHeading)*.
+      - : Refer to *[#/$defs/MajorHeading](#%24defs/MajorHeading)*.
+      - : Refer to *[#/$defs/MinorHeading](#%24defs/MinorHeading)*.
+      - : Refer to *[#/$defs/Agreement](#%24defs/Agreement)*.
+## Definitions
+
+- <a id="%24defs/Agreement"></a>**`Agreement`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"agreement"`. Default: `"agreement"`.
+  - **`agreement_id`** *(string, required)*
+  - **`speech_id`** *(string, required)*
+  - **`date`** *(string, format: date, required)*
+  - **`agreementnumber`** *(integer, required)*
+  - **`nospeaker`** *(boolean)*: Default: `true`.
+  - **`rel_motions`** *(array)*: Default: `[]`.
+    - **Items**: Refer to *[#/$defs/Motion](#%24defs/Motion)*.
+- <a id="%24defs/Division"></a>**`Division`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"division"`. Default: `"division"`.
+  - **`id`** *(string, required)*
+  - **`nospeaker`**: Default: `null`.
+    - **Any of**
+      - *boolean*
+      - *null*
+  - **`divdate`** *(string, required)*
+  - **`divnumber`** *(integer, required)*
+  - **`colnum`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`time`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`url`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`count`**
+    - **Any of**
+      - : Refer to *[#/$defs/DivisionCount](#%24defs/DivisionCount)*.
+      - *null*
+  - **`rel_motions`** *(array)*: Default: `[]`.
+    - **Items**: Refer to *[#/$defs/Motion](#%24defs/Motion)*.
+  - **`representatives`** *(array, required)*
+    - **Items**: Refer to *[#/$defs/RepList](#%24defs/RepList)*.
+- <a id="%24defs/DivisionCount"></a>**`DivisionCount`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"divisioncount"`. Default: `"divisioncount"`.
+  - **`content`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`not-content`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`ayes`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`noes`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`neutral`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`absent`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`spoiledvotes`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`tellerayes`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`tellernoes`**: Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+- <a id="%24defs/GIDRedirect"></a>**`GIDRedirect`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"gidredirect"`. Default: `"gidredirect"`.
+  - **`oldgid`** *(string, required)*
+  - **`newgid`** *(string, required)*
+  - **`matchtype`** *(string, required)*
+- <a id="%24defs/MSPName"></a>**`MSPName`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"mspname"`. Default: `"mspname"`.
+  - **`person_id`** *(string, required)*
+  - **`vote`** *(string, required)*
+  - **`proxy`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`name`** *(string, required)*
+- <a id="%24defs/MajorHeading"></a>**`MajorHeading`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"major-heading"`. Default: `"major-heading"`.
+  - **`id`** *(string, required)*
+  - **`nospeaker`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`colnum`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`time`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`url`** *(string)*: Default: `""`.
+  - **`content`**: Refer to *[#/$defs/MixedContentHolder](#%24defs/MixedContentHolder)*.
+- <a id="%24defs/MinorHeading"></a>**`MinorHeading`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"minor-heading"`. Default: `"minor-heading"`.
+  - **`id`** *(string, required)*
+  - **`nospeaker`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`colnum`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`time`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`url`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`content`**: Refer to *[#/$defs/MixedContentHolder](#%24defs/MixedContentHolder)*.
+- <a id="%24defs/MixedContentHolder"></a>**`MixedContentHolder`** *(object)*
+  - **`text`** *(string, required)*
+  - **`raw`** *(string, required)*
+- <a id="%24defs/Motion"></a>**`Motion`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"motion"`. Default: `"motion"`.
+  - **`speech_id`** *(string, required)*
+  - **`motion_status`** *(string, required)*
+  - **`content`**: Refer to *[#/$defs/MixedContentHolder](#%24defs/MixedContentHolder)*.
+- <a id="%24defs/OralHeading"></a>**`OralHeading`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"oral-heading"`. Default: `"oral-heading"`.
+  - **`id`** *(string, required)*
+  - **`nospeaker`** *(string, required)*
+  - **`colnum`** *(string, required)*
+  - **`time`** *(string, required)*
+  - **`url`** *(string, required)*
+  - **`content`**: Refer to *[#/$defs/MixedContentHolder](#%24defs/MixedContentHolder)*.
+- <a id="%24defs/RepList"></a>**`RepList`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be one of: `["replist", "mplist", "msplist", "mslist", "mlalist", "lordlist"]`. Default: `"replist"`.
+  - **`vote`** *(string, required)*: Must be one of: `["aye", "no", "neutral", "content", "not-content", "for", "against", "spoiledvotes", "abstain", "absent", "abstentions", "didnotvote"]`.
+  - **`items`** *(array)*
+    - **Items**
+      - **One of**
+        - : Refer to *[#/$defs/MSPName](#%24defs/MSPName)*.
+        - : Refer to *[#/$defs/RepName](#%24defs/RepName)*.
+- <a id="%24defs/RepName"></a>**`RepName`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be one of: `["repname", "mpname", "msname", "mlaname", "lord"]`. Default: `"repname"`.
+  - **`person_id`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`id`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`vote`** *(string, required)*
+  - **`teller`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`proxy`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`name`** *(string, required)*
+- <a id="%24defs/Speech"></a>**`Speech`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string)*: Must be: `"speech"`. Default: `"speech"`.
+  - **`id`** *(string, required)*
+  - **`type`** *(string)*: Default: `""`.
+  - **`nospeaker`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`speakername`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`speakeroffice`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`error`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`speech`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`person_id`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`speakerid`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`colnum`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`time`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`url`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`oral-qnum`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`original_lang`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`items`** *(array, required)*
+    - **Items**: Refer to *[#/$defs/SpeechItem](#%24defs/SpeechItem)*.
+- <a id="%24defs/SpeechItem"></a>**`SpeechItem`** *(object)*: Cannot contain additional properties.
+  - **`tag`** *(string, required)*
+  - **`pid`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`qnum`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`class`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`pwmotiontext`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`content`**: Refer to *[#/$defs/MixedContentHolder](#%24defs/MixedContentHolder)*.

@@ -1,0 +1,283 @@
+# Popolo
+
+*The overall Popolo object - connecting the common political data objects.*
+
+## Properties
+
+- **`memberships`**: Refer to *[#/$defs/IndexedMembershipList](#%24defs/IndexedMembershipList)*.
+- **`organizations`**: Refer to *[#/$defs/IndexedList_Organization_](#%24defs/IndexedList_Organization_)*.
+- **`persons`**: Refer to *[#/$defs/IndexedPeopleList](#%24defs/IndexedPeopleList)*.
+- **`posts`**: Refer to *[#/$defs/IndexedList_Post_](#%24defs/IndexedList_Post_)*.
+## Definitions
+
+- <a id="%24defs/AltName"></a>**`AltName`** *(object)*: Cannot contain additional properties.
+  - **`end_date`** *(string)*
+  - **`name`** *(string, required)*
+  - **`note`** *(string, required)*: Must be: `"Alternate"`.
+  - **`organization_id`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`start_date`** *(string)*
+- <a id="%24defs/Area"></a>**`Area`** *(object)*: Constituency name. Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`name`** *(string, required)*
+  - **`other_names`** *(array)*
+    - **Items** *(string)*
+- <a id="%24defs/BasicPersonName"></a>**`BasicPersonName`** *(object)*: Basic name for for most elected persons. Cannot contain additional properties.
+  - **`end_date`** *(string)*
+  - **`family_name`** *(string, required)*
+  - **`given_name`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`honorific_prefix`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`note`** *(string, required)*: Must be one of: `["Main", "Alternate"]`.
+  - **`start_date`** *(string)*
+- <a id="%24defs/IndexedList_Organization_"></a>**`IndexedList_Organization_`** *(array)*
+  - **Items**: Refer to *[#/$defs/Organization](#%24defs/Organization)*.
+- <a id="%24defs/IndexedList_Post_"></a>**`IndexedList_Post_`** *(array)*
+  - **Items**: Refer to *[#/$defs/Post](#%24defs/Post)*.
+- <a id="%24defs/IndexedList_Self_"></a>**`IndexedList_Self_`** *(array)*
+  - **Items**: Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+- <a id="%24defs/IndexedMembershipList"></a>**`IndexedMembershipList`** *(array)*
+  - **Items**
+    - **One of**
+      - : Refer to *[#/$defs/Membership](#%24defs/Membership)*.
+      - : Refer to *[#/$defs/MembershipRedirect](#%24defs/MembershipRedirect)*.
+- <a id="%24defs/IndexedPeopleList"></a>**`IndexedPeopleList`** *(array)*: Indexed list with extra options for people
+with a name index and identifier index.
+  - **Items**
+    - **One of**
+      - : Refer to *[#/$defs/Person](#%24defs/Person)*.
+      - : Refer to *[#/$defs/PersonRedirect](#%24defs/PersonRedirect)*.
+- <a id="%24defs/IndexedPersonIdentifierList"></a>**`IndexedPersonIdentifierList`** *(array)*
+  - **Items**: Refer to *[#/$defs/PersonIdentifier](#%24defs/PersonIdentifier)*.
+- <a id="%24defs/Link"></a>**`Link`** *(object)*: Cannot contain additional properties.
+  - **`note`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`url`** *(string, required)*
+- <a id="%24defs/LordName"></a>**`LordName`** *(object)*: A name - with all the lords options.
+There's so many optional fields here because of all the lords types. Cannot contain additional properties.
+  - **`additional_name`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`county`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`end_date`** *(string)*
+  - **`given_name`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`honorific_prefix`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`honorific_suffix`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`lordname`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`lordofname`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`lordofname_full`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`note`** *(string, required)*: Must be one of: `["Main", "Alternate"]`.
+  - **`start_date`** *(string)*
+  - **`surname`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+- <a id="%24defs/Membership"></a>**`Membership`** *(object)*: A timed connection between a person and a post. Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`end_date`** *(string)*
+  - **`end_reason`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`id`** *(string, required)*
+  - **`identifiers`**: Default: `null`.
+    - **Any of**
+      - *array*
+        - **Items**: Refer to *[#/$defs/SimpleIdentifier](#%24defs/SimpleIdentifier)*.
+      - *null*
+  - **`label`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`name`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/Name](#%24defs/Name)*.
+      - *null*
+  - **`on_behalf_of_id`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`organization_id`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`person_id`** *(string, required)*
+  - **`post_id`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`role`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`source`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`start_date`** *(string)*
+  - **`start_reason`** *(string)*: Default: `""`.
+- <a id="%24defs/MembershipRedirect"></a>**`MembershipRedirect`** *(object)*: Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`id`** *(string, required)*
+  - **`redirect`** *(string, required)*
+- <a id="%24defs/Name"></a>**`Name`** *(object)*: Cannot contain additional properties.
+  - **`family_name`** *(string, required)*
+  - **`given_name`** *(string, required)*
+- <a id="%24defs/Organization"></a>**`Organization`** *(object)*: May be a party or chamber. Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`classification`**: Default: `null`.
+    - **Any of**
+      - *string*: Must be one of: `["party", "chamber", "metro"]`.
+      - *null*
+  - **`id`** *(string, required)*
+  - **`identifiers`**: Default: `null`.
+    - **Any of**
+      - *array*
+        - **Items**: Refer to *[#/$defs/SimpleIdentifier](#%24defs/SimpleIdentifier)*.
+      - *null*
+  - **`name`** *(string, required)*
+- <a id="%24defs/Person"></a>**`Person`** *(object)*: A person who has held an office. Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`biography`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`birth_date`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`death_date`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`gender`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`id`** *(string, required)*
+  - **`identifiers`**: Refer to *[#/$defs/IndexedPersonIdentifierList](#%24defs/IndexedPersonIdentifierList)*.
+  - **`image`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`links`** *(array)*
+    - **Items**: Refer to *[#/$defs/Link](#%24defs/Link)*.
+  - **`names`** *(array)*
+    - **Items**
+      - **One of**
+        - : Refer to *[#/$defs/BasicPersonName](#%24defs/BasicPersonName)*.
+        - : Refer to *[#/$defs/LordName](#%24defs/LordName)*.
+        - : Refer to *[#/$defs/AltName](#%24defs/AltName)*.
+  - **`national_identity`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`summary`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`shortcuts`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/Shortcuts](#%24defs/Shortcuts)*.
+      - *null*
+- <a id="%24defs/PersonIdentifier"></a>**`PersonIdentifier`** *(object)*: Alternative identifiers in other schemas for a person. Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`identifier`**
+    - **Any of**
+      - *string*
+      - *integer*
+  - **`scheme`** *(string, required)*
+- <a id="%24defs/PersonRedirect"></a>**`PersonRedirect`** *(object)*: Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`id`** *(string, required)*
+  - **`redirect`** *(string, required)*
+- <a id="%24defs/Post"></a>**`Post`** *(object)*: Cannot contain additional properties.
+  - **`parent`**: Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/IndexedList_Self_](#%24defs/IndexedList_Self_)*.
+      - *null*
+  - **`area`**: Refer to *[#/$defs/Area](#%24defs/Area)*.
+  - **`end_date`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`id`** *(string, required)*
+  - **`identifiers`**: Default: `null`.
+    - **Any of**
+      - *array*
+        - **Items**: Refer to *[#/$defs/PostIdentifier](#%24defs/PostIdentifier)*.
+      - *null*
+  - **`label`** *(string, required)*
+  - **`organization_id`** *(string, required)*
+  - **`role`** *(string, required)*
+  - **`start_date`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+- <a id="%24defs/PostIdentifier"></a>**`PostIdentifier`** *(object)*: ID for post (e.g. MP of constituency) in other schemas. Cannot contain additional properties.
+  - **`identifier`** *(string, required)*
+  - **`scheme`** *(string, required)*
+- <a id="%24defs/Shortcuts"></a>**`Shortcuts`** *(object)*: Previously calculated shortcuts between a person
+and their current consitutency and party.
+This is out of date in people.json, and won't work for people
+in multiple chambers. Cannot contain additional properties.
+  - **`current_constituency`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`current_party`** *(string, required)*
+- <a id="%24defs/SimpleIdentifier"></a>**`SimpleIdentifier`** *(object)*: Cannot contain additional properties.
+  - **`identifier`** *(string, required)*
+  - **`scheme`** *(string, required)*

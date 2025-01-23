@@ -1,0 +1,353 @@
+# RegmemRegister
+
+*General container for a specific release of a register in a chamber.
+This may in practice be "the public information as of date" rather
+than an explicitly released register.*
+
+## Properties
+
+- **`chamber`**: Default: `null`.
+  - **Any of**
+    - : Refer to *[#/$defs/Chamber](#%24defs/Chamber)*.
+    - *null*
+- **`language`**: Default: `"en"`.
+  - **Any of**
+    - *string*: Must be one of: `["en", "cy"]`.
+    - *null*
+- **`published_date`**: Default: `null`.
+  - **Any of**
+    - *string, format: date*
+    - *null*
+- **`annotations`** *(array)*
+  - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+- **`summaries`** *(array)*
+  - **Items**: Refer to *[#/$defs/RegmemSummary](#%24defs/RegmemSummary)*.
+- **`persons`** *(array)*
+  - **Items**: Refer to *[#/$defs/RegmemPerson](#%24defs/RegmemPerson)*.
+## Definitions
+
+- <a id="%24defs/Chamber"></a>**`Chamber`** *(string)*: Must be one of: `["house-of-commons", "house-of-lords", "scottish-parliament", "welsh-parliament", "london-assembly", "northern-ireland-assembly"]`.
+- <a id="%24defs/CommonKey"></a>**`CommonKey`** *(string)*: Must be one of: `["companies_house", "url", "standardised_name", "sic_code"]`.
+- <a id="%24defs/RegmemAnnotation"></a>**`RegmemAnnotation`** *(object)*: A simple Annotation for a register entry.
+  - **`author`** *(string, required)*
+  - **`type`** *(string)*: Default: `"note"`.
+  - **`content`** *(string, required)*
+  - **`date_added`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`content_format`** *(string)*: The format of the content. Must be one of: `["string", "markdown", "xml"]`. Default: `"string"`.
+- <a id="%24defs/RegmemCategory"></a>**`RegmemCategory`** *(object)*: Across all registers there are different categories of interests.
+We mostly use these to structure the output - they vary by chamber.<br>  *Ideally* category_id is a number, or at least sortable.
+  - **`category_id`** *(string)*: The unique identifier for the category. Default: `""`.
+  - **`category_name`** *(string, required)*
+  - **`category_description`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`legislation_or_rule_name`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`legislation_or_rule_url`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`summaries`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemSummary](#%24defs/RegmemSummary)*.
+  - **`entries`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemEntry](#%24defs/RegmemEntry)*.
+- <a id="%24defs/RegmemDetailGroup"></a>**`RegmemDetailGroup`** *(array)*: This is a container object for groups of details.
+The discriminator union applies the correct type validator
+logic depending on the type property.
+  - **Items**
+    - **One of**
+      - : Refer to *[#/$defs/RegmemDetail_int_](#%24defs/RegmemDetail_int_)*.
+      - : Refer to *[#/$defs/RegmemDetail_str_](#%24defs/RegmemDetail_str_)*.
+      - : Refer to *[#/$defs/RegmemDetail_Decimal_](#%24defs/RegmemDetail_Decimal_)*.
+      - : Refer to *[#/$defs/RegmemDetail_date_](#%24defs/RegmemDetail_date_)*.
+      - : Refer to *[#/$defs/RegmemDetail_float_](#%24defs/RegmemDetail_float_)*.
+      - : Refer to *[#/$defs/RegmemDetail_bool_](#%24defs/RegmemDetail_bool_)*.
+      - : Refer to *[#/$defs/RegmemDetail_list_RegmemDetailGroup__](#%24defs/RegmemDetail_list_RegmemDetailGroup__)*.
+- <a id="%24defs/RegmemDetail_Decimal_"></a>**`RegmemDetail_Decimal_`** *(object)*
+  - **`source`** *(string)*: The source of the information, for flagging when info is added by third parties. Default: `"official"`.
+  - **`slug`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`display_as`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`common_key`**: For adding a key against standardised list without changing the slug. Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/CommonKey](#%24defs/CommonKey)*.
+      - *null*
+  - **`description`**: A description of the field - rather than the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`type`**: The type of the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`value`**: Might be a direct value or a list of DetailGroups. Default: `null`.
+    - **Any of**
+      - *number*
+      - *string*
+      - *null*
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`sub_detail_groups`** *(array)*: Groups of details - seperating out fields as key-value pairs.
+    - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+- <a id="%24defs/RegmemDetail_bool_"></a>**`RegmemDetail_bool_`** *(object)*
+  - **`source`** *(string)*: The source of the information, for flagging when info is added by third parties. Default: `"official"`.
+  - **`slug`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`display_as`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`common_key`**: For adding a key against standardised list without changing the slug. Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/CommonKey](#%24defs/CommonKey)*.
+      - *null*
+  - **`description`**: A description of the field - rather than the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`type`**: The type of the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`value`**: Might be a direct value or a list of DetailGroups. Default: `null`.
+    - **Any of**
+      - *boolean*
+      - *null*
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`sub_detail_groups`** *(array)*: Groups of details - seperating out fields as key-value pairs.
+    - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+- <a id="%24defs/RegmemDetail_date_"></a>**`RegmemDetail_date_`** *(object)*
+  - **`source`** *(string)*: The source of the information, for flagging when info is added by third parties. Default: `"official"`.
+  - **`slug`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`display_as`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`common_key`**: For adding a key against standardised list without changing the slug. Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/CommonKey](#%24defs/CommonKey)*.
+      - *null*
+  - **`description`**: A description of the field - rather than the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`type`**: The type of the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`value`**: Might be a direct value or a list of DetailGroups. Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`sub_detail_groups`** *(array)*: Groups of details - seperating out fields as key-value pairs.
+    - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+- <a id="%24defs/RegmemDetail_float_"></a>**`RegmemDetail_float_`** *(object)*
+  - **`source`** *(string)*: The source of the information, for flagging when info is added by third parties. Default: `"official"`.
+  - **`slug`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`display_as`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`common_key`**: For adding a key against standardised list without changing the slug. Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/CommonKey](#%24defs/CommonKey)*.
+      - *null*
+  - **`description`**: A description of the field - rather than the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`type`**: The type of the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`value`**: Might be a direct value or a list of DetailGroups. Default: `null`.
+    - **Any of**
+      - *number*
+      - *null*
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`sub_detail_groups`** *(array)*: Groups of details - seperating out fields as key-value pairs.
+    - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+- <a id="%24defs/RegmemDetail_int_"></a>**`RegmemDetail_int_`** *(object)*
+  - **`source`** *(string)*: The source of the information, for flagging when info is added by third parties. Default: `"official"`.
+  - **`slug`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`display_as`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`common_key`**: For adding a key against standardised list without changing the slug. Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/CommonKey](#%24defs/CommonKey)*.
+      - *null*
+  - **`description`**: A description of the field - rather than the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`type`**: The type of the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`value`**: Might be a direct value or a list of DetailGroups. Default: `null`.
+    - **Any of**
+      - *integer*
+      - *null*
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`sub_detail_groups`** *(array)*: Groups of details - seperating out fields as key-value pairs.
+    - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+- <a id="%24defs/RegmemDetail_list_RegmemDetailGroup__"></a>**`RegmemDetail_list_RegmemDetailGroup__`** *(object)*
+  - **`source`** *(string)*: The source of the information, for flagging when info is added by third parties. Default: `"official"`.
+  - **`slug`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`display_as`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`common_key`**: For adding a key against standardised list without changing the slug. Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/CommonKey](#%24defs/CommonKey)*.
+      - *null*
+  - **`description`**: A description of the field - rather than the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`type`**: The type of the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`value`**: Might be a direct value or a list of DetailGroups. Default: `null`.
+    - **Any of**
+      - *array*
+        - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+      - *null*
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`sub_detail_groups`** *(array)*: Groups of details - seperating out fields as key-value pairs.
+    - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+- <a id="%24defs/RegmemDetail_str_"></a>**`RegmemDetail_str_`** *(object)*
+  - **`source`** *(string)*: The source of the information, for flagging when info is added by third parties. Default: `"official"`.
+  - **`slug`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`display_as`**: Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`common_key`**: For adding a key against standardised list without changing the slug. Default: `null`.
+    - **Any of**
+      - : Refer to *[#/$defs/CommonKey](#%24defs/CommonKey)*.
+      - *null*
+  - **`description`**: A description of the field - rather than the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`type`**: The type of the value. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`value`**: Might be a direct value or a list of DetailGroups. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`sub_detail_groups`** *(array)*: Groups of details - seperating out fields as key-value pairs.
+    - **Items**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+- <a id="%24defs/RegmemEntry"></a>**`RegmemEntry`** *(object)*
+  - **`id`**: A identifier for the entry (may not be unique, and reflect id in original system). If blank a hash is used. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`content`** *(string)*: The main content of the entry. Default: `""`.
+  - **`content_format`** *(string)*: The format of the content. Must be one of: `["string", "markdown", "xml"]`. Default: `"string"`.
+  - **`date_registered`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`date_published`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`date_updated`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`date_received`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`null_entry`** *(boolean)*: If the entry is saying 'no entries declared' or similar. Default: `false`.
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`details`**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+  - **`sub_entries`** *(array)*: Sub-entries - for instance multiple payments to this person.
+    - **Items**: Refer to *[#/$defs/RegmemEntry](#%24defs/RegmemEntry)*.
+  - **`info_type`** *(string)*: Must be one of: `["entry", "subentry"]`. Default: `"entry"`.
+- <a id="%24defs/RegmemPerson"></a>**`RegmemPerson`** *(object)*: All registered interests for a person.
+Duplicate published_date here with overall register because sometimes
+we know the individual date of publication.
+  - **`person_id`** *(string, required)*
+  - **`person_name`** *(string, required)*
+  - **`published_date`** *(string, format: date, required)*
+  - **`chamber`**: Refer to *[#/$defs/Chamber](#%24defs/Chamber)*.
+  - **`language`** *(string)*: Must be one of: `["en", "cy"]`. Default: `"en"`.
+  - **`categories`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemCategory](#%24defs/RegmemCategory)*.
+- <a id="%24defs/RegmemSummary"></a>**`RegmemSummary`** *(object)*
+  - **`id`**: A identifier for the entry (may not be unique, and reflect id in original system). If blank a hash is used. Default: `null`.
+    - **Any of**
+      - *string*
+      - *null*
+  - **`content`** *(string)*: The main content of the entry. Default: `""`.
+  - **`content_format`** *(string)*: The format of the content. Must be one of: `["string", "markdown", "xml"]`. Default: `"string"`.
+  - **`date_registered`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`date_published`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`date_updated`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`date_received`**: Default: `null`.
+    - **Any of**
+      - *string, format: date*
+      - *null*
+  - **`null_entry`** *(boolean)*: If the entry is saying 'no entries declared' or similar. Default: `false`.
+  - **`annotations`** *(array)*
+    - **Items**: Refer to *[#/$defs/RegmemAnnotation](#%24defs/RegmemAnnotation)*.
+  - **`details`**: Refer to *[#/$defs/RegmemDetailGroup](#%24defs/RegmemDetailGroup)*.
+  - **`sub_entries`** *(array)*: Sub-entries - for instance multiple payments to this person.
+    - **Items**: Refer to *[#/$defs/RegmemEntry](#%24defs/RegmemEntry)*.
+  - **`info_type`** *(string)*: Must be: `"summary"`. Default: `"summary"`.

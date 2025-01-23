@@ -1,0 +1,1245 @@
+{
+  "$defs": {
+    "Chamber": {
+      "enum": [
+        "house-of-commons",
+        "house-of-lords",
+        "scottish-parliament",
+        "welsh-parliament",
+        "london-assembly",
+        "northern-ireland-assembly"
+      ],
+      "title": "Chamber",
+      "type": "string"
+    },
+    "CommonKey": {
+      "enum": [
+        "companies_house",
+        "url",
+        "standardised_name",
+        "sic_code"
+      ],
+      "title": "CommonKey",
+      "type": "string"
+    },
+    "RegmemAnnotation": {
+      "description": "A simple Annotation for a register entry.",
+      "properties": {
+        "author": {
+          "title": "Author",
+          "type": "string"
+        },
+        "type": {
+          "default": "note",
+          "title": "Type",
+          "type": "string"
+        },
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "date_added": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Added"
+        },
+        "content_format": {
+          "default": "string",
+          "description": "The format of the content",
+          "enum": [
+            "string",
+            "markdown",
+            "xml"
+          ],
+          "title": "Content Format",
+          "type": "string"
+        }
+      },
+      "required": [
+        "author",
+        "content"
+      ],
+      "title": "RegmemAnnotation",
+      "type": "object"
+    },
+    "RegmemCategory": {
+      "description": "Across all registers there are different categories of interests.\nWe mostly use these to structure the output - they vary by chamber.\n\n*Ideally* category_id is a number, or at least sortable.",
+      "properties": {
+        "category_id": {
+          "default": "",
+          "description": "The unique identifier for the category",
+          "title": "Category Id",
+          "type": "string"
+        },
+        "category_name": {
+          "title": "Category Name",
+          "type": "string"
+        },
+        "category_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category Description"
+        },
+        "legislation_or_rule_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legislation Or Rule Name"
+        },
+        "legislation_or_rule_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legislation Or Rule Url"
+        },
+        "summaries": {
+          "items": {
+            "$ref": "#/$defs/RegmemSummary"
+          },
+          "title": "Summaries",
+          "type": "array"
+        },
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/RegmemEntry"
+          },
+          "title": "Entries",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category_name"
+      ],
+      "title": "RegmemCategory",
+      "type": "object"
+    },
+    "RegmemDetailGroup": {
+      "description": "This is a container object for groups of details.\nThe discriminator union applies the correct type validator\nlogic depending on the type property.",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/RegmemDetail_int_"
+          },
+          {
+            "$ref": "#/$defs/RegmemDetail_str_"
+          },
+          {
+            "$ref": "#/$defs/RegmemDetail_Decimal_"
+          },
+          {
+            "$ref": "#/$defs/RegmemDetail_date_"
+          },
+          {
+            "$ref": "#/$defs/RegmemDetail_float_"
+          },
+          {
+            "$ref": "#/$defs/RegmemDetail_bool_"
+          },
+          {
+            "$ref": "#/$defs/RegmemDetail_list_RegmemDetailGroup__"
+          }
+        ]
+      },
+      "title": "RegmemDetailGroup",
+      "type": "array"
+    },
+    "RegmemDetail_Decimal_": {
+      "properties": {
+        "source": {
+          "default": "official",
+          "description": "The source of the information, for flagging when info is added by third parties",
+          "title": "Source",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "display_as": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display As"
+        },
+        "common_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommonKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For adding a key against standardised list without changing the slug"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the field - rather than the value",
+          "title": "Description"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The type of the value",
+          "title": "Type"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Might be a direct value or a list of DetailGroups",
+          "title": "Value"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "sub_detail_groups": {
+          "description": "Groups of details - seperating out fields as key-value pairs",
+          "items": {
+            "$ref": "#/$defs/RegmemDetailGroup"
+          },
+          "title": "Sub Detail Groups",
+          "type": "array"
+        }
+      },
+      "title": "RegmemDetail[Decimal]",
+      "type": "object"
+    },
+    "RegmemDetail_bool_": {
+      "properties": {
+        "source": {
+          "default": "official",
+          "description": "The source of the information, for flagging when info is added by third parties",
+          "title": "Source",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "display_as": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display As"
+        },
+        "common_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommonKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For adding a key against standardised list without changing the slug"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the field - rather than the value",
+          "title": "Description"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The type of the value",
+          "title": "Type"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Might be a direct value or a list of DetailGroups",
+          "title": "Value"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "sub_detail_groups": {
+          "description": "Groups of details - seperating out fields as key-value pairs",
+          "items": {
+            "$ref": "#/$defs/RegmemDetailGroup"
+          },
+          "title": "Sub Detail Groups",
+          "type": "array"
+        }
+      },
+      "title": "RegmemDetail[bool]",
+      "type": "object"
+    },
+    "RegmemDetail_date_": {
+      "properties": {
+        "source": {
+          "default": "official",
+          "description": "The source of the information, for flagging when info is added by third parties",
+          "title": "Source",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "display_as": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display As"
+        },
+        "common_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommonKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For adding a key against standardised list without changing the slug"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the field - rather than the value",
+          "title": "Description"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The type of the value",
+          "title": "Type"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Might be a direct value or a list of DetailGroups",
+          "title": "Value"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "sub_detail_groups": {
+          "description": "Groups of details - seperating out fields as key-value pairs",
+          "items": {
+            "$ref": "#/$defs/RegmemDetailGroup"
+          },
+          "title": "Sub Detail Groups",
+          "type": "array"
+        }
+      },
+      "title": "RegmemDetail[date]",
+      "type": "object"
+    },
+    "RegmemDetail_float_": {
+      "properties": {
+        "source": {
+          "default": "official",
+          "description": "The source of the information, for flagging when info is added by third parties",
+          "title": "Source",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "display_as": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display As"
+        },
+        "common_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommonKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For adding a key against standardised list without changing the slug"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the field - rather than the value",
+          "title": "Description"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The type of the value",
+          "title": "Type"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Might be a direct value or a list of DetailGroups",
+          "title": "Value"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "sub_detail_groups": {
+          "description": "Groups of details - seperating out fields as key-value pairs",
+          "items": {
+            "$ref": "#/$defs/RegmemDetailGroup"
+          },
+          "title": "Sub Detail Groups",
+          "type": "array"
+        }
+      },
+      "title": "RegmemDetail[float]",
+      "type": "object"
+    },
+    "RegmemDetail_int_": {
+      "properties": {
+        "source": {
+          "default": "official",
+          "description": "The source of the information, for flagging when info is added by third parties",
+          "title": "Source",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "display_as": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display As"
+        },
+        "common_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommonKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For adding a key against standardised list without changing the slug"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the field - rather than the value",
+          "title": "Description"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The type of the value",
+          "title": "Type"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Might be a direct value or a list of DetailGroups",
+          "title": "Value"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "sub_detail_groups": {
+          "description": "Groups of details - seperating out fields as key-value pairs",
+          "items": {
+            "$ref": "#/$defs/RegmemDetailGroup"
+          },
+          "title": "Sub Detail Groups",
+          "type": "array"
+        }
+      },
+      "title": "RegmemDetail[int]",
+      "type": "object"
+    },
+    "RegmemDetail_list_RegmemDetailGroup__": {
+      "properties": {
+        "source": {
+          "default": "official",
+          "description": "The source of the information, for flagging when info is added by third parties",
+          "title": "Source",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "display_as": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display As"
+        },
+        "common_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommonKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For adding a key against standardised list without changing the slug"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the field - rather than the value",
+          "title": "Description"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The type of the value",
+          "title": "Type"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/RegmemDetailGroup"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Might be a direct value or a list of DetailGroups",
+          "title": "Value"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "sub_detail_groups": {
+          "description": "Groups of details - seperating out fields as key-value pairs",
+          "items": {
+            "$ref": "#/$defs/RegmemDetailGroup"
+          },
+          "title": "Sub Detail Groups",
+          "type": "array"
+        }
+      },
+      "title": "RegmemDetail[list[RegmemDetailGroup]]",
+      "type": "object"
+    },
+    "RegmemDetail_str_": {
+      "properties": {
+        "source": {
+          "default": "official",
+          "description": "The source of the information, for flagging when info is added by third parties",
+          "title": "Source",
+          "type": "string"
+        },
+        "slug": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slug"
+        },
+        "display_as": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display As"
+        },
+        "common_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommonKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For adding a key against standardised list without changing the slug"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the field - rather than the value",
+          "title": "Description"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The type of the value",
+          "title": "Type"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Might be a direct value or a list of DetailGroups",
+          "title": "Value"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "sub_detail_groups": {
+          "description": "Groups of details - seperating out fields as key-value pairs",
+          "items": {
+            "$ref": "#/$defs/RegmemDetailGroup"
+          },
+          "title": "Sub Detail Groups",
+          "type": "array"
+        }
+      },
+      "title": "RegmemDetail[str]",
+      "type": "object"
+    },
+    "RegmemEntry": {
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A identifier for the entry (may not be unique, and reflect id in original system). If blank a hash is used.",
+          "title": "Id"
+        },
+        "content": {
+          "default": "",
+          "description": "The main content of the entry",
+          "title": "Content",
+          "type": "string"
+        },
+        "content_format": {
+          "default": "string",
+          "description": "The format of the content",
+          "enum": [
+            "string",
+            "markdown",
+            "xml"
+          ],
+          "title": "Content Format",
+          "type": "string"
+        },
+        "date_registered": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Registered"
+        },
+        "date_published": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Published"
+        },
+        "date_updated": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Updated"
+        },
+        "date_received": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Received"
+        },
+        "null_entry": {
+          "default": false,
+          "description": "If the entry is saying 'no entries declared' or similar.",
+          "title": "Null Entry",
+          "type": "boolean"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "details": {
+          "$ref": "#/$defs/RegmemDetailGroup"
+        },
+        "sub_entries": {
+          "description": "Sub-entries - for instance multiple payments to this person.",
+          "items": {
+            "$ref": "#/$defs/RegmemEntry"
+          },
+          "title": "Sub Entries",
+          "type": "array"
+        },
+        "info_type": {
+          "default": "entry",
+          "enum": [
+            "entry",
+            "subentry"
+          ],
+          "title": "Info Type",
+          "type": "string"
+        }
+      },
+      "title": "RegmemEntry",
+      "type": "object"
+    },
+    "RegmemPerson": {
+      "description": "All registered interests for a person.\nDuplicate published_date here with overall register because sometimes\nwe know the individual date of publication.",
+      "properties": {
+        "person_id": {
+          "title": "Person Id",
+          "type": "string"
+        },
+        "person_name": {
+          "title": "Person Name",
+          "type": "string"
+        },
+        "published_date": {
+          "format": "date",
+          "title": "Published Date",
+          "type": "string"
+        },
+        "chamber": {
+          "$ref": "#/$defs/Chamber"
+        },
+        "language": {
+          "default": "en",
+          "enum": [
+            "en",
+            "cy"
+          ],
+          "title": "Language",
+          "type": "string"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/RegmemCategory"
+          },
+          "title": "Categories",
+          "type": "array"
+        }
+      },
+      "required": [
+        "person_id",
+        "person_name",
+        "published_date",
+        "chamber"
+      ],
+      "title": "RegmemPerson",
+      "type": "object"
+    },
+    "RegmemSummary": {
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A identifier for the entry (may not be unique, and reflect id in original system). If blank a hash is used.",
+          "title": "Id"
+        },
+        "content": {
+          "default": "",
+          "description": "The main content of the entry",
+          "title": "Content",
+          "type": "string"
+        },
+        "content_format": {
+          "default": "string",
+          "description": "The format of the content",
+          "enum": [
+            "string",
+            "markdown",
+            "xml"
+          ],
+          "title": "Content Format",
+          "type": "string"
+        },
+        "date_registered": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Registered"
+        },
+        "date_published": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Published"
+        },
+        "date_updated": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Updated"
+        },
+        "date_received": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date Received"
+        },
+        "null_entry": {
+          "default": false,
+          "description": "If the entry is saying 'no entries declared' or similar.",
+          "title": "Null Entry",
+          "type": "boolean"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/RegmemAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "details": {
+          "$ref": "#/$defs/RegmemDetailGroup"
+        },
+        "sub_entries": {
+          "description": "Sub-entries - for instance multiple payments to this person.",
+          "items": {
+            "$ref": "#/$defs/RegmemEntry"
+          },
+          "title": "Sub Entries",
+          "type": "array"
+        },
+        "info_type": {
+          "const": "summary",
+          "default": "summary",
+          "title": "Info Type",
+          "type": "string"
+        }
+      },
+      "title": "RegmemSummary",
+      "type": "object"
+    }
+  },
+  "description": "General container for a specific release of a register in a chamber.\nThis may in practice be \"the public information as of date\" rather\nthan an explicitly released register.",
+  "properties": {
+    "chamber": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Chamber"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "language": {
+      "anyOf": [
+        {
+          "enum": [
+            "en",
+            "cy"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "en",
+      "title": "Language"
+    },
+    "published_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Published Date"
+    },
+    "annotations": {
+      "items": {
+        "$ref": "#/$defs/RegmemAnnotation"
+      },
+      "title": "Annotations",
+      "type": "array"
+    },
+    "summaries": {
+      "items": {
+        "$ref": "#/$defs/RegmemSummary"
+      },
+      "title": "Summaries",
+      "type": "array"
+    },
+    "persons": {
+      "items": {
+        "$ref": "#/$defs/RegmemPerson"
+      },
+      "title": "Persons",
+      "type": "array"
+    }
+  },
+  "title": "RegmemRegister",
+  "type": "object"
+}

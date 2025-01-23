@@ -1,0 +1,1022 @@
+{
+  "$defs": {
+    "AltName": {
+      "additionalProperties": false,
+      "properties": {
+        "end_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "End Date",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "note": {
+          "const": "Alternate",
+          "title": "Note",
+          "type": "string"
+        },
+        "organization_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Organization Id"
+        },
+        "start_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "Start Date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "note"
+      ],
+      "title": "AltName",
+      "type": "object"
+    },
+    "Area": {
+      "additionalProperties": false,
+      "description": "Constituency name",
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "other_names": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Other Names",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Area",
+      "type": "object"
+    },
+    "BasicPersonName": {
+      "additionalProperties": false,
+      "description": "Basic name for for most elected persons",
+      "properties": {
+        "end_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "End Date",
+          "type": "string"
+        },
+        "family_name": {
+          "title": "Family Name",
+          "type": "string"
+        },
+        "given_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Given Name"
+        },
+        "honorific_prefix": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Honorific Prefix"
+        },
+        "note": {
+          "enum": [
+            "Main",
+            "Alternate"
+          ],
+          "title": "Note",
+          "type": "string"
+        },
+        "start_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "Start Date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "family_name",
+        "note"
+      ],
+      "title": "BasicPersonName",
+      "type": "object"
+    },
+    "IndexedList_Organization_": {
+      "items": {
+        "$ref": "#/$defs/Organization"
+      },
+      "title": "IndexedList[Organization]",
+      "type": "array"
+    },
+    "IndexedList_Post_": {
+      "items": {
+        "$ref": "#/$defs/Post"
+      },
+      "title": "IndexedList[Post]",
+      "type": "array"
+    },
+    "IndexedList_Self_": {
+      "items": {
+        "$ref": "#/$defs/IndexedList_Self_"
+      },
+      "title": "IndexedList[Self]",
+      "type": "array"
+    },
+    "IndexedMembershipList": {
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Membership"
+          },
+          {
+            "$ref": "#/$defs/MembershipRedirect"
+          }
+        ]
+      },
+      "title": "IndexedMembershipList",
+      "type": "array"
+    },
+    "IndexedPeopleList": {
+      "description": "Indexed list with extra options for people\nwith a name index and identifier index.",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Person"
+          },
+          {
+            "$ref": "#/$defs/PersonRedirect"
+          }
+        ]
+      },
+      "title": "IndexedPeopleList",
+      "type": "array"
+    },
+    "IndexedPersonIdentifierList": {
+      "items": {
+        "$ref": "#/$defs/PersonIdentifier"
+      },
+      "title": "IndexedPersonIdentifierList",
+      "type": "array"
+    },
+    "Link": {
+      "additionalProperties": false,
+      "properties": {
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "url": {
+          "pattern": "^https?://.*$",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "Link",
+      "type": "object"
+    },
+    "LordName": {
+      "additionalProperties": false,
+      "description": "A name - with all the lords options.\nThere's so many optional fields here because of all the lords types.",
+      "properties": {
+        "additional_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Additional Name"
+        },
+        "county": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "County"
+        },
+        "end_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "End Date",
+          "type": "string"
+        },
+        "given_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Given Name"
+        },
+        "honorific_prefix": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Honorific Prefix"
+        },
+        "honorific_suffix": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Honorific Suffix"
+        },
+        "lordname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lordname"
+        },
+        "lordofname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lordofname"
+        },
+        "lordofname_full": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lordofname Full"
+        },
+        "note": {
+          "enum": [
+            "Main",
+            "Alternate"
+          ],
+          "title": "Note",
+          "type": "string"
+        },
+        "start_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "surname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Surname"
+        }
+      },
+      "required": [
+        "note"
+      ],
+      "title": "LordName",
+      "type": "object"
+    },
+    "Membership": {
+      "additionalProperties": false,
+      "description": "A timed connection between a person and a post.",
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "end_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "End Date",
+          "type": "string"
+        },
+        "end_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Reason"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/SimpleIdentifier"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifiers"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Name"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "on_behalf_of_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "On Behalf Of Id"
+        },
+        "organization_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Organization Id"
+        },
+        "person_id": {
+          "title": "Person Id",
+          "type": "string"
+        },
+        "post_id": {
+          "anyOf": [
+            {
+              "pattern": "uk\\.org\\.publicwhip/cons/\\d+(-NI)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Post Id"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "start_date": {
+          "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "start_reason": {
+          "default": "",
+          "title": "Start Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "person_id"
+      ],
+      "title": "Membership",
+      "type": "object"
+    },
+    "MembershipRedirect": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "redirect": {
+          "title": "Redirect",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "redirect"
+      ],
+      "title": "MembershipRedirect",
+      "type": "object"
+    },
+    "Name": {
+      "additionalProperties": false,
+      "properties": {
+        "family_name": {
+          "title": "Family Name",
+          "type": "string"
+        },
+        "given_name": {
+          "title": "Given Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "family_name",
+        "given_name"
+      ],
+      "title": "Name",
+      "type": "object"
+    },
+    "Organization": {
+      "additionalProperties": false,
+      "description": "May be a party or chamber",
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "enum": [
+                "party",
+                "chamber",
+                "metro"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Classification"
+        },
+        "id": {
+          "pattern": "^[a-z0-9-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/SimpleIdentifier"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifiers"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Organization",
+      "type": "object"
+    },
+    "Person": {
+      "additionalProperties": false,
+      "description": "A person who has held an office.",
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "biography": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Biography"
+        },
+        "birth_date": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Birth Date"
+        },
+        "death_date": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Death Date"
+        },
+        "gender": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gender"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "identifiers": {
+          "$ref": "#/$defs/IndexedPersonIdentifierList"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "pattern": "^https?://.*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image"
+        },
+        "links": {
+          "items": {
+            "$ref": "#/$defs/Link"
+          },
+          "title": "Links",
+          "type": "array"
+        },
+        "names": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BasicPersonName"
+              },
+              {
+                "$ref": "#/$defs/LordName"
+              },
+              {
+                "$ref": "#/$defs/AltName"
+              }
+            ]
+          },
+          "title": "Names",
+          "type": "array"
+        },
+        "national_identity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "National Identity"
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Summary"
+        },
+        "shortcuts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Shortcuts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "deprecated": true
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "Person",
+      "type": "object"
+    },
+    "PersonIdentifier": {
+      "additionalProperties": false,
+      "description": "Alternative identifiers in other schemas for a person",
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Identifier"
+        },
+        "scheme": {
+          "title": "Scheme",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "scheme"
+      ],
+      "title": "PersonIdentifier",
+      "type": "object"
+    },
+    "PersonRedirect": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "redirect": {
+          "title": "Redirect",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "redirect"
+      ],
+      "title": "PersonRedirect",
+      "type": "object"
+    },
+    "Post": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IndexedList_Self_"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "area": {
+          "$ref": "#/$defs/Area"
+        },
+        "end_date": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Date"
+        },
+        "id": {
+          "pattern": "uk\\.org\\.publicwhip/cons/\\d+(-NI)?$",
+          "title": "Id",
+          "type": "string"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PostIdentifier"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifiers"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "organization_id": {
+          "pattern": "^[a-z0-9-]+$",
+          "title": "Organization Id",
+          "type": "string"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "start_date": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}(-\\d{2})?(-\\d{2})?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Date"
+        }
+      },
+      "required": [
+        "area",
+        "id",
+        "label",
+        "organization_id",
+        "role"
+      ],
+      "title": "Post",
+      "type": "object"
+    },
+    "PostIdentifier": {
+      "additionalProperties": false,
+      "description": "ID for post (e.g. MP of constituency) in other schemas",
+      "properties": {
+        "identifier": {
+          "title": "Identifier",
+          "type": "string"
+        },
+        "scheme": {
+          "title": "Scheme",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "scheme"
+      ],
+      "title": "PostIdentifier",
+      "type": "object"
+    },
+    "Shortcuts": {
+      "additionalProperties": false,
+      "description": "Previously calculated shortcuts between a person\nand their current consitutency and party.\nThis is out of date in people.json, and won't work for people\nin multiple chambers.",
+      "properties": {
+        "current_constituency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Constituency"
+        },
+        "current_party": {
+          "title": "Current Party",
+          "type": "string"
+        }
+      },
+      "required": [
+        "current_party"
+      ],
+      "title": "Shortcuts",
+      "type": "object"
+    },
+    "SimpleIdentifier": {
+      "additionalProperties": false,
+      "properties": {
+        "identifier": {
+          "title": "Identifier",
+          "type": "string"
+        },
+        "scheme": {
+          "title": "Scheme",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier",
+        "scheme"
+      ],
+      "title": "SimpleIdentifier",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The overall Popolo object - connecting the common political data objects.",
+  "properties": {
+    "memberships": {
+      "$ref": "#/$defs/IndexedMembershipList"
+    },
+    "organizations": {
+      "$ref": "#/$defs/IndexedList_Organization_"
+    },
+    "persons": {
+      "$ref": "#/$defs/IndexedPeopleList"
+    },
+    "posts": {
+      "$ref": "#/$defs/IndexedList_Post_"
+    }
+  },
+  "title": "Popolo",
+  "type": "object"
+}
