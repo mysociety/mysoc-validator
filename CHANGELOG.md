@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.0.0] - 2025-01-23
+
+### Added
+
+- RegmemRegister model structure.
+- Add schema jsons and mardkwons.
+
+### Changed
+
+- Rename older XML Register to new location.
+
 ## [0.10.0] - 2024-12-09
 
 ### Changed
