@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.1.0] - 2025-03-11
+
+### Added
+
+- Details addition functions to Regmem.
+
+### Changed
+
+- Better slugify function for regmem entries.
+- Added 'full' save option for regmem (include default values etc).
+
+
 ## [1.0.0] - 2025-01-23
 
 ### Added

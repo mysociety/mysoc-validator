@@ -10,6 +10,7 @@ from enum import Enum
 from hashlib import md5
 from pathlib import Path
 from typing import (
+    TYPE_CHECKING,
     Annotated,
     Any,
     Generic,
@@ -33,6 +34,9 @@ from pydantic import (
     model_validator,
 )
 
+if TYPE_CHECKING:
+    import pandas as pd
+
 ContentType = Literal["string", "markdown", "xml"]
 ValidDetailTypes = Union[
     int, str, Decimal, datetime.date, float, bool, list["RegmemDetailGroup"]
@@ -42,6 +46,34 @@ T = TypeVar(
     "T",
     bound=ValidDetailTypes,
 )
+
+
+def slugify(s: str) -> str:
+    """
+    lowercase, space with _, only otherwise alphanumeric, no double __
+    """
+    # remove non-alphanumeric
+    s = "".join([c for c in s if c.isalnum() or c == " "]).strip()
+    # replace spaces with _
+    s = s.replace(" ", "_")
+    # lowercase
+    s = s.lower()
+    # remove double __
+    s = s.replace("__", "_")
+    return s
+
+
+def df_to_details_group(df: pd.DataFrame) -> list[RegmemDetailGroup]:
+    groups: list[RegmemDetailGroup] = []
+    for row in df.to_dict(orient="records"):
+        row_group = RegmemDetailGroup()
+
+        for k, v in row.items():
+            row_group.append(RegmemDetail[type(v)](display_as=str(k), value=v))
+
+        groups.append(row_group)
+
+    return groups
 
 
 class CommonKey(str, Enum):
@@ -110,7 +142,7 @@ class RegmemDetail(BaseModel, Generic[T]):
         if slug is missing, infer from display_as and vice versa.
         """
         if not self.slug and self.display_as:
-            self.slug = self.display_as.lower().replace(" ", "_")
+            self.slug = slugify(self.display_as)
         if not self.display_as and self.slug:
             self.display_as = self.slug.replace("_", " ").title()
         return self
@@ -169,8 +201,8 @@ def get_tag(v: Any) -> str:
         item_type = v.get("type")
         item_value = v.get("value")
     else:
-        item_type = getattr(v, "type")
-        item_value = getattr(v, "value")
+        item_type = getattr(v, "type", None)
+        item_value = getattr(v, "value", None)
 
     if item_type:
         return item_type
@@ -249,7 +281,8 @@ class RegmemDetailGroup(RootModel[Any]):
     def check_unique_detail_names(self):
         names = [x.slug for x in self.root]
         if len(names) != len(set(names)):
-            raise ValueError("Duplicate detail names in entry")
+            duplicate_names = set([x for x in names if names.count(x) > 1])
+            raise ValueError(f"Duplicate detail names in entry: {duplicate_names}")
 
 
 RegmemDetailContainer = RegmemDetail[list[RegmemDetailGroup]]
@@ -313,12 +346,55 @@ class RegmemInfoBase(BaseModel):
         description="Sub-entries - for instance multiple payments to this person.",
     )
 
-    def details_dict(self):
+    def add_details(
+        self,
+        *,
+        source: Optional[str] = None,
+        **values: Union[ValidDetailTypes, pd.DataFrame],
+    ):
+        import pandas as pd
+
+        for k, v in values.items():
+            if isinstance(v, pd.DataFrame):
+                self.details.append(
+                    RegmemDetailContainer(value=df_to_details_group(v), slug=k),
+                    source=source,
+                )
+            else:
+                self.details.append(
+                    RegmemDetail[type(v)](value=v, slug=k), source=source
+                )
+
+    def details_dict(self, reduce: Optional[dict[str, list[str]]] = None):
         """
         Condense the details into a dictionary of keys and values.
         """
-        data = {"id": self.comparable_id, "content": self.content}
+        data: dict[str, Any] = {"id": self.comparable_id, "content": self.content}
+        if self.date_registered:
+            data["date_registered"] = self.date_registered.isoformat()
+        if self.date_published:
+            data["date_published"] = self.date_published.isoformat()
         data |= self.details.detail_dict()
+
+        def extract_discription(
+            list_of_groups: list[RegmemDetailGroup], slug: str
+        ) -> list[str]:
+            values = []
+            for group in list_of_groups:
+                for item in group:
+                    if item.slug == slug:
+                        values.append(item.value)
+            return values
+
+        if reduce:
+            for key, slugs in reduce.items():
+                if key in data:
+                    for slug in slugs:
+                        value = data[key]
+                        if isinstance(value, list):
+                            data[slug] = extract_discription(value, slug)
+                    # remove the original key
+                    del data[key]
         return data
 
     def get_detail(self, name: Union[str, CommonKey]) -> Optional[RegmemDetail[Any]]:
@@ -485,10 +561,15 @@ class RegmemRegister(BaseModel):
         raise ValueError(f"Person {person_id} not found in register")
 
     @classmethod
-    def from_path(cls, path: Path):
+    def from_path(cls, path: Path) -> RegmemRegister:
         data = path.read_text()
         return cls.model_validate_json(data)
 
-    def to_path(self, path: Path):
-        data = self.model_dump_json(indent=2, exclude_none=True, exclude_defaults=True)
+    def to_path(self, path: Path, full: bool = False):
+        if full:
+            data = self.model_dump_json(indent=2)
+        else:
+            data = self.model_dump_json(
+                indent=2, exclude_none=True, exclude_defaults=True
+            )
         path.write_text(data)
