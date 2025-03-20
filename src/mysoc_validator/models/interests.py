@@ -65,11 +65,11 @@ def slugify(s: str) -> str:
 
 def df_to_details_group(df: pd.DataFrame) -> list[RegmemDetailGroup]:
     groups: list[RegmemDetailGroup] = []
-    for row in df.to_dict(orient="records"):
+    for row in df.to_dict(orient="records"):  # type: ignore
         row_group = RegmemDetailGroup()
 
         for k, v in row.items():
-            row_group.append(RegmemDetail[type(v)](display_as=str(k), value=v))
+            row_group.append(RegmemDetail[type(v)](display_as=str(k), value=v))  # type: ignore
 
         groups.append(row_group)
 
@@ -123,18 +123,13 @@ class RegmemDetail(BaseModel, Generic[T]):
     annotations: list[RegmemAnnotation] = Field(default_factory=list)
 
     @property
-    def sub_details_groups(self) -> list[RegmemDetailGroup]:
+    def sub_detail_groups(self) -> list[RegmemDetailGroup]:
         """
         Shortcut for accessing details of containers
         """
         if isinstance(self.value, list):
             return self.value
         return []
-
-    sub_detail_groups: list[RegmemDetailGroup] = Field(
-        default_factory=list,
-        description="Groups of details - seperating out fields as key-value pairs",
-    )
 
     @model_validator(mode="after")
     def infer_slug(self):
@@ -383,8 +378,8 @@ class RegmemInfoBase(BaseModel):
             for group in list_of_groups:
                 for item in group:
                     if item.slug == slug:
-                        values.append(item.value)
-            return values
+                        values.append(item.value)  # type: ignore
+            return values  # type: ignore
 
         if reduce:
             for key, slugs in reduce.items():
@@ -392,7 +387,7 @@ class RegmemInfoBase(BaseModel):
                     for slug in slugs:
                         value = data[key]
                         if isinstance(value, list):
-                            data[slug] = extract_discription(value, slug)
+                            data[slug] = extract_discription(value, slug)  # type: ignore
                     # remove the original key
                     del data[key]
         return data
