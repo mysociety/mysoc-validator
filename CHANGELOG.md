@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.1.2] - 2025-03-23
+
+### Changed
+
+- Fixed typing on InfoCollection for better support of subclasses.
+
 ## [1.1.1] - 2025-03-20
 
 ### Changed

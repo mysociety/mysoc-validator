@@ -1,5 +1,5 @@
 import json
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, Union
 from typing import Literal as Literal
 
 from pydantic import AliasChoices, ConfigDict, Field
@@ -61,11 +61,20 @@ class PersonInfo(BaseXMLModel, metaclass=DefaultExtraForbid, tags=["personinfo"]
             delattr(self, "@children")
 
 
-InfoModel = TypeVar("InfoModel", ConsInfo, PersonInfo)
+InfoModel = TypeVar("InfoModel", bound=Union[ConsInfo, PersonInfo])
 
 
 class InfoCollection(BaseXMLModel, Generic[InfoModel], tags=["twfy", "publicwhip"]):
     items: Items[InfoModel]
+
+    def append(self, item: InfoModel):
+        self.items.append(item)
+
+    def extend(self, items: list[InfoModel]):
+        self.items.extend(items)
+
+    def __iter__(self):  # type: ignore
+        return iter(self.items)
 
     def promote_children(self):
         """
