@@ -29,3 +29,5 @@ class IdentifierScheme(StrEnum):
     PEERAGE_TYPE = "peeragetype"
     WIKIDATA = "wikidata"
     SCOTPARL = "scotparl_id"
+    SENEDD = "senedd"
+    NI_ASSEMBLY = "data.niassembly.gov.uk"
