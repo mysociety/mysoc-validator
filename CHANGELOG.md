@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.1.4] - 2025-03-24
+
+### Changed
+
+- Need to manually add items to __pydantic_set so is exported correctly.
+
 ## [1.1.3] - 2025-03-24
 
 ### Changed

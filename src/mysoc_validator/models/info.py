@@ -73,9 +73,11 @@ class InfoCollection(BaseXMLModel, Generic[InfoModel], tags=["twfy", "publicwhip
 
     def append(self, item: InfoModel):
         self.items.append(item)
+        self.__pydantic_fields_set__.add("items")
 
     def extend(self, items: list[InfoModel]):
         self.items.extend(items)
+        self.__pydantic_fields_set__.add("items")
 
     def __iter__(self):  # type: ignore
         return iter(self.items)
