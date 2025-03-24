@@ -65,7 +65,11 @@ InfoModel = TypeVar("InfoModel", bound=Union[ConsInfo, PersonInfo])
 
 
 class InfoCollection(BaseXMLModel, Generic[InfoModel], tags=["twfy", "publicwhip"]):
-    items: Items[InfoModel] = Field(default_factory=list)
+    items: Items[InfoModel] = Field(
+        validation_alias=AliasChoices("items", "@children"),
+        serialization_alias="@children",
+        default_factory=list,
+    )
 
     def append(self, item: InfoModel):
         self.items.append(item)

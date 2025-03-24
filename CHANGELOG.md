@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.1.3] - 2025-03-24
+
+### Changed
+
+- Added Senedd, ScotParl identifer schemes
+- Added default empty list for InfoCollection.
+
 ## [1.1.2] - 2025-03-23
 
 ### Changed
