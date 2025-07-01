@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.1.5] - 2025-07-01
+
+### Changed
+
+- Expand allowed versions of httpx
+
+
 ## [1.1.4] - 2025-03-24
 
 ### Changed
