@@ -137,6 +137,7 @@ from mysoc_validator.models.info import InfoCollection, PersonInfo, ConsInfo
 class SocialInfo(PersonInfo):
     facebook_page: Optional[str] = None
     twitter_username: Optional[str]= None
+    bluesky_handle: Optional[str]= None
 
 social_media_links = InfoCollection[SocialInfo].from_parlparse("social-media-commons")
 ```

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Expand allowed versions of httpx
+- Add missing bluesky_handle to allow tests off live data.
 
 
 ## [1.1.4] - 2025-03-24
