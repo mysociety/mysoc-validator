@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from mysoc_validator import Popolo
 from mysoc_validator.models.popolo import Chamber
+from mysoc_validator.models.consts import MembershipReason
 
 iso = date.fromisoformat
 
@@ -38,18 +39,32 @@ def test_change_name():
 def test_change_party():
     popolo = Popolo.from_parlparse()
 
-    person = popolo.persons["uk.org.publicwhip/person/10001"]
+    person = popolo.persons["uk.org.publicwhip/person/25034"]
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "labour"
 
-    person.change_party(popolo.organizations["conservative"], change_date=today)
+    person.change_party(
+        popolo.organizations["conservative"],
+        change_date=today,
+        source_url="http://example.com",
+    )
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "conservative"
+    assert last_membership.start_reason == MembershipReason.CHANGED_PARTY
+    assert last_membership.source == "http://example.com"
 
-    person.remove_whip(change_date=today + timedelta(days=1))
+    person.remove_whip(
+        change_date=today + timedelta(days=1), source_url="http://example.com/remove"
+    )
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "independent"
+    assert last_membership.start_reason == MembershipReason.WHIP_REMOVED
+    assert last_membership.source == "http://example.com/remove"
 
-    person.restore_whip(change_date=today + timedelta(days=2))
+    person.restore_whip(
+        change_date=today + timedelta(days=2), source_url="http://example.com/restore"
+    )
     last_membership = person.memberships()[-1]
     assert last_membership.on_behalf_of_id == "conservative"
+    assert last_membership.start_reason == MembershipReason.WHIP_RESTORED
+    assert last_membership.source == "http://example.com/restore"

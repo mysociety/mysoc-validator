@@ -11,6 +11,7 @@ import typer
 from tqdm import tqdm
 from trogon.trogon import Trogon  # type: ignore
 
+from .models.consts import MembershipReason
 from .models.dates import FixedDate
 from .models.interests import RegmemRegister
 from .models.popolo import Popolo
@@ -241,7 +242,8 @@ def change_party(
     person_id: PersonID = "",
     new_party_id: str = "",
     change_date: OptionalDate = None,
-    change_reason: str = "",
+    change_reason: MembershipReason = MembershipReason.CHANGED_PARTY,
+    source_url: Optional[str] = None,
 ):
     """
     Change the party for a given person id
@@ -257,6 +259,7 @@ def change_party(
         new_party=org,
         change_date=change_date,
         change_reason=change_reason,
+        source_url=source_url,
     )
     rich.print(f"[green]Changed party for {person_id} to {new_party_id}[/green]")
     popolo.to_path(file)
@@ -267,6 +270,7 @@ def remove_whip(
     file: PopoloPath = Path("."),
     person_id: PersonID = "",
     change_date: OptionalDate = None,
+    source_url: Optional[str] = None,
 ):
     """
     Remove the whip for a given person id
@@ -275,6 +279,7 @@ def remove_whip(
     person = popolo.persons[person_id]
     person.remove_whip(
         change_date=change_date,
+        source_url=source_url,
     )
     rich.print(f"[green]Removed whip for {person_id}[/green]")
     popolo.to_path(file)
@@ -285,6 +290,7 @@ def restore_whip(
     file: PopoloPath = Path("."),
     person_id: PersonID = "",
     change_date: OptionalDate = None,
+    source_url: Optional[str] = None,
 ):
     """
     Restore the whip for a given person id
@@ -293,6 +299,7 @@ def restore_whip(
     person = popolo.persons[person_id]
     person.restore_whip(
         change_date=change_date,
+        source_url=source_url,
     )
     rich.print(f"[green]Restored whip for {person_id}[/green]")
     popolo.to_path(file)

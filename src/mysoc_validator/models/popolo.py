@@ -50,6 +50,7 @@ from typing_extensions import Self
 
 from .consts import Chamber as Chamber
 from .consts import IdentifierScheme as IdentifierScheme
+from .consts import MembershipReason as MembershipReason
 
 
 @dataclass
@@ -324,7 +325,7 @@ class Membership(ModelInList, DateFormatMixin):
     """
 
     end_date: FlexiDateFuture
-    end_reason: Optional[str] = None
+    end_reason: Optional[MembershipReason] = None
     id: MemberID
     identifiers: Optional[list[SimpleIdentifier]] = None
     label: Optional[str] = None
@@ -336,7 +337,7 @@ class Membership(ModelInList, DateFormatMixin):
     role: Optional[str] = None
     source: Optional[str] = None
     start_date: FlexiDatePast
-    start_reason: str = ""
+    start_reason: MembershipReason = MembershipReason.BLANK
 
     def self_or_redirect(self) -> Membership:
         return self
@@ -679,8 +680,8 @@ class Person(ModelInList):
         end_date: date = FixedDate.FUTURE,
         post_id: str = "",
         on_behalf_of_id: str = "",
-        start_reason: str = "",
-        end_reason: str = "",
+        start_reason: MembershipReason = MembershipReason.BLANK,
+        end_reason: MembershipReason = MembershipReason.BLANK,
     ):
         """
         Add a membership to a person.
@@ -708,7 +709,7 @@ class Person(ModelInList):
     def end_membership_with_reason(
         self,
         end_date: date,
-        end_reason: str,
+        end_reason: MembershipReason,
     ):
         """
         End the most recent membership for a person - record reason.
@@ -721,7 +722,8 @@ class Person(ModelInList):
         self,
         new_party: Organization,
         change_date: Optional[date] = None,
-        change_reason: str = "",
+        change_reason: MembershipReason = MembershipReason.CHANGED_PARTY,
+        source_url: Optional[str] = None,
     ):
         """
         Change the party of a person - close open membership and create new one.
@@ -747,10 +749,13 @@ class Person(ModelInList):
             on_behalf_of_id=new_party.id,
             post_id=last_membership.post_id,
             start_reason=change_reason,
+            source=source_url,
         )
         popolo.memberships.append(new_membership)
 
-    def restore_whip(self, change_date: Optional[date] = None):
+    def restore_whip(
+        self, change_date: Optional[date] = None, source_url: Optional[str] = None
+    ):
         """
         Restore the whip role to a person.
         """
@@ -768,11 +773,14 @@ class Person(ModelInList):
 
         self.change_party(
             new_party=previous_party,
-            change_reason="changed_party",
+            change_reason=MembershipReason.WHIP_RESTORED,
             change_date=change_date,
+            source_url=source_url,
         )
 
-    def remove_whip(self, change_date: Optional[date] = None):
+    def remove_whip(
+        self, change_date: Optional[date] = None, source_url: Optional[str] = None
+    ):
         """
         Remove the whip role from a person.
         """
@@ -786,7 +794,8 @@ class Person(ModelInList):
         self.change_party(
             change_date=change_date,
             new_party=inde_party,
-            change_reason="changed_party",
+            change_reason=MembershipReason.WHIP_REMOVED,
+            source_url=source_url,
         )
 
     def add_alt_name(
