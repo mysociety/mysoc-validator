@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.2.0] - 2025-09-18
+
+### Added
+
+- Added fixed start and end reasons to match TWFY database restrictions.
+- Add source_url capture options to party change CLI functions.
+
 ## [1.1.5] - 2025-07-01
 
 ### Changed
