@@ -1,6 +1,7 @@
 FROM python:3.9-bullseye
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV POETRY_VERSION 2.2.1
 COPY pyproject.toml poetry.loc[k] README.md /
 RUN curl -sSL https://install.python-poetry.org | python - && \
     echo 'export PATH="/root/.local/bin:$PATH"' > ~/.bashrc && \
