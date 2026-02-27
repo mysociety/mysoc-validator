@@ -37,9 +37,7 @@ from .xml_base import (
 
 T = TypeVar("T", bound=BaseXMLModel)
 
-gid_pattern = (
-    r"^uk\.org\.publicwhip\/[a-z]+(\/(en|cy))?\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+"
-)
+gid_pattern = r"^uk\.org\.publicwhip\/[a-z]+(\/(en|cy))?\/\d{4}-\d{2}-\d{2}[a-z]?\.[A-Za-z0-9-]+\.[A-Za-z0-9]+"
 agreement_gid_pattern = (
     r"uk\.org\.publicwhip\/[a-z]+\/\d{4}-\d{2}-\d{2}[a-z]?\.\d+\.\d+\.a\.\d+"
 )
@@ -98,7 +96,11 @@ class MinorHeading(StrictBaseXMLModel, tags=["minor-heading"]):
         return self.content.text
 
 
-class SpeechItem(StrictBaseXMLModel, tags=["speech.*"]):
+class Source(StrictBaseXMLModel, tags=["source"]):
+    url: str
+
+
+class SpeechItem(StrictBaseXMLModel, tags=["speech.*", "ques.*", "reply.*"]):
     pid: Optional[str] = None
     qnum: Optional[str] = None
     class_: Optional[str] = Field(
@@ -109,6 +111,41 @@ class SpeechItem(StrictBaseXMLModel, tags=["speech.*"]):
 
     def __str__(self):
         return self.content.text
+
+
+class Question(StrictBaseXMLModel, tags=["ques"]):
+    id: GIDPattern
+    speakername: Optional[str] = None
+    person_id: Optional[str] = Field(pattern=person_or_member_id_pattern, default=None)
+    member_id: Optional[Annotated[str, Field(pattern=member_id_pattern)]] = Field(
+        validation_alias=AliasChoices("speakerid"),
+        serialization_alias="speakerid",
+        pattern=member_id_pattern,
+        default=None,
+    )
+    spid: Optional[str] = None
+    url: Optional[str] = None
+    items: Items[SpeechItem]
+
+    def __str__(self):
+        return " ".join(str(item) for item in self.items)
+
+
+class Reply(StrictBaseXMLModel, tags=["reply"]):
+    id: GIDPattern
+    speakername: Optional[str] = None
+    person_id: Optional[str] = Field(pattern=person_or_member_id_pattern, default=None)
+    member_id: Optional[Annotated[str, Field(pattern=member_id_pattern)]] = Field(
+        validation_alias=AliasChoices("speakerid"),
+        serialization_alias="speakerid",
+        pattern=member_id_pattern,
+        default=None,
+    )
+    url: Optional[str] = None
+    items: Items[SpeechItem]
+
+    def __str__(self):
+        return " ".join(str(item) for item in self.items)
 
 
 class Speech(StrictBaseXMLModel, tags=["speech"]):
@@ -294,6 +331,9 @@ class Transcript(StrictBaseXMLModel, tags=["publicwhip"]):
                 Annotated[MajorHeading, Tag("major-heading")],
                 Annotated[MinorHeading, Tag("minor-heading")],
                 Annotated[Agreement, Tag("agreement")],
+                Annotated[Source, Tag("source")],
+                Annotated[Question, Tag("ques")],
+                Annotated[Reply, Tag("reply")],
             ],
             Discriminator(extract_tag),
         ]
