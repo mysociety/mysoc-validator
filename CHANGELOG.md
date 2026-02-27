@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.3.0] - 2026-02-27
+
+### Added
+
+- Added `Question`, `Reply`, and `Source` models to transcript schema.
+
+### Changed
+
+- Relaxed GID pattern to allow alphanumeric and hyphenated segments.
+- Added missing `instagram_username` and `threads_username` to test fixtures for live data compatibility.
+
 ## [1.2.0] - 2025-09-18
 
 ### Added
