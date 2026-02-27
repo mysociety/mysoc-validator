@@ -10,6 +10,8 @@ class SocialInfo(PersonInfo):
     facebook_page: Optional[str] = None
     twitter_username: Optional[str] = None
     bluesky_handle: Optional[str] = None
+    instagram_username: Optional[str] = None
+    threads_username: Optional[str] = None
 
 
 class SocialInfoMissingField(PersonInfo):
