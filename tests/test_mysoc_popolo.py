@@ -5,7 +5,16 @@ from pathlib import Path
 import pytest
 import requests
 from mysoc_validator.models.dates import FixedDate
-from mysoc_validator.models.popolo import Chamber, Membership, Popolo
+from mysoc_validator.models.popolo import (
+    Chamber,
+    Membership,
+    MembershipRedirect,
+    Organization,
+    Person,
+    PersonRedirect,
+    Popolo,
+    Post,
+)
 
 iso = date.fromisoformat
 
@@ -131,5 +140,45 @@ def test_write_popolo(popolo_data: Popolo):
         data_dir.rmdir()
 
 
-def test_true_is_true():
-    assert True is True
+def test_duplicate_person_rejected(popolo_data: Popolo):
+    """Appending a Person with an already-existing ID should raise ValueError."""
+    dup = Person(id="uk.org.publicwhip/person/10001")
+    with pytest.raises(ValueError, match="Duplicate Person id"):
+        popolo_data.persons.append(dup)
+
+
+def test_duplicate_person_redirect_rejected(popolo_data: Popolo):
+    """Appending a PersonRedirect whose ID already exists in the list should raise ValueError."""
+    # person/10001 already exists as a Person entry
+    dup = PersonRedirect(
+        id="uk.org.publicwhip/person/10001",
+        redirect="uk.org.publicwhip/person/10002",
+    )
+    with pytest.raises(ValueError, match="Duplicate PersonRedirect id"):
+        popolo_data.persons.append(dup)
+
+
+def test_duplicate_post_rejected(popolo_data: Popolo):
+    """Appending a Post with an already-existing ID should raise ValueError."""
+    existing: Post = popolo_data.posts.root[0]
+    dup = existing.model_copy()
+    with pytest.raises(ValueError, match="Duplicate Post id"):
+        popolo_data.posts.append(dup)
+
+
+def test_duplicate_organization_rejected(popolo_data: Popolo):
+    """Appending an Organization with an already-existing ID should raise ValueError."""
+    dup = Organization(id="house-of-commons", name="Duplicate")
+    with pytest.raises(ValueError, match="Duplicate Organization id"):
+        popolo_data.organizations.append(dup)
+
+
+def test_duplicate_membership_redirect_rejected(popolo_data: Popolo):
+    """Appending a MembershipRedirect whose ID already exists should raise ValueError."""
+    redirects = popolo_data.memberships.redirects()
+    if not redirects:
+        pytest.skip("No membership redirects in data")
+    existing = redirects[0]
+    dup = MembershipRedirect(id=existing.id, redirect=existing.redirect)
+    with pytest.raises(ValueError, match="Duplicate MembershipRedirect id"):
+        popolo_data.memberships.append(dup)
