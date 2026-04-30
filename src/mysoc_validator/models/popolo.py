@@ -308,6 +308,10 @@ class MembershipRedirect(ModelInList):
     id: str
     redirect: str
 
+    def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:
+        if not self.is_blank_id() and parent.get(self.id) is not None:
+            raise ValueError(f"Duplicate MembershipRedirect id {self.id!r}")
+
     def self_or_redirect(self) -> Membership:
         return self.get_redirect()
 
@@ -416,6 +420,10 @@ class Organization(ModelInList):
     id: OrgID
     identifiers: Optional[list[SimpleIdentifier]] = None
     name: str
+
+    def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:
+        if parent.get(self.id) is not None:
+            raise ValueError(f"Duplicate Organization id {self.id!r}")
 
     def close_open_memberships(self, end_date: date, end_reason: str):
         """
@@ -544,6 +552,10 @@ class PersonRedirect(ModelInList):
     id: PersonID
     redirect: PersonID
 
+    def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:
+        if not self.is_blank_id() and parent.get(self.id) is not None:
+            raise ValueError(f"Duplicate PersonRedirect id {self.id!r}")
+
     def self_or_redirect(self) -> Person:
         return self.get_redirect()
 
@@ -614,6 +626,10 @@ class Person(ModelInList):
 
         self.identifiers.append(PersonIdentifier(scheme=scheme, identifier=identifier))
         return True
+
+    def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:
+        if not self.is_blank_id() and parent.get(self.id) is not None:
+            raise ValueError(f"Duplicate Person id {self.id!r}")
 
     def reduced_id(self) -> str:
         return self.id.split("/")[-1]
@@ -896,6 +912,10 @@ class Area(ModelInList):
     name: str
     other_names: list[str] = Field(default_factory=list)
 
+    def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:
+        if parent.get(self.name) is not None:
+            raise ValueError(f"Duplicate Area name {self.name!r}")
+
 
 class PostIdentifier(StrictBaseModel):
     """
@@ -917,6 +937,10 @@ class Post(ModelInList, DateFormatMixin):
     organization_id: OrgID
     role: str
     start_date: Optional[FlexiDatePast] = None
+
+    def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:
+        if not self.is_blank_id() and parent.get(self.id) is not None:
+            raise ValueError(f"Duplicate Post id {self.id!r}")
 
     def organization(self) -> Organization:
         if not self.parent_popolo:

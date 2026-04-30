@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.3.1] - 2026-04-30
+
+### Fixed
+
+- Added `parent_compatibility_check` implementations to `Person`, `Post`, `Organization`, `PersonRedirect`, `MembershipRedirect`, and `Area` so that `append` correctly rejects duplicate entries in `IndexedList`.
+- Added tests covering duplicate-rejection for each of the above types.
+
 ## [1.3.0] - 2026-02-27
 
 ### Added
