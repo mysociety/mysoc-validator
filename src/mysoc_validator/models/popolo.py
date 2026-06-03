@@ -1371,10 +1371,17 @@ class NameIndex(dict[str, str]):
     @classmethod
     def from_memberships(cls, popolo: Popolo, chamber_id: str, date: date) -> NameIndex:
         # get posts associated with the chamber
-        rel_posts = popolo.posts.get_matching_values("organization_id", chamber_id)
-        post_ids = set([p.id for p in rel_posts])
-        # get memberships for this post
-        rel_memberships = [x for x in popolo.memberships if x.post_id in post_ids]
+
+        # Lords memberships connect directly to the organization without a post,
+        if chamber_id == Chamber.LORDS:
+            rel_memberships = [
+                x for x in popolo.memberships if x.organization_id == Chamber.LORDS
+            ]
+        else:
+            rel_posts = popolo.posts.get_matching_values("organization_id", chamber_id)
+            post_ids = set([p.id for p in rel_posts])
+            # get memberships for this post
+            rel_memberships = [x for x in popolo.memberships if x.post_id in post_ids]
 
         # filter out memberships that are not current - date needs to be between start and end date
         rel_people = [
