@@ -552,6 +552,51 @@ class LordName(StrictBaseModel, DateFormatMixin):
             name = name + " " + self.honorific_suffix
         return name
 
+    def original_full_name(self) -> Optional[str]:
+        """
+        Return the peer's pre-title name, e.g. "Tony Banks" for Lord Stratford.
+
+        Returns None if there's no surname recorded to build this from.
+        """
+        if not self.surname:
+            return None
+        if self.given_name:
+            return self.given_name + " " + self.surname
+        return self.surname
+
+    def name_variants(self, include_original_name: bool = False) -> list[str]:
+        """
+        Return all name forms useful for matching against Lords.
+
+        Transcripts are inconsistent in how they format titles, so we include
+        every plausible form.
+
+        Lords with no lordname (bishops, earls of a place, etc.): our base form
+        "Bishop of Norwich" plus "The Bishop of Norwich" (transcripts vary).
+        Bishops additionally get "The Lord Bishop of Norwich" since that is the
+        formal Lords chamber style that appears in many transcripts.
+
+        original_full_name (e.g. "Tony Banks" for Lord Stratford) is excluded
+        by default - it's who the peer was before taking a title, not how
+        transcripts refer to them.
+        """
+        full = self.nice_name()
+        variants: list[str] = [full]
+
+        if not self.lordname and self.lordofname and self.honorific_prefix:
+            # "The Earl of Erroll" alongside "Earl of Erroll"
+            variants.append("The " + full)
+            # Bishops in the Lords chamber are also styled "The Lord Bishop of X"
+            if self.honorific_prefix == "Bishop":
+                variants.append("The Lord Bishop of " + self.lordofname)
+
+        if include_original_name:
+            original = self.original_full_name()
+            if original:
+                variants.append(original)
+
+        return variants
+
 
 class Shortcuts(StrictBaseModel):
     """
@@ -664,7 +709,14 @@ class Person(ModelInList):
         return self
 
     def names_on_date(self, date: date) -> list[str]:
-        return [x.nice_name() for x in self.names if x.start_date <= date <= x.end_date]
+        result: list[str] = []
+        for x in self.names:
+            if x.start_date <= date <= x.end_date:
+                if isinstance(x, LordName):
+                    result.extend(x.name_variants())
+                else:
+                    result.append(x.nice_name())
+        return result
 
     def get_main_name(
         self, date: date = FixedDate.FUTURE
