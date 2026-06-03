@@ -539,13 +539,39 @@ class LordName(StrictBaseModel, DateFormatMixin):
     start_date: FlexiDatePast
     surname: Optional[str] = None  # The surname of the lord
 
+    @model_validator(mode="after")
+    def surname_requires_lord_style(self):
+        """
+        A surname on its own isn't enough to build a proper peerage-style name -
+        there should also be a lordname, or a lordofname paired with an
+        honorific_prefix, for nice_name to construct something better than the
+        bare surname fallback.
+        """
+        if self.surname and not (
+            self.lordname or (self.lordofname and self.honorific_prefix)
+        ):
+            raise ValueError(
+                f"LordName with surname {self.surname!r} also needs a lordname, "
+                "or a lordofname and honorific_prefix"
+            )
+        return self
+
     def nice_name(self) -> str:
         """
-        Construct a basic name from the lord name
+        Construct the primary peerage-style name from the lord name fields.
+
+        - lordname present: "Lord Adams" or "Lord Adams of Craigielea"
+        - lordname absent but lordofname present: "Bishop of Norwich", "Earl of Arran"
         """
-        name = self.lordname or self.surname or self.lordofname
-        if not name:
+        if self.lordname:
+            name = self.lordname
+            if self.lordofname:
+                name = name + " of " + self.lordofname
+        elif self.lordofname and self.honorific_prefix:
+            name = "of " + self.lordofname
+        else:
             return "Unknown"
+
         if self.honorific_prefix:
             name = self.honorific_prefix + " " + name
         if self.honorific_suffix:
