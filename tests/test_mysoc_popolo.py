@@ -7,6 +7,7 @@ import requests
 from mysoc_validator.models.dates import FixedDate
 from mysoc_validator.models.popolo import (
     Chamber,
+    LordName,
     Membership,
     MembershipRedirect,
     Organization,
@@ -40,6 +41,37 @@ def test_lookup_from_name(popolo_data: Popolo):
     )
     assert person is not None
     assert person.id == "uk.org.publicwhip/person/24941"
+
+
+def test_lookup_lord_full_title(popolo_data: Popolo):
+    # Lord Allan of Hallam — full peerage title lookup
+    person = popolo_data.persons.from_name(
+        "Lord Allan of Hallam", chamber_id=Chamber.LORDS, date=iso("2024-01-01")
+    )
+    assert person is not None
+    assert person.id == "uk.org.publicwhip/person/10007"
+
+
+def test_lookup_lord_no_lordname(popolo_data: Popolo):
+    # Bishops have no lordname; transcripts use several forms inconsistently
+    for name in [
+        "Bishop of Norwich",  # simple form seen in some transcripts
+        "The Bishop of Norwich",  # with "The" prefix
+        "The Lord Bishop of Norwich",  # formal Lords chamber style
+    ]:
+        person = popolo_data.persons.from_name(
+            name, chamber_id=Chamber.LORDS, date=iso("2010-01-01")
+        )
+        assert person is not None, f"Failed to find person for {name!r}"
+        assert person.id == "uk.org.publicwhip/person/12844"
+
+    # Earls without a lordname also appear with and without "The"
+    for name in ["Earl of Sandwich", "The Earl of Sandwich"]:
+        person = popolo_data.persons.from_name(
+            name, chamber_id=Chamber.LORDS, date=iso("2010-01-01")
+        )
+        assert person is not None, f"Failed to find person for {name!r}"
+        assert person.id == "uk.org.publicwhip/person/13633"
 
 
 def test_valid_addition(popolo_data: Popolo):
@@ -138,6 +170,36 @@ def test_write_popolo(popolo_data: Popolo):
         Popolo.from_path(dest)  # test reimport parses ok
         dest.unlink()
         data_dir.rmdir()
+
+
+def test_lord_name_surname_without_lord_style_rejected():
+    """A bare surname isn't a valid Lords name - it needs a lordname, or a
+    lordofname paired with an honorific_prefix, to build a peerage-style name."""
+    with pytest.raises(ValueError, match="also needs a lordname"):
+        LordName(note="Main", surname="Smith", honorific_prefix="Baron")
+
+    # surname with lordofname but no honorific_prefix is still not enough
+    with pytest.raises(ValueError, match="also needs a lordname"):
+        LordName(
+            note="Main", surname="Smith", lordofname="Somewhere", honorific_prefix=""
+        )
+
+
+def test_lord_name_surname_with_lord_style_accepted():
+    """A surname is fine alongside a lordname, or alongside a lordofname and
+    honorific_prefix."""
+    LordName(
+        note="Main",
+        surname="Smith",
+        lordname="Smith of Somewhere",
+        honorific_prefix="Baron",
+    )
+    LordName(
+        note="Main",
+        surname="Smith",
+        lordofname="Somewhere",
+        honorific_prefix="Baron",
+    )
 
 
 def test_duplicate_person_rejected(popolo_data: Popolo):
