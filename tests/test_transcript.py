@@ -1,6 +1,8 @@
 from datetime import date
 from pathlib import Path
+from typing import Type, Union
 
+import pytest
 from mysoc_validator.models.transcripts import (
     MajorHeading,
     MinorHeading,
@@ -9,6 +11,7 @@ from mysoc_validator.models.transcripts import (
     Source,
     Transcript,
 )
+from pydantic import ValidationError
 
 SP_WRITTEN_ANSWERS_PATH = Path("data", "spwa1999-06-17.xml")
 UK_WRITTEN_ANSWERS_PATH = Path("data", "answers2026-02-23.xml")
@@ -169,3 +172,37 @@ def test_uk_written_answers_file_round_trip():
     t2 = Transcript.model_validate_xml(dumped_xml)
     dumped_xml_2 = t2.model_dump_xml()
     assert dumped_xml == dumped_xml_2
+
+
+@pytest.mark.parametrize(
+    "model,id_value",
+    [
+        (Question, "uk.org.publicwhip/london-mayors-questions/2026-02-23.10.q0"),
+        (Reply, "uk.org.publicwhip/london-mayors-questions/2026-02-23.10.r0"),
+        (
+            MinorHeading,
+            "uk.org.publicwhip/london-mayors-questions/2026-02-23.10.h",
+        ),
+    ],
+)
+def test_gid_pattern_allows_hyphenated_chamber_segment(
+    model: Type[Union[Question, Reply, MinorHeading]], id_value: str
+) -> None:
+    if model is MinorHeading:
+        value = model(id=id_value, content={"text": "Heading", "raw": "Heading"})
+    else:
+        value = model(id=id_value, items=[])
+
+    assert value.id == id_value
+
+
+@pytest.mark.parametrize(
+    "id_value",
+    [
+        "uk.org.publicwhip/London-mayors-questions/2026-02-23.10.q0",
+        "uk.org.publicwhip/london_mayors_questions/2026-02-23.10.q0",
+    ],
+)
+def test_gid_pattern_rejects_invalid_chamber_segment(id_value: str) -> None:
+    with pytest.raises(ValidationError):
+        Question(id=id_value, items=[])
