@@ -106,7 +106,7 @@ PersonID = Annotated[
 ]
 PostID = Annotated[
     str,
-    Field(pattern=r"uk\.org\.publicwhip/cons/\d+(-NI)?$"),
+    Field(min_length=1),
     BlankID("uk.org.publicwhip/cons/0"),
 ]
 OrgType = Literal[
@@ -938,7 +938,7 @@ class PostIdentifier(StrictBaseModel):
 class Post(ModelInList, DateFormatMixin):
     _int_style_id: ClassVar[bool] = False
 
-    area: Area
+    area: Optional[Area] = None
     end_date: Optional[FlexiDateFuture] = None
     id: PostID
     identifiers: Optional[list[PostIdentifier]] = None
