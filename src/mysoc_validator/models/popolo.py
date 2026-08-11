@@ -109,7 +109,16 @@ PostID = Annotated[
     Field(pattern=r"uk\.org\.publicwhip/cons/\d+(-NI)?$"),
     BlankID("uk.org.publicwhip/cons/0"),
 ]
-OrgType = Literal["party", "chamber", "metro"]
+OrgType = Literal[
+    "party",
+    "chamber",
+    "metro",
+    "committee",
+    "cross_party_group",
+    "local_authority",
+    "combined_authority",
+    "other",
+]
 
 
 def approx_date_or_default(default: Any = None):
