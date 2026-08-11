@@ -51,6 +51,7 @@ from typing_extensions import Self
 from .consts import Chamber as Chamber
 from .consts import IdentifierScheme as IdentifierScheme
 from .consts import MembershipReason as MembershipReason
+from .popolo_extras import Extra
 
 
 @dataclass
@@ -339,6 +340,7 @@ class Membership(ModelInList, DateFormatMixin):
 
     end_date: FlexiDateFuture
     end_reason: Optional[MembershipReason] = None
+    extra: Optional[Extra] = None
     id: MemberID
     identifiers: Optional[list[SimpleIdentifier]] = None
     label: Optional[str] = None
@@ -426,6 +428,7 @@ class Organization(ModelInList):
 
     _int_style_id: ClassVar[bool] = False
     classification: Optional[OrgType] = None
+    extra: Optional[Extra] = None
     id: OrgID
     identifiers: Optional[list[SimpleIdentifier]] = None
     name: str
@@ -589,6 +592,7 @@ class Person(ModelInList):
     biography: Optional[str] = None
     birth_date: Optional[FlexiDatePast] = None
     death_date: Optional[FlexiDateFuture] = None
+    extra: Optional[Extra] = None
     gender: Optional[str] = None
     id: PersonID
     identifiers: IndexedPersonIdentifierList = Field(
@@ -918,6 +922,7 @@ class Area(ModelInList):
     _index_on: ClassVar[str] = "name"
     _int_style_id: ClassVar[bool] = False
 
+    extra: Optional[Extra] = None
     name: str
     other_names: list[str] = Field(default_factory=list)
 
@@ -940,6 +945,7 @@ class Post(ModelInList, DateFormatMixin):
 
     area: Optional[Area] = None
     end_date: Optional[FlexiDateFuture] = None
+    extra: Optional[Extra] = None
     id: PostID
     identifiers: Optional[list[PostIdentifier]] = None
     label: str
