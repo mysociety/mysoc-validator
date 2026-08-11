@@ -53,6 +53,43 @@ Validates:
 
 It also has support for looking up from name or identifying to person, and new ID generation for membership. 
 
+### Extra popolo fields
+
+The validator is strict on the fields that should be present everywhere except the extra field - where we have some specified values, but the validator itself is more tolerant of things it doesn't recognise there (better backwards compatibility for new data outside the normal schema). 
+
+### Localised Popolo fields
+
+For some Senedd related items we want to record bilingual labels - but the Popolo standard doesn't support this.
+
+We're using an extension in the 'extra' field to record when a string value in a model has a localised value. 
+
+When using this, set both en and cy fields as localised values, and the 'main' version of the field should be 'cy / en'. 
+
+e.g. 
+
+```json
+        {
+            "id": "senedd-committee-210781",
+            "name": "Y Pwyllgor Cyllid / Finance Committee",
+            "extra": {
+                "localised_values": {
+                    "name": {"en": "Finance Committee", "cy": "Y Pwyllgor Cyllid"}
+                }
+            },
+            "classification": "committee"
+        }
+```
+
+These can be read and set through `.get_localised_value(field, lang)` and `.set_localised_value(field, lang, value)`. Getting a field with no localised value for that language falls back to the model's canonical field value.
+
+Only specific fields on specific models are localisable:
+
+- `Organization`: `name`, `abstract`, `description`
+- `Post`: `label`, `role`
+- `Membership`: `label`, `role`
+- `Person`: `biography`, `summary`
+- `Area`: `name`
+
 ### Using name or ID lookup
 
 After first use, there is some caching behind the scenes to speed this up.
