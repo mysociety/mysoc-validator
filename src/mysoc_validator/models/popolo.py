@@ -51,7 +51,7 @@ from typing_extensions import Self
 from .consts import Chamber as Chamber
 from .consts import IdentifierScheme as IdentifierScheme
 from .consts import MembershipReason as MembershipReason
-from .popolo_extras import Extra
+from .popolo_extras import LocalisedLabelsExtra, LocalisedLabelsMixin
 
 
 @dataclass
@@ -333,14 +333,19 @@ class MembershipRedirect(ModelInList):
         )
 
 
-class Membership(ModelInList, DateFormatMixin):
+MembershipLocalisedFields = Literal["label", "role"]
+
+
+class Membership(
+    ModelInList, DateFormatMixin, LocalisedLabelsMixin[MembershipLocalisedFields]
+):
     """
     A timed connection between a person and a post.
     """
 
     end_date: FlexiDateFuture
     end_reason: Optional[MembershipReason] = None
-    extra: Optional[Extra] = None
+    extra: Optional[LocalisedLabelsExtra[MembershipLocalisedFields]] = None
     id: MemberID
     identifiers: Optional[list[SimpleIdentifier]] = None
     label: Optional[str] = None
@@ -421,14 +426,17 @@ class Membership(ModelInList, DateFormatMixin):
             return self.parent_popolo.organizations[self.on_behalf_of_id]
 
 
-class Organization(ModelInList):
+OrganizationLocalisedFields = Literal["name"]
+
+
+class Organization(ModelInList, LocalisedLabelsMixin[OrganizationLocalisedFields]):
     """
     May be a party or chamber
     """
 
     _int_style_id: ClassVar[bool] = False
     classification: Optional[OrgType] = None
-    extra: Optional[Extra] = None
+    extra: Optional[LocalisedLabelsExtra[OrganizationLocalisedFields]] = None
     id: OrgID
     identifiers: Optional[list[SimpleIdentifier]] = None
     name: str
@@ -584,7 +592,10 @@ class Link(StrictBaseModel):
     url: Url
 
 
-class Person(ModelInList):
+PersonLocalisedFields = Literal["biography", "summary"]
+
+
+class Person(ModelInList, LocalisedLabelsMixin[PersonLocalisedFields]):
     """
     A person who has held an office.
     """
@@ -592,7 +603,7 @@ class Person(ModelInList):
     biography: Optional[str] = None
     birth_date: Optional[FlexiDatePast] = None
     death_date: Optional[FlexiDateFuture] = None
-    extra: Optional[Extra] = None
+    extra: Optional[LocalisedLabelsExtra[PersonLocalisedFields]] = None
     gender: Optional[str] = None
     id: PersonID
     identifiers: IndexedPersonIdentifierList = Field(
@@ -914,7 +925,10 @@ class Person(ModelInList):
         self.names.append(new_name)
 
 
-class Area(ModelInList):
+AreaLocalisedFields = Literal["name"]
+
+
+class Area(ModelInList, LocalisedLabelsMixin[AreaLocalisedFields]):
     """
     Constituency name
     """
@@ -922,7 +936,7 @@ class Area(ModelInList):
     _index_on: ClassVar[str] = "name"
     _int_style_id: ClassVar[bool] = False
 
-    extra: Optional[Extra] = None
+    extra: Optional[LocalisedLabelsExtra[AreaLocalisedFields]] = None
     name: str
     other_names: list[str] = Field(default_factory=list)
 
@@ -940,12 +954,15 @@ class PostIdentifier(StrictBaseModel):
     scheme: str
 
 
-class Post(ModelInList, DateFormatMixin):
+PostLocalisedFields = Literal["label", "role"]
+
+
+class Post(ModelInList, DateFormatMixin, LocalisedLabelsMixin[PostLocalisedFields]):
     _int_style_id: ClassVar[bool] = False
 
     area: Optional[Area] = None
     end_date: Optional[FlexiDateFuture] = None
-    extra: Optional[Extra] = None
+    extra: Optional[LocalisedLabelsExtra[PostLocalisedFields]] = None
     id: PostID
     identifiers: Optional[list[PostIdentifier]] = None
     label: str
