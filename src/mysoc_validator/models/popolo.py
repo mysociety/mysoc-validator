@@ -426,7 +426,7 @@ class Membership(
             return self.parent_popolo.organizations[self.on_behalf_of_id]
 
 
-OrganizationLocalisedFields = Literal["name"]
+OrganizationLocalisedFields = Literal["name", "abstract", "description"]
 
 
 class Organization(ModelInList, LocalisedLabelsMixin[OrganizationLocalisedFields]):
@@ -435,11 +435,17 @@ class Organization(ModelInList, LocalisedLabelsMixin[OrganizationLocalisedFields
     """
 
     _int_style_id: ClassVar[bool] = False
+    abstract: Optional[str] = None
     classification: Optional[OrgType] = None
+    description: Optional[str] = None
+    dissolution_date: Optional[FlexiDateFuture] = None
     extra: Optional[LocalisedLabelsExtra[OrganizationLocalisedFields]] = None
+    founding_date: Optional[FlexiDatePast] = None
     id: OrgID
     identifiers: Optional[list[SimpleIdentifier]] = None
+    links: list[str] = Field(default_factory=list)
     name: str
+    parent_id: Optional[OrgID] = None
 
     def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:
         if parent.get(self.id) is not None:
@@ -1628,6 +1634,17 @@ class Popolo(StrictBaseModel):
         }
         for post_id, org_id in invalid_post_orgs.items():
             errors.append(f"Post {post_id} refers to invalid organization {org_id}")
+
+        # If an organization has a parent_id, it must refer to a valid organization id
+        invalid_org_parents = {
+            organization.id: organization.parent_id
+            for organization in self.organizations
+            if organization.parent_id and organization.parent_id not in org_ids
+        }
+        for organization_id, parent_id in invalid_org_parents.items():
+            errors.append(
+                f"Organization {organization_id} refers to invalid parent organization {parent_id}"
+            )
 
         if errors:
             raise ValueError("\n".join(errors))
