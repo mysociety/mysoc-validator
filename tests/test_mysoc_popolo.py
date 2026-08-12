@@ -166,6 +166,43 @@ def test_duplicate_post_rejected(popolo_data: Popolo):
         popolo_data.posts.append(dup)
 
 
+def test_non_spec_extra_accessors_round_trip():
+    popolo = Popolo.model_validate(
+        {
+            "organizations": [
+                {
+                    "id": "body",
+                    "name": "Body",
+                    "extra": {"upstream_reference": "external/body/1"},
+                }
+            ]
+        }
+    )
+    organization = popolo.organizations["body"]
+    assert organization.extra is not None
+
+    assert organization.extra["upstream_reference"] == "external/body/1"
+
+    organization.extra["sync_metadata"] = {
+        "source": "example",
+        "revision": 2,
+    }
+    assert organization.extra["sync_metadata"] == {
+        "source": "example",
+        "revision": 2,
+    }
+
+    dumped = popolo.to_json_str()
+    restored = Popolo.model_validate_json(dumped)
+    restored_extra = restored.organizations["body"].extra
+
+    assert restored_extra is not None
+    assert restored_extra["upstream_reference"] == "external/body/1"
+    assert restored_extra["sync_metadata"] == {"source": "example", "revision": 2}
+    assert restored.to_json_str() == dumped
+
+
+
 def test_duplicate_organization_rejected(popolo_data: Popolo):
     """Appending an Organization with an already-existing ID should raise ValueError."""
     dup = Organization(id="house-of-commons", name="Duplicate")

@@ -26,6 +26,18 @@ class Extra(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
+    def __getitem__(self, key: str) -> Any:
+        """
+        Get a non-standard Popolo property by key.
+        """
+        return getattr(self, key)
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """
+        Set a non-standard Popolo property by key.
+        """
+        setattr(self, key, value)
+
 
 class LocalisedLabelsExtra(Extra, Generic[LocalisedField]):
     """Popolo extras containing localised values, keyed by field and language."""
