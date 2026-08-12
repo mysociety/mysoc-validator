@@ -202,6 +202,65 @@ def test_non_spec_extra_accessors_round_trip():
     assert restored.to_json_str() == dumped
 
 
+def test_organization_supports_supplemental_details():
+    organization_data = {
+        "id": "finance-committee",
+        "name": "Finance Committee",
+        "abstract": "A finance committee",
+        "description": "A longer description",
+        "founding_date": "2021-05",
+        "dissolution_date": "2026-04-06",
+        "links": ["https://example.com/finance-committee"],
+        "parent_id": "welsh-parliament",
+    }
+
+    organization = Organization.model_validate(organization_data)
+
+    assert organization.model_dump(mode="json", exclude_unset=True) == organization_data
+
+
+def test_organization_supplemental_details_are_optional():
+    organization = Organization(id="body", name="Body")
+
+    assert organization.abstract is None
+    assert organization.description is None
+    assert organization.founding_date is None
+    assert organization.dissolution_date is None
+    assert organization.links == []
+    assert organization.parent_id is None
+    assert organization.model_dump(exclude_unset=True) == {"id": "body", "name": "Body"}
+
+
+def test_organization_parent_id_is_cross_checked():
+    valid = Popolo.model_validate(
+        {
+            "organizations": [
+                {"id": "parent", "name": "Parent"},
+                {"id": "child", "name": "Child", "parent_id": "parent"},
+            ]
+        }
+    )
+    assert valid.organizations["child"].parent_id == "parent"
+
+    missing_parent_data = {
+        "organizations": [
+            {"id": "child", "name": "Child", "parent_id": "missing-parent"}
+        ]
+    }
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Organization child refers to invalid parent organization missing-parent"
+        ),
+    ):
+        Popolo.model_validate(missing_parent_data)
+
+    # check that we can skip cross-checks if we want to
+    partial = Popolo.model_validate(
+        missing_parent_data, context={"skip_cross_checks": True}
+    )
+    assert partial.organizations["child"].parent_id == "missing-parent"
+
 
 def test_duplicate_organization_rejected(popolo_data: Popolo):
     """Appending an Organization with an already-existing ID should raise ValueError."""

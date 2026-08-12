@@ -139,7 +139,10 @@ def test_set_localised_value_uses_concrete_type_and_serializes_unset_defaults():
 
     # Check we have the right concrete type for the generic LocalisedLabelsExtra.
     assert organization.extra is not None
-    assert type(organization.extra) is LocalisedLabelsExtra[Literal["name"]]
+    assert (
+        type(organization.extra)
+        is LocalisedLabelsExtra[Literal["name", "abstract", "description"]]
+    )
     # Reassigning the updated dict must mark the field as explicitly set.
     # Otherwise excluded from to_path later on
     assert organization.extra.model_fields_set == {"localised_values"}
@@ -205,3 +208,24 @@ def test_localised_values_are_independent_per_field():
     assert post.get_localised_value("label", "en") == "Chair"
     assert post.get_localised_value("role", "en") == "chairperson"
     assert post.get_localised_value("label", "cy") == post.label
+
+
+def test_organization_abstract_and_description_are_localisable():
+    organization = Organization.model_validate(
+        {
+            "id": "finance-committee",
+            "name": "Y Pwyllgor Cyllid / Finance Committee",
+            "abstract": "Pwyllgor ariannol / A finance committee",
+            "description": "Disgrifiad hir / A longer description",
+            "extra": {
+                "localised_values": {
+                    "abstract": {"en": "A finance committee"},
+                    "description": {"cy": "Disgrifiad hir"},
+                }
+            },
+        }
+    )
+
+    assert organization.get_localised_value("abstract", "en") == "A finance committee"
+    assert organization.get_localised_value("abstract", "cy") == organization.abstract
+    assert organization.get_localised_value("description", "cy") == "Disgrifiad hir"
