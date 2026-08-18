@@ -172,7 +172,11 @@ class Speech(StrictBaseXMLModel, tags=["speech"]):
         validation_alias="oral-qnum", serialization_alias="oral-qnum", default=None
     )
     original_lang: Optional[str] = None
-    items: Items[SpeechItem]
+    items: Items[SpeechItem] = Field(
+        validation_alias=AliasChoices("items", "@children"),
+        serialization_alias="@children",
+        default_factory=list,
+    )
 
 
 class DivisionCount(StrictBaseXMLModel, tags=["divisioncount"]):
