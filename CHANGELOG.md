@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.3.3] - 2026-08-15
+
+### Fixed
+
+- Made transcript `Speech.items` optional.
+- Added `data/sp-debates2026-03-13.xml` and accompanying tests covering Holyrood divisions preceded by these stub speeches.
+
 ## [1.3.2] - 2026-08-05
 
 ### Fixed

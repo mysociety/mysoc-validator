@@ -4,17 +4,20 @@ from typing import Type, Union
 
 import pytest
 from mysoc_validator.models.transcripts import (
+    Division,
     MajorHeading,
     MinorHeading,
     Question,
     Reply,
     Source,
+    Speech,
     Transcript,
 )
 from pydantic import ValidationError
 
 SP_WRITTEN_ANSWERS_PATH = Path("data", "spwa1999-06-17.xml")
 UK_WRITTEN_ANSWERS_PATH = Path("data", "answers2026-02-23.xml")
+SP_DEBATE_WITH_STUB_DIVISION_SPEECHES_PATH = Path("data", "sp-debates2026-03-13.xml")
 
 
 def test_transcript_load():
@@ -206,3 +209,37 @@ def test_gid_pattern_allows_hyphenated_chamber_segment(
 def test_gid_pattern_rejects_invalid_chamber_segment(id_value: str) -> None:
     with pytest.raises(ValidationError):
         Question(id=id_value, items=[])
+
+
+def test_sp_debate_with_stub_division_speeches_load():
+    """
+    Since early 2026, TWFY inserts a content-less, self-closing 'announcer'
+    speech (empty speakername, person_id="unknown", no body text) immediately
+    before every Holyrood <division>. These stub speeches have no items, so
+    the Speech model needs to tolerate a missing/absent items list.
+    """
+    t = Transcript.from_xml_path(SP_DEBATE_WITH_STUB_DIVISION_SPEECHES_PATH)
+    assert len(t.items) > 0
+
+    divisions = [item for item in t.items if isinstance(item, Division)]
+    assert len(divisions) > 0
+
+
+def test_sp_debate_stub_speeches_precede_every_division():
+    t = Transcript.from_xml_path(SP_DEBATE_WITH_STUB_DIVISION_SPEECHES_PATH)
+
+    for index, item in enumerate(t.items):
+        if isinstance(item, Division):
+            stub = t.items[index - 1]
+            assert isinstance(stub, Speech)
+            assert stub.speakername == ""
+            assert stub.person_id == "unknown"
+            assert stub.items == []
+
+
+def test_sp_debate_with_stub_division_speeches_round_trip():
+    t = Transcript.from_xml_path(SP_DEBATE_WITH_STUB_DIVISION_SPEECHES_PATH)
+    dumped_xml = t.model_dump_xml()
+    t2 = Transcript.model_validate_xml(dumped_xml)
+    dumped_xml_2 = t2.model_dump_xml()
+    assert dumped_xml == dumped_xml_2
