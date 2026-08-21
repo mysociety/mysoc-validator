@@ -504,7 +504,7 @@ class LordName(StrictBaseModel, DateFormatMixin):
     county: Optional[str] = None  # county
     end_date: FlexiDateFuture
     given_name: Optional[str] = None  # first name
-    honorific_prefix: Optional[str] = None  # Viscount etc
+    honorific_prefix: str  # Viscount etc - should always be present
     honorific_suffix: Optional[str] = None  # KCMG
     lordname: Optional[str] = None  # the styled lord name, when different from surname
     lordofname: Optional[str] = None  # of place
