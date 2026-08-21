@@ -77,6 +77,105 @@ def test_invalid_overlapping_memberhsip(popolo_data: Popolo):
         popolo_data.memberships.extend([new_membership])
 
 
+def _popolo_for_org_only_overlap_checks() -> Popolo:
+    """
+    A minimal Popolo with a person who holds an organisation-only membership
+    (post_id is None) in the House of Lords, plus a couple of other
+    organisations to check overlaps against.
+    """
+    return Popolo.model_validate(
+        {
+            "organizations": [
+                {"id": "house-of-lords", "name": "House of Lords"},
+                {"id": "committee-a", "name": "Committee A"},
+                {"id": "house-of-commons", "name": "House of Commons"},
+            ],
+            "posts": [
+                {
+                    "id": "uk.org.publicwhip/cons/1",
+                    "label": "Test Seat",
+                    "organization_id": "house-of-commons",
+                    "role": "Member of Parliament",
+                    "area": {"name": "Test Seat"},
+                }
+            ],
+            "persons": [{"id": "uk.org.publicwhip/person/10001"}],
+            "memberships": [
+                {
+                    "id": "uk.org.publicwhip/member/1",
+                    "person_id": "uk.org.publicwhip/person/10001",
+                    "organization_id": "house-of-lords",
+                    "start_date": "2020-01-01",
+                    "end_date": "2021-01-01",
+                }
+            ],
+        }
+    )
+
+
+def test_org_only_overlap_allowed_for_different_organizations():
+    """
+    Organisation-only memberships (no post_id) with the same person but in
+    different organisations - e.g. a Lords membership and an overlapping
+    committee membership - should be allowed to overlap.
+    """
+    popolo = _popolo_for_org_only_overlap_checks()
+    committee_membership = Membership(
+        id="uk.org.publicwhip/member/2",
+        person_id="uk.org.publicwhip/person/10001",
+        organization_id="committee-a",
+        start_date=iso("2020-06-01"),
+        end_date=iso("2020-12-01"),
+    )
+    popolo.memberships.extend([committee_membership])
+    assert popolo.memberships.root[-1].id == "uk.org.publicwhip/member/2"
+
+
+def test_org_only_overlap_rejected_for_same_organization():
+    """
+    Organisation-only memberships (no post_id) for the same person and the
+    same organisation should still be rejected if they overlap.
+    """
+    popolo = _popolo_for_org_only_overlap_checks()
+    duplicate_lords_membership = Membership(
+        id="uk.org.publicwhip/member/2",
+        person_id="uk.org.publicwhip/person/10001",
+        organization_id="house-of-lords",
+        start_date=iso("2020-06-01"),
+        end_date=iso("2020-12-01"),
+    )
+    with pytest.raises(ValueError, match="overlaps with membership"):
+        popolo.memberships.extend([duplicate_lords_membership])
+
+
+def test_post_overlap_still_rejected_for_same_post():
+    """
+    Memberships that share a post_id should remain rejected when they
+    overlap, regardless of organization_id.
+    """
+    popolo = _popolo_for_org_only_overlap_checks()
+    commons_membership = Membership(
+        id="uk.org.publicwhip/member/2",
+        person_id="uk.org.publicwhip/person/10001",
+        organization_id="house-of-commons",
+        post_id="uk.org.publicwhip/cons/1",
+        start_date=iso("2020-06-01"),
+        end_date=iso("2020-12-01"),
+    )
+    popolo.memberships.extend([commons_membership])
+
+    overlapping_commons_membership = Membership(
+        id="uk.org.publicwhip/member/3",
+        person_id="uk.org.publicwhip/person/10001",
+        organization_id="house-of-commons",
+        post_id="uk.org.publicwhip/cons/1",
+        start_date=iso("2020-08-01"),
+        end_date=iso("2021-02-01"),
+    )
+    with pytest.raises(ValueError, match="overlaps with membership"):
+        popolo.memberships.extend([overlapping_commons_membership])
+
+
 def add_invalid_membership_duplicate_id(popolo_data: Popolo):
     person = popolo_data.persons["uk.org.publicwhip/person/10001"]
     new_membership = Membership(

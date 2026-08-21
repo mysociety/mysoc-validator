@@ -391,16 +391,27 @@ class Membership(
     def parent_compatibility_check(self, parent: IndexedList[Any]):
         """
         Extra check on new memeberships to make sure they don't overlap with existing ones
-        with same person_id and post_id
+        for the same person and the same post - or, for memberships with no post
+        (e.g. Lords memberships), the same organization
         """
 
-        rel_memberships = [
-            m
-            for m in parent
-            if isinstance(m, Membership)
-            and m.person_id == self.person_id
-            and m.post_id == self.post_id
-        ]
+        if self.post_id is not None:
+            rel_memberships = [
+                m
+                for m in parent
+                if isinstance(m, Membership)
+                and m.person_id == self.person_id
+                and m.post_id == self.post_id
+            ]
+        else:
+            rel_memberships = [
+                m
+                for m in parent
+                if isinstance(m, Membership)
+                and m.person_id == self.person_id
+                and m.post_id is None
+                and m.organization_id == self.organization_id
+            ]
 
         ## check that there are no overlaps in the date ranges
         for m in rel_memberships:
