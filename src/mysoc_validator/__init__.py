@@ -8,7 +8,7 @@ from .models.popolo import Popolo
 from .models.transcripts import Transcript
 from .models.xml_interests import Register as XMLRegister
 
-__version__ = "1.3.3"
+__version__ = "1.4.0"
 
 __all__ = [
     "Popolo",

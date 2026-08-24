@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.4.0] - 2026-08-24
+
+### Added
+
+- Added typed Welsh and English localised values: `get_localised_value`/`set_localised_value` helpers on `Organization`/`Area` (`name`), `Post`/`Membership` (`label`, `role`), and `Person` (`biography`, `summary`), stored under `extra.localised_values` with canonical-value fallback.
+- Added a forward-compatible `extra` container to `Membership`, `Organization`, `Person`, `Area`, and `Post` so unknown keys round-trip instead of being rejected, with `getitem`/`setitem` access.
+- Expanded supported Popolo organisation classifications to include `committee`, `cross_party_group`, `local_authority`, `combined_authority`, and `other`.
+- Added `description` and `parent_id` fields to organisations from the Popolo spec, with cross-checking that `parent_id` refers to a valid organisation.
+- Added `name_variants` and `original_full_name` to `LordName` to generate the range of styles (e.g. "The Earl of Erroll", "The Lord Bishop of Norwich") transcripts use to refer to a Lord.
+- Added `include_historical_names` to `IndexedPeopleList.from_name`, so a person can be looked up by any name they've ever held (e.g. a later peerage title) while still gating eligibility by chamber and date.
+
+### Changed
+
+- Allowed supplemental (non-constituency) `Post` IDs and made `Post.area` optional, to support posts such as committee memberships.
+- Improved Lords name construction: `nice_name` now builds "Bishop of Norwich"/"Earl of Arran" style names when there's no `lordname`, and `LordName` now validates that a `surname` is paired with a `lordname`, or a `lordofname` and `honorific_prefix`.
+- `honorific_prefix` is now always required on `LordName` rather than optional.
+- `NameIndex` now looks up current Lords by their membership's organisation directly, since Lords memberships have no associated post.
+- The membership overlap check now only compares postless memberships (e.g. Lords) within the same organisation, so a person can hold a committee membership and a Lords membership at the same time.
+- `NameIndex` now tracks name collisions as entries are added; `get_id_reduced` raises on an ambiguous name instead of silently resolving to whichever person was indexed last.
+
 ## [1.3.3] - 2026-08-15
 
 ### Fixed
