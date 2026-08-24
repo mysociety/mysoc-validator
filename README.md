@@ -90,6 +90,69 @@ Only specific fields on specific models are localisable:
 - `Person`: `biography`, `summary`
 - `Area`: `name`
 
+### Extra fields in external projects
+
+`Membership`, `Organization`, `Person`, `Area` and `Post` all share `get_extra`/`set_extra` helpers for reading and writing arbitrary keys on the `extra` field, so a downstream project can attach its own data without needing changes to this library.
+
+```python
+from mysoc_validator.models.popolo import Membership
+
+membership = Membership(
+    id=Membership.BLANK_ID,
+    person_id="uk.org.publicwhip/person/1",
+    start_date="2020-01-01",
+    end_date="2020-12-31",
+)
+membership.set_extra("tag", "whip-removed")
+
+membership.get_extra("tag")  # "whip-removed"
+membership.get_extra("nope")  # None - missing keys don't raise
+```
+
+`set_extra` returns the model, so calls can be chained: `membership.set_extra("a", 1).set_extra("b", 2)`.
+
+For a typed field with its own validation, subclass the model's named `XExtra` alias (e.g. `MembershipExtra`, `OrganizationExtra`) and construct the model with an instance of it:
+
+```python
+from mysoc_validator.models.popolo import Membership, MembershipExtra
+
+class TaggedMembershipExtra(MembershipExtra):
+    tag: str = ""
+
+membership = Membership(
+    id=Membership.BLANK_ID,
+    person_id="uk.org.publicwhip/person/1",
+    start_date="2020-01-01",
+    end_date="2020-12-31",
+    extra=TaggedMembershipExtra(tag="whip-removed"),
+)
+
+membership.get_extra("tag")  # "whip-removed" - still works through the generic accessor
+membership.extra.tag  # "whip-removed" - and through your own typed field
+```
+
+If a model was instead loaded generically (e.g. straight from JSON, so `extra` only knows about the fields this library defines), use `get_extra_as` to reinterpret it as your project-specific type:
+
+```python
+from mysoc_validator.models.popolo import Membership, MembershipExtra
+
+class TaggedMembershipExtra(MembershipExtra):
+    tag: str = ""
+
+membership = Membership(
+    id=Membership.BLANK_ID,
+    person_id="uk.org.publicwhip/person/1",
+    start_date="2020-01-01",
+    end_date="2020-12-31",
+)
+membership.set_extra("tag", "whip-removed")
+
+tagged = membership.get_extra_as(TaggedMembershipExtra)
+tagged.tag  # "whip-removed"
+```
+
+`get_extra_as` returns `None` if `extra` isn't set at all, and raises a Pydantic `ValidationError` if the existing data doesn't satisfy your model.
+
 ### Using name or ID lookup
 
 After first use, there is some caching behind the scenes to speed this up.

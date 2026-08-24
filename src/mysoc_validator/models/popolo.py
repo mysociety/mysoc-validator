@@ -53,7 +53,7 @@ from typing_extensions import Self
 from .consts import Chamber as Chamber
 from .consts import IdentifierScheme as IdentifierScheme
 from .consts import MembershipReason as MembershipReason
-from .popolo_extras import LocalisedLabelsExtra, LocalisedLabelsMixin
+from .popolo_extras import Extra, LocalisedLabelsExtra, LocalisedLabelsMixin
 
 
 @dataclass
@@ -336,6 +336,7 @@ class MembershipRedirect(ModelInList):
 
 
 MembershipLocalisedFields = Literal["label", "role"]
+MembershipExtra = LocalisedLabelsExtra[MembershipLocalisedFields]
 
 
 class Membership(
@@ -345,9 +346,11 @@ class Membership(
     A timed connection between a person and a post.
     """
 
+    _extra_class: ClassVar[type[Extra]] = MembershipExtra
+
     end_date: FlexiDateFuture
     end_reason: Optional[MembershipReason] = None
-    extra: Optional[LocalisedLabelsExtra[MembershipLocalisedFields]] = None
+    extra: Optional[MembershipExtra] = None
     id: MemberID
     identifiers: Optional[list[SimpleIdentifier]] = None
     label: Optional[str] = None
@@ -440,6 +443,7 @@ class Membership(
 
 
 OrganizationLocalisedFields = Literal["name", "abstract", "description"]
+OrganizationExtra = LocalisedLabelsExtra[OrganizationLocalisedFields]
 
 
 class Organization(ModelInList, LocalisedLabelsMixin[OrganizationLocalisedFields]):
@@ -447,12 +451,13 @@ class Organization(ModelInList, LocalisedLabelsMixin[OrganizationLocalisedFields
     May be a party or chamber
     """
 
+    _extra_class: ClassVar[type[Extra]] = OrganizationExtra
     _int_style_id: ClassVar[bool] = False
     abstract: Optional[str] = None
     classification: Optional[OrgType] = None
     description: Optional[str] = None
     dissolution_date: Optional[FlexiDateFuture] = None
-    extra: Optional[LocalisedLabelsExtra[OrganizationLocalisedFields]] = None
+    extra: Optional[OrganizationExtra] = None
     founding_date: Optional[FlexiDatePast] = None
     id: OrgID
     identifiers: Optional[list[SimpleIdentifier]] = None
@@ -683,6 +688,7 @@ class Link(StrictBaseModel):
 
 
 PersonLocalisedFields = Literal["biography", "summary"]
+PersonExtra = LocalisedLabelsExtra[PersonLocalisedFields]
 
 
 class Person(ModelInList, LocalisedLabelsMixin[PersonLocalisedFields]):
@@ -690,10 +696,12 @@ class Person(ModelInList, LocalisedLabelsMixin[PersonLocalisedFields]):
     A person who has held an office.
     """
 
+    _extra_class: ClassVar[type[Extra]] = PersonExtra
+
     biography: Optional[str] = None
     birth_date: Optional[FlexiDatePast] = None
     death_date: Optional[FlexiDateFuture] = None
-    extra: Optional[LocalisedLabelsExtra[PersonLocalisedFields]] = None
+    extra: Optional[PersonExtra] = None
     gender: Optional[str] = None
     id: PersonID
     identifiers: IndexedPersonIdentifierList = Field(
@@ -1040,6 +1048,7 @@ class Person(ModelInList, LocalisedLabelsMixin[PersonLocalisedFields]):
 
 
 AreaLocalisedFields = Literal["name"]
+AreaExtra = LocalisedLabelsExtra[AreaLocalisedFields]
 
 
 class Area(ModelInList, LocalisedLabelsMixin[AreaLocalisedFields]):
@@ -1047,10 +1056,11 @@ class Area(ModelInList, LocalisedLabelsMixin[AreaLocalisedFields]):
     Constituency name
     """
 
+    _extra_class: ClassVar[type[Extra]] = AreaExtra
     _index_on: ClassVar[str] = "name"
     _int_style_id: ClassVar[bool] = False
 
-    extra: Optional[LocalisedLabelsExtra[AreaLocalisedFields]] = None
+    extra: Optional[AreaExtra] = None
     name: str
     other_names: list[str] = Field(default_factory=list)
 
@@ -1069,14 +1079,16 @@ class PostIdentifier(StrictBaseModel):
 
 
 PostLocalisedFields = Literal["label", "role"]
+PostExtra = LocalisedLabelsExtra[PostLocalisedFields]
 
 
 class Post(ModelInList, DateFormatMixin, LocalisedLabelsMixin[PostLocalisedFields]):
+    _extra_class: ClassVar[type[Extra]] = PostExtra
     _int_style_id: ClassVar[bool] = False
 
     area: Optional[Area] = None
     end_date: Optional[FlexiDateFuture] = None
-    extra: Optional[LocalisedLabelsExtra[PostLocalisedFields]] = None
+    extra: Optional[PostExtra] = None
     id: PostID
     identifiers: Optional[list[PostIdentifier]] = None
     label: str

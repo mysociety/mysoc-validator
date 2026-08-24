@@ -60,14 +60,15 @@ SUPPLEMENTAL_POPOLO = {
 
 
 @pytest.mark.parametrize("model_type", [Membership, Organization, Person, Area, Post])
-def test_localised_field_type_tokens_match_extra_annotations(model_type):
-    # LocalisedLabelsMixin.__init_subclass__ must capture the generic argument on
-    # each concrete owner. Checking __dict__ specifically guards against accidentally
-    # storing one shared value on the mixin, where the last model defined would win.
-    assert "_localised_fields" in model_type.__dict__
+def test_extra_class_matches_extra_annotation(model_type):
+    # Each concrete owner must declare its own `_extra_class`. Checking __dict__
+    # specifically guards against accidentally relying on a mixin default, or
+    # copy-pasting another model's declaration, where the wrong value would
+    # still resolve via inheritance instead of failing loudly.
+    assert "_extra_class" in model_type.__dict__
 
-    # The captured token drives runtime construction, so it must describe the same
-    # LocalisedLabelsExtra specialization as the owner's declared Pydantic field.
+    # `ensure_extra` constructs `_extra_class` directly, so it must describe the
+    # same type as the owner's declared Pydantic field.
     extra_annotation = model_type.model_fields["extra"].annotation
     concrete_extra_types = [
         candidate
@@ -75,7 +76,7 @@ def test_localised_field_type_tokens_match_extra_annotations(model_type):
         if candidate is not type(None)
     ]
 
-    assert concrete_extra_types == [LocalisedLabelsExtra[model_type._localised_fields]]
+    assert concrete_extra_types == [model_type._extra_class]
 
 
 def test_supplemental_popolo_round_trips_without_changes(tmp_path: Path):
