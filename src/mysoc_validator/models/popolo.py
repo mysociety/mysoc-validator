@@ -1205,7 +1205,7 @@ class IndexedList(RootModel[list[T]]):
                 return get_args(t)[0]
             return t
 
-        list_contents = get_args(self.model_fields["root"].annotation)[0]
+        list_contents = get_args(self.__class__.model_fields["root"].annotation)[0]
         # if it's annotated, we want the true value
         if get_origin(list_contents):
             list_contents = remove_annotation(list_contents)
