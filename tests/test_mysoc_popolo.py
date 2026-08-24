@@ -74,6 +74,67 @@ def test_lookup_lord_no_lordname(popolo_data: Popolo):
         assert person.id == "uk.org.publicwhip/person/13633"
 
 
+def test_lookup_historical_name_resolves(popolo_data: Popolo):
+    # Nigel Dodds was an MLA for Belfast North long before he became
+    # Lord Dodds of Duncairn in 2020 - include_historical_names lets his
+    # later peerage name match against his earlier NI Assembly membership.
+    person = popolo_data.persons.from_name(
+        "Lord Dodds of Duncairn",
+        chamber_id=Chamber.NORTHERN_IRELAND,
+        date=iso("2001-01-01"),
+        include_historical_names=True,
+    )
+    assert person is not None
+    assert person.id == "uk.org.publicwhip/person/10857"
+
+
+def test_lookup_historical_name_requires_flag(popolo_data: Popolo):
+    # Without include_historical_names, the same lookup fails - the
+    # peerage name wasn't valid on the lookup date.
+    person = popolo_data.persons.from_name(
+        "Lord Dodds of Duncairn",
+        chamber_id=Chamber.NORTHERN_IRELAND,
+        date=iso("2001-01-01"),
+    )
+    assert person is None
+
+
+def test_lookup_historical_name_still_needs_chamber_eligibility(popolo_data: Popolo):
+    # By 2015 Nigel Dodds was no longer an MLA - include_historical_names
+    # only widens which of a person's names can match, it doesn't widen
+    # who counts as eligible for the chamber on that date.
+    person = popolo_data.persons.from_name(
+        "Lord Dodds of Duncairn",
+        chamber_id=Chamber.NORTHERN_IRELAND,
+        date=iso("2015-01-01"),
+        include_historical_names=True,
+    )
+    assert person is None
+
+
+def test_lookup_historical_name_ambiguous_raises():
+    # Two different people who share a chamber/date, both given the same
+    # historical alt name, should not silently resolve to either one.
+    popolo = Popolo.from_parlparse()
+    person_a = popolo.persons["uk.org.publicwhip/person/10001"]
+    person_b = popolo.persons["uk.org.publicwhip/person/24941"]
+
+    for person in (person_a, person_b):
+        person.add_alt_name(
+            one_name="Ambiguous Historical Name",
+            start_date=iso("2000-01-01"),
+            end_date=iso("2001-01-01"),
+        )
+
+    with pytest.raises(ValueError):
+        popolo.persons.from_name(
+            "Ambiguous Historical Name",
+            chamber_id=Chamber.COMMONS,
+            date=iso("2022-07-31"),
+            include_historical_names=True,
+        )
+
+
 def test_valid_addition(popolo_data: Popolo):
     person = popolo_data.persons["uk.org.publicwhip/person/10001"]
     last_membership = person.memberships()[-1]

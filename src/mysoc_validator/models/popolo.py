@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from bisect import bisect_left
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from itertools import groupby
@@ -17,6 +18,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    Iterable,
     Literal,
     Match,
     NamedTuple,
@@ -750,13 +752,30 @@ class Person(ModelInList, LocalisedLabelsMixin[PersonLocalisedFields]):
         return self
 
     def names_on_date(self, date: date) -> list[str]:
+        return self._name_forms(
+            x for x in self.names if x.start_date <= date <= x.end_date
+        )
+
+    def all_name_variants(self) -> list[str]:
+        """
+        Every recorded name form for this person, regardless of the date
+        range the name itself was valid for.
+
+        Used for historical name lookups where chamber/date eligibility
+        has already been established some other way, e.g. matching a
+        peer's later peerage name against an earlier Commons membership.
+        """
+        return self._name_forms(self.names)
+
+    def _name_forms(
+        self, names: Iterable[Union[BasicPersonName, LordName, AltName]]
+    ) -> list[str]:
         result: list[str] = []
-        for x in self.names:
-            if x.start_date <= date <= x.end_date:
-                if isinstance(x, LordName):
-                    result.extend(x.name_variants())
-                else:
-                    result.append(x.nice_name())
+        for x in names:
+            if isinstance(x, LordName):
+                result.extend(x.name_variants())
+            else:
+                result.append(x.nice_name())
         return result
 
     def get_main_name(
@@ -1402,23 +1421,41 @@ class NameIndex(dict[str, str]):
     """
     Store a reduced name index for a repeated lookups
     in a given chamber in a given day.
+
+    A reduced name that matches more than one distinct person is tracked
+    as ambiguous as entries are added; get_id_reduced then raises rather
+    than silently resolving to whichever person was added last.
     """
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._ambiguous_slugs: set[str] = set()
+
+    def add(self, name: str, person_id: str) -> None:
+        slug = reduce_to_slug(name)
+        existing = self.get(slug)
+        if existing is not None and existing != person_id:
+            self._ambiguous_slugs.add(slug)
+        self[slug] = person_id
+
     def get_id_reduced(self, key: str) -> Optional[str]:
-        return self.get(reduce_to_slug(key))
+        slug = reduce_to_slug(key)
+        if slug in self._ambiguous_slugs:
+            raise ValueError(f"Ambiguous name {key!r} matches multiple people")
+        return self.get(slug)
 
     @classmethod
     def from_people(cls, people: list[Person], date: date) -> NameIndex:
-        ni = NameIndex()
-
+        index = cls()
         for p in people:
             for name in p.names_on_date(date):
-                ni[reduce_to_slug(name)] = p.id
-
-        return ni
+                index.add(name, p.id)
+        return index
 
     @classmethod
-    def from_memberships(cls, popolo: Popolo, chamber_id: str, date: date) -> NameIndex:
+    def people_in_chamber_on_date(
+        cls, popolo: Popolo, chamber_id: str, date: date
+    ) -> list[Person]:
         # get posts associated with the chamber
 
         # Lords memberships connect directly to the organization without a post,
@@ -1436,9 +1473,33 @@ class NameIndex(dict[str, str]):
         rel_people = [
             m.person() for m in rel_memberships if m.start_date <= date <= m.end_date
         ]
-        rel_people = [p for p in rel_people if p]
+        return [p for p in rel_people if p]
 
+    @classmethod
+    def from_memberships(cls, popolo: Popolo, chamber_id: str, date: date) -> NameIndex:
+        rel_people = cls.people_in_chamber_on_date(
+            popolo, chamber_id=chamber_id, date=date
+        )
         return cls.from_people(rel_people, date)
+
+    @classmethod
+    def from_memberships_all_names(
+        cls, popolo: Popolo, chamber_id: str, date: date
+    ) -> NameIndex:
+        """
+        Index every recorded name (not just ones valid on `date`) of
+        people eligible for chamber_id on date. Used for historical name
+        lookups: chamber/date still gates who is eligible, but any of
+        their names is allowed to match.
+        """
+        rel_people = cls.people_in_chamber_on_date(
+            popolo, chamber_id=chamber_id, date=date
+        )
+        index = cls()
+        for p in rel_people:
+            for name in p.all_name_variants():
+                index.add(name, p.id)
+        return index
 
 
 class OrgDate(NamedTuple):
@@ -1470,7 +1531,12 @@ class IndexedPeopleList(
 
     def model_post_init(self, __context: dict[str, Any]):
         super().model_post_init(__context)
-        self._name_to_id_lookups: dict[OrgDate, NameIndex] = {}
+        self.reset_name_caches()
+
+    def reset_name_caches(self):
+        self._name_caches: dict[
+            Literal["current", "historical"], dict[OrgDate, NameIndex]
+        ] = defaultdict(dict)
 
     def __iter__(self):
         return iter([x for x in self.root if isinstance(x, Person)])
@@ -1480,7 +1546,7 @@ class IndexedPeopleList(
 
     def invalidate_indexes(self):
         super().invalidate_indexes()
-        self._name_to_id_lookups = {}
+        self.reset_name_caches()
 
     def from_identifier(self, identifer: str, *, scheme: str) -> Person:
         def lookup_identifier(person: Union[Person, PersonRedirect]) -> Optional[str]:
@@ -1508,14 +1574,40 @@ class IndexedPeopleList(
         """
         return super().__getitem__(key).self_or_redirect()
 
-    def from_name(self, name: str, *, chamber_id: str, date: date) -> Optional[Person]:
+    def from_name(
+        self,
+        name: str,
+        *,
+        chamber_id: str,
+        date: date,
+        include_historical_names: bool = False,
+    ) -> Optional[Person]:
+        """
+        Look up a person by name, restricted to people eligible for
+        chamber_id on date (i.e. with an open membership spanning date).
+
+        By default, only names valid on date itself are matched. When
+        include_historical_names is True, chamber/date is still used to
+        determine eligibility, but the name is matched against every
+        name a person has ever held (including peerage name variants) -
+        useful for e.g. finding a peer by their later peerage title
+        while looking up an earlier Commons membership.
+        """
         org_date = OrgDate(organization_id=chamber_id, date=date)
-        if org_date not in self._name_to_id_lookups:
-            self._name_to_id_lookups[org_date] = NameIndex.from_memberships(
+
+        if include_historical_names:
+            cache = self._name_caches["historical"]
+            build = NameIndex.from_memberships_all_names
+        else:
+            cache = self._name_caches["current"]
+            build = NameIndex.from_memberships
+
+        if org_date not in cache:
+            cache[org_date] = build(
                 popolo=self.get_parent(), chamber_id=chamber_id, date=date
             )
 
-        id = self._name_to_id_lookups[org_date].get_id_reduced(name)
+        id = cache[org_date].get_id_reduced(name)
         item = self.get(id) if id else None
 
         if isinstance(item, PersonRedirect):
