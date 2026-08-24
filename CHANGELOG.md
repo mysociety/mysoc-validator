@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.4.1] - 2026-08-24
+
+### Fixed
+
+- Avoided a Pydantic 2.11 deprecation warning in `ListModel.get_list_container_type` by reading `model_fields` from the class instead of the instance.
+
 ## [1.4.0] - 2026-08-24
 
 ### Added
