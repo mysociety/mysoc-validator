@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import re
 import tempfile
+import time
 from functools import lru_cache
 from pathlib import Path
 from typing import ClassVar, Optional
@@ -17,6 +18,11 @@ from .enum_helpers import MiniEnum
 nest_asyncio.apply()  # type: ignore
 
 
+DEFAULT_TIMEOUT = httpx.Timeout(30.0, connect=15.0)
+DEFAULT_RETRIES = 3
+DEFAULT_RETRY_BACKOFF = 1.0
+
+
 def get_user_agent():
     from ... import __version__
 
@@ -27,9 +33,33 @@ def persistent_download_path():
     return Path(tempfile.gettempdir()) / "parlparse_xmls"
 
 
+def get_with_retry(
+    url: str,
+    *,
+    headers: Optional[dict[str, str]] = None,
+    timeout: httpx.Timeout = DEFAULT_TIMEOUT,
+    retries: int = DEFAULT_RETRIES,
+    backoff: float = DEFAULT_RETRY_BACKOFF,
+) -> httpx.Response:
+    """
+    Thin wrapper around httpx.get with a longer timeout and retries
+    on transient connection/read timeouts.
+    """
+    last_error: Optional[httpx.TransportError] = None
+    for attempt in range(retries):
+        try:
+            return httpx.get(url, headers=headers, timeout=timeout)
+        except httpx.TransportError as e:
+            last_error = e
+            if attempt < retries - 1:
+                time.sleep(backoff * (attempt + 1))
+    assert last_error is not None
+    raise last_error
+
+
 @lru_cache
 def get_xmls_from_index(index_url: str) -> list[str]:
-    content = httpx.get(index_url).text
+    content = get_with_retry(index_url).text
     xml_links = re.findall(r'<a href="([^"]+\.xml)">', content)
     return [link for link in xml_links]
 
@@ -104,7 +134,7 @@ class XMLManager(BaseModel):
         file_path = base_path.parent / url_file_name
         file_path.parent.mkdir(parents=True, exist_ok=True)
         headers = {"User-Agent": get_user_agent()}
-        response = httpx.get(latest_url, headers=headers)
+        response = get_with_retry(latest_url, headers=headers)
         file_path.write_text(response.text)
         return file_path
 
@@ -140,7 +170,7 @@ class XMLManager(BaseModel):
         file_path = download_path / file_name
 
         headers = {"User-Agent": get_user_agent()}
-        response = httpx.get(url, headers=headers)
+        response = get_with_retry(url, headers=headers)
         file_path.write_text(response.text)
         return file_path
 
@@ -221,17 +251,20 @@ class TranscriptXMl(MiniEnum[XMLManager]):
 
 
 async def async_check_file_existence(client: httpx.AsyncClient, url: str):
-    try:
-        headers = {"User-Agent": get_user_agent()}
-        response = await client.head(url, headers=headers)
-        return url, response.status_code
-    except httpx.RequestError:
-        return url, None
+    headers = {"User-Agent": get_user_agent()}
+    for attempt in range(DEFAULT_RETRIES):
+        try:
+            response = await client.head(url, headers=headers)
+            return url, response.status_code
+        except httpx.TransportError:
+            if attempt < DEFAULT_RETRIES - 1:
+                await asyncio.sleep(DEFAULT_RETRY_BACKOFF * (attempt + 1))
+    return url, None
 
 
 async def async_check_urls_exist(urls: list[str]) -> list[str]:
     valid_urls: list[str] = []
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
         tasks = [async_check_file_existence(client, url) for url in urls]
         results = await asyncio.gather(*tasks)
         for url, status_code in results:
