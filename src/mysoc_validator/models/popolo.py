@@ -1552,11 +1552,15 @@ class IndexedPeopleList(
         def lookup_identifier(person: Union[Person, PersonRedirect]) -> Optional[str]:
             if isinstance(person, PersonRedirect):
                 return None
-            identifer = person.identifiers.get(scheme)
-            if identifer:
-                return str(identifer.identifier)
-            else:
-                return None
+            # Use get_matching_values so a person that happens to have the
+            # same scheme listed more than once doesn't blow the lookup up
+            # with 'Multiple items' (see issue #12).
+            matches = person.identifiers.get_matching_values(
+                "scheme", scheme
+            )
+            if matches:
+                return str(matches[0].identifier)
+            return None
 
         item = self.get_single_from_index(
             f"identifier_{scheme}", identifer, lookup_identifier
