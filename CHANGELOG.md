@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.5.0] - 2026-08-25
+
+### Added
+
+- Added `get_extra`/`set_extra`/`get_extra_as` helpers to `Membership`, `Organization`, `Person`, `Area`, and `Post` for reading and writing arbitrary keys on `extra` from downstream projects, plus named `XExtra` type aliases (`MembershipExtra`, `OrganizationExtra`, `PersonExtra`, `AreaExtra`, `PostExtra`) that project-specific extras can subclass.
+
+### Changed
+
+- `XMLManager` downloads and `async_check_urls_exist` now retry transient connection/read timeouts (with backoff) and use a longer default timeout, instead of failing on the first transport error.
+
 ## [1.4.1] - 2026-08-24
 
 ### Fixed
