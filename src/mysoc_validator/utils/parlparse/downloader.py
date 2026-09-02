@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import re
+import sys
 import tempfile
 import time
 from functools import lru_cache
@@ -15,7 +16,9 @@ from ...models.consts import TranscriptType
 from ...models.popolo import Chamber
 from .enum_helpers import MiniEnum
 
-nest_asyncio.apply()  # type: ignore
+# nest_asyncio's global patch is incompatible with Python 3.14's asyncio internals.
+if sys.version_info < (3, 14):
+    nest_asyncio.apply()  # type: ignore
 
 
 DEFAULT_TIMEOUT = httpx.Timeout(30.0, connect=15.0)
