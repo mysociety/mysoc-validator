@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [comment]: # (Template for updates)
 
+## [1.5.1] - 2026-09-02
+
+### Added
+
+- Added Python 3.13 and 3.14 to the automated test matrix.
+
+### Changed
+
+- Updated the locked Pydantic and HTTP dependencies for Python 3.14 support, and allowed lxml 6 so Python 3.14 installations use prebuilt wheels.
+
+### Fixed
+
+- Restored Python 3.14 compatibility by resolving PEP 649 deferred annotations before the XML and typed-enum metaclasses inspect or modify class fields.
+- Avoided applying `nest_asyncio`'s incompatible global event-loop patch on Python 3.14.
+
 ## [1.5.0] - 2026-08-25
 
 ### Added
