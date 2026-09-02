@@ -4,8 +4,35 @@ Run meta tests on package (apply to muliple packages)
 """
 
 from pathlib import Path
+from typing import Literal
+
 import mysoc_validator as package
 import toml
+from mysoc_validator.models.xml_base import AttrStr, BaseXMLModel, TextStr
+from mysoc_validator.utils.parlparse.enum_helpers import StrEnum
+
+
+class AnnotationRegressionModel(BaseXMLModel, tags=["annotation-regression"]):
+    attribute: AttrStr
+    text: TextStr
+    literal: Literal["literal"] = "literal"
+
+
+class AnnotationRegressionEnum(StrEnum):
+    VALUE: str
+
+
+def test_xml_model_meta_reads_deferred_annotations():
+    model = AnnotationRegressionModel.model_validate(
+        {"@attribute": "attribute value", "@text": "text value"}
+    )
+    assert model.attribute == "attribute value"
+    assert model.text == "text value"
+    assert model.tag == "annotation-regression"
+
+
+def test_typed_enum_meta_reads_deferred_annotations():
+    assert AnnotationRegressionEnum.VALUE.value == "value"
 
 
 def test_version_in_workflow():

@@ -3,6 +3,8 @@ from typing import Any, Generic, Iterator, Type, TypeVar
 
 from typing_extensions import ParamSpec
 
+from ..._annotations import get_namespace_annotations
+
 P = ParamSpec("P")
 
 
@@ -28,7 +30,7 @@ class MiniEnum(Generic[TA]):
 class TypedEnumType(EnumMeta):
     def __new__(cls, name: str, bases: Any, dct: dict[str, Any]):
         # Go through the type annotations
-        annotations = dct.get("__annotations__", {})
+        annotations = get_namespace_annotations(dct)
         for attr, typ in annotations.items():
             # if typ is annotated, extract the metadata and use that as
             # the function to create the attribute

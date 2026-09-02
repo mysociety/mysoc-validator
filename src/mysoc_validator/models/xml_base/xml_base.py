@@ -41,6 +41,7 @@ from pydantic.functional_serializers import WrapSerializer
 from pydantic.functional_validators import BeforeValidator
 from typing_extensions import Self, dataclass_transform
 
+from ..._annotations import get_namespace_annotations
 from .xml_to_json import json_to_xml, xml_to_json
 
 
@@ -175,8 +176,8 @@ class XMLModelMeta(ModelMetaclass):
         # add tag field based on class attribute
         if "tag" in namespace and tags:
             raise AttributeError("Cannot have both tag field and tags attributes")
-        if "__annotations__" not in namespace:
-            namespace["__annotations__"] = {}
+        annotations = dict(get_namespace_annotations(namespace))
+        namespace["__annotations__"] = annotations
         namespace["__as_attr__"] = []
         namespace["__mixed_content__"] = []
         if tags:
@@ -186,19 +187,19 @@ class XMLModelMeta(ModelMetaclass):
                     validation_alias=AliasChoices("tag", "@tag"),
                     serialization_alias="@tag",
                 )
-                namespace["__annotations__"]["tag"] = str
+                annotations["tag"] = str
             else:
                 namespace["tag"] = Field(
                     default=tags[0],
                     validation_alias=AliasChoices("tag", "@tag"),
                     serialization_alias="@tag",
                 )
-                namespace["__annotations__"]["tag"] = (
+                annotations["tag"] = (
                     f'Literal[{", ".join([f"{tag!r}" for tag in tags])}]'
                 )
 
         # add special XML fields based on metadata
-        for key, value in namespace.get("__annotations__", {}).items():
+        for key, value in annotations.items():
             if isinstance(value, str):
                 local_scope = {**locals(), **caller_globals}
                 value = convert_to_forward_refs(value, local_scope=local_scope)
