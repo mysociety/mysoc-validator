@@ -23,6 +23,7 @@ class AnnotationRegressionEnum(StrEnum):
 
 
 def test_xml_model_meta_reads_deferred_annotations():
+    """Verify xml model meta reads deferred annotations."""
     model = AnnotationRegressionModel.model_validate(
         {"@attribute": "attribute value", "@text": "text value"}
     )
@@ -32,6 +33,7 @@ def test_xml_model_meta_reads_deferred_annotations():
 
 
 def test_typed_enum_meta_reads_deferred_annotations():
+    """Verify typed enum meta reads deferred annotations."""
     assert AnnotationRegressionEnum.VALUE.value == "value"
 
 

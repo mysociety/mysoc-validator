@@ -5,18 +5,22 @@ from mysoc_validator.models.xml_interests import Register
 
 
 def test_json_interests():
+    """Verify json interests."""
     RegmemRegister.from_path(Path("data", "commons-regmem-2025-01-20.json"))
 
 
 def test_interests_load():
+    """Verify interests load."""
     Register.from_xml_path(Path("data", "regmem2024-05-28.xml"))
 
 
 def test_interests_xml_nonutf8():
+    """Verify interests xml nonutf8."""
     Register.from_xml_path(Path("data", "regmem2015-06-08.xml"))
 
 
 def test_interests_round_trip():
+    """Verify interests round trip."""
     t = Register.from_xml_path(Path("data", "regmem2024-05-28.xml"))
 
     dumped_xml = t.model_dump_xml()

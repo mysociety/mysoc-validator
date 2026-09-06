@@ -36,11 +36,13 @@ def blank_model(request):
 
 
 def test_get_extra_is_none_when_extra_unset(blank_model):
+    """Verify get extra is none when extra unset."""
     assert blank_model.extra is None
     assert blank_model.get_extra("anything") is None
 
 
 def test_set_extra_creates_extra_and_is_retrievable(blank_model):
+    """Verify set extra creates extra and is retrievable."""
     assert blank_model.extra is None
 
     blank_model.set_extra("note", "flagged")
@@ -52,6 +54,7 @@ def test_set_extra_creates_extra_and_is_retrievable(blank_model):
 def test_get_extra_returns_none_for_unset_key_on_existing_extra(blank_model):
     # extra being populated shouldn't make an unrelated key raise or fall back
     # to something other than None.
+    """Verify get extra returns none for unset key on existing extra."""
     blank_model.set_extra("note", "flagged")
 
     assert blank_model.get_extra("other") is None
@@ -59,6 +62,7 @@ def test_get_extra_returns_none_for_unset_key_on_existing_extra(blank_model):
 
 def test_set_extra_is_chainable(blank_model):
     # set_extra returns self so callers can chain several assignments.
+    """Verify set extra is chainable."""
     result = blank_model.set_extra("a", 1).set_extra("b", 2)
 
     assert result is blank_model
@@ -78,6 +82,7 @@ class TaggedMembershipExtra(MembershipExtra):
 
 
 def test_get_extra_reads_a_field_declared_on_a_membershipextra_subclass():
+    """Verify get extra reads a field declared on a membershipextra subclass."""
     membership = Membership(
         id=Membership.BLANK_ID,
         person_id="uk.org.publicwhip/person/1",
@@ -90,6 +95,7 @@ def test_get_extra_reads_a_field_declared_on_a_membershipextra_subclass():
 
 
 def test_set_extra_updates_a_field_declared_on_a_membershipextra_subclass_in_place():
+    """Verify set extra updates a field declared on a membershipextra subclass in place."""
     membership = Membership(
         id=Membership.BLANK_ID,
         person_id="uk.org.publicwhip/person/1",
@@ -111,6 +117,7 @@ def test_get_extra_as_reads_extra_data_into_a_project_specific_model():
     # extra was set generically (as it would be after parsing untyped JSON),
     # not constructed as a TaggedMembershipExtra directly - get_extra_as is
     # what lets a caller reinterpret it as one.
+    """Verify get extra as reads extra data into a project specific model."""
     membership = Membership(
         id=Membership.BLANK_ID,
         person_id="uk.org.publicwhip/person/1",
@@ -126,4 +133,5 @@ def test_get_extra_as_reads_extra_data_into_a_project_specific_model():
 
 
 def test_get_extra_as_is_none_when_extra_unset(blank_model):
+    """Verify get extra as is none when extra unset."""
     assert blank_model.get_extra_as(TaggedMembershipExtra) is None

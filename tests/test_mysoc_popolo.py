@@ -26,16 +26,19 @@ def popolo_data():
 
 
 def test_lookup_from_id(popolo_data: Popolo):
+    """Verify lookup from id."""
     person = popolo_data.persons["uk.org.publicwhip/person/10001"]
     assert "Diane Abbott" in person.names_on_date(date=iso("2024-07-31"))
 
 
 def test_lookup_from_identifer(popolo_data: Popolo):
+    """Verify lookup from identifer."""
     person = popolo_data.persons.from_identifier("172", scheme="datadotparl_id")
     assert "Diane Abbott" in person.names_on_date(date=iso("2024-07-31"))
 
 
 def test_lookup_from_name(popolo_data: Popolo):
+    """Verify lookup from name."""
     person = popolo_data.persons.from_name(
         "Elizabeth Truss", chamber_id=Chamber.COMMONS, date=iso("2022-07-31")
     )
@@ -45,6 +48,7 @@ def test_lookup_from_name(popolo_data: Popolo):
 
 def test_lookup_lord_full_title(popolo_data: Popolo):
     # Lord Allan of Hallam — full peerage title lookup
+    """Verify lookup lord full title."""
     person = popolo_data.persons.from_name(
         "Lord Allan of Hallam", chamber_id=Chamber.LORDS, date=iso("2024-01-01")
     )
@@ -54,6 +58,7 @@ def test_lookup_lord_full_title(popolo_data: Popolo):
 
 def test_lookup_lord_no_lordname(popolo_data: Popolo):
     # Bishops have no lordname; transcripts use several forms inconsistently
+    """Verify lookup lord no lordname."""
     for name in [
         "Bishop of Norwich",  # simple form seen in some transcripts
         "The Bishop of Norwich",  # with "The" prefix
@@ -78,6 +83,7 @@ def test_lookup_historical_name_resolves(popolo_data: Popolo):
     # Nigel Dodds was an MLA for Belfast North long before he became
     # Lord Dodds of Duncairn in 2020 - include_historical_names lets his
     # later peerage name match against his earlier NI Assembly membership.
+    """Verify lookup historical name resolves."""
     person = popolo_data.persons.from_name(
         "Lord Dodds of Duncairn",
         chamber_id=Chamber.NORTHERN_IRELAND,
@@ -91,6 +97,7 @@ def test_lookup_historical_name_resolves(popolo_data: Popolo):
 def test_lookup_historical_name_requires_flag(popolo_data: Popolo):
     # Without include_historical_names, the same lookup fails - the
     # peerage name wasn't valid on the lookup date.
+    """Verify lookup historical name requires flag."""
     person = popolo_data.persons.from_name(
         "Lord Dodds of Duncairn",
         chamber_id=Chamber.NORTHERN_IRELAND,
@@ -103,6 +110,7 @@ def test_lookup_historical_name_still_needs_chamber_eligibility(popolo_data: Pop
     # By 2015 Nigel Dodds was no longer an MLA - include_historical_names
     # only widens which of a person's names can match, it doesn't widen
     # who counts as eligible for the chamber on that date.
+    """Verify lookup historical name still needs chamber eligibility."""
     person = popolo_data.persons.from_name(
         "Lord Dodds of Duncairn",
         chamber_id=Chamber.NORTHERN_IRELAND,
@@ -115,6 +123,7 @@ def test_lookup_historical_name_still_needs_chamber_eligibility(popolo_data: Pop
 def test_lookup_historical_name_ambiguous_raises():
     # Two different people who share a chamber/date, both given the same
     # historical alt name, should not silently resolve to either one.
+    """Verify lookup historical name ambiguous raises."""
     popolo = Popolo.from_parlparse()
     person_a = popolo.persons["uk.org.publicwhip/person/10001"]
     person_b = popolo.persons["uk.org.publicwhip/person/24941"]
@@ -136,6 +145,7 @@ def test_lookup_historical_name_ambiguous_raises():
 
 
 def test_valid_addition(popolo_data: Popolo):
+    """Verify valid addition."""
     person = popolo_data.persons["uk.org.publicwhip/person/10001"]
     last_membership = person.memberships()[-1]
     if last_membership.end_date == FixedDate.FUTURE:
@@ -156,6 +166,7 @@ def test_valid_addition(popolo_data: Popolo):
 
 
 def test_invalid_overlapping_memberhsip(popolo_data: Popolo):
+    """Verify invalid overlapping memberhsip."""
     person = popolo_data.persons["uk.org.publicwhip/person/10001"]
     last_membership = person.memberships()[-1]
     new_membership = Membership(
@@ -307,6 +318,7 @@ def add_invalid_membership_not_a_person(popolo_data: Popolo):
 
 
 def test_round_trip():
+    """Verify round trip."""
     branch = "master"
     parlparse_url = f"https://raw.githubusercontent.com/mysociety/parlparse/{branch}/members/people.json"
 
@@ -321,6 +333,7 @@ def test_round_trip():
 
 
 def test_write_popolo(popolo_data: Popolo):
+    """Verify write popolo."""
     with tempfile.TemporaryDirectory() as temp_dir:
         data_dir = Path(temp_dir, "data")
         data_dir.mkdir()
@@ -389,6 +402,7 @@ def test_duplicate_post_rejected(popolo_data: Popolo):
 
 
 def test_non_spec_extra_accessors_round_trip():
+    """Verify non spec extra accessors round trip."""
     popolo = Popolo.model_validate(
         {
             "organizations": [
@@ -425,6 +439,7 @@ def test_non_spec_extra_accessors_round_trip():
 
 
 def test_organization_supports_supplemental_details():
+    """Verify organization supports supplemental details."""
     organization_data = {
         "id": "finance-committee",
         "name": "Finance Committee",
@@ -442,6 +457,7 @@ def test_organization_supports_supplemental_details():
 
 
 def test_organization_supplemental_details_are_optional():
+    """Verify organization supplemental details are optional."""
     organization = Organization(id="body", name="Body")
 
     assert organization.abstract is None
@@ -454,6 +470,7 @@ def test_organization_supplemental_details_are_optional():
 
 
 def test_organization_parent_id_is_cross_checked():
+    """Verify organization parent id is cross checked."""
     valid = Popolo.model_validate(
         {
             "organizations": [
