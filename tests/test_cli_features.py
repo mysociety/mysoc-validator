@@ -189,10 +189,6 @@ def test_transcript_directory_mode_only_validates_xml_children(monkeypatch, tmp_
     assert set(calls) == {one, two}
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: interests directory mode also validates the directory as a file",
-)
 def test_interests_directory_mode_only_validates_supported_children(
     monkeypatch, tmp_path
 ):
