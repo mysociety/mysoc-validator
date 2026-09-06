@@ -352,6 +352,7 @@ def validate_transcript_cmd(
         files = list(file.glob("*.xml"))
         for f in tqdm(files):
             validate_transcript(f, quiet_success=True)
+        return
     if glob:
         files = list(file.parent.glob(file.name))
         for f in tqdm(files):
