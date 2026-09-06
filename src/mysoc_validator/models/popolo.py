@@ -1334,7 +1334,7 @@ class IndexedList(RootModel[list[T]]):
         try:
             self[key]
             return True
-        except (ValueError, IndexError):
+        except (KeyError, ValueError, IndexError):
             return False
 
     def get(self, key: str, default: Optional[Any] = None) -> Optional[T]:
