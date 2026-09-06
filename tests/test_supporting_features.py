@@ -156,10 +156,6 @@ def test_info_collection_mutation_iteration_and_parlparse_url(monkeypatch):
     assert captured["url"].endswith("/feature/members/people.xml")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: InfoCollection.to_records iterates dict keys as key/value pairs",
-)
 def test_info_collection_exports_long_form_records():
     """Verify info collection exports long form records."""
     collection = InfoCollection[PersonInfo](
