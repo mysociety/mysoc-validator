@@ -202,7 +202,9 @@ def get_tag(v: Any) -> str:
     if item_type:
         return item_type
 
-    if isinstance(item_value, int):
+    if isinstance(item_value, bool):
+        return "boolean"
+    elif isinstance(item_value, int):
         return "int"
     elif isinstance(item_value, str):
         return "string"
@@ -212,8 +214,6 @@ def get_tag(v: Any) -> str:
         return "date"
     elif isinstance(item_value, float):
         return "float"
-    elif isinstance(item_value, bool):
-        return "boolean"
     elif item_value is None:
         return "string"
     else:

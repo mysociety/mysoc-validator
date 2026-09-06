@@ -11,10 +11,6 @@ from mysoc_validator.models.popolo import (
 )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: untyped boolean details are discriminated as integers",
-)
 def test_untyped_boolean_interest_detail_preserves_boolean_type():
     """Verify untyped boolean interest detail preserves boolean type."""
     group = RegmemDetailGroup.model_validate([{"slug": "flag", "value": True}])
