@@ -99,9 +99,11 @@ class InfoCollection(BaseXMLModel, Generic[InfoModel], tags=["twfy", "publicwhip
         for item in self.items:
             if isinstance(item, ConsInfo):
                 base = {"canonical": item.canonical}
+                identity_fields = {"canonical", "tag"}
             else:
                 base = {"person_id": item.person_id}
-            for k, v in item.model_dump():
+                identity_fields = {"person_id", "tag"}
+            for k, v in item.model_dump(exclude=identity_fields).items():
                 records.append({**base, "key": k, "value": str(v)})
 
         return records
