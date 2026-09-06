@@ -1366,10 +1366,15 @@ class IndexedList(RootModel[list[T]]):
         Can remove by index position or by passing the ID
         """
         if isinstance(key, int):
-            return self.root.pop(key)
+            item = self.root.pop(key)
         else:
             index = self.get_matching_index(self.get_index_field(), key)
-            return self.root.pop(index)
+            item = self.root.pop(index)
+
+        item.parent = None
+        self.invalidate_indexes()
+        self.refresh_id_int()
+        return item
 
     def __len__(self) -> int:
         return len(self.root)

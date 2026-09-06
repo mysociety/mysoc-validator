@@ -218,10 +218,6 @@ def test_indexed_list_contains_returns_false_for_missing_ids():
     assert "missing" not in _minimal_popolo().organizations
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: IndexedList.pop does not invalidate cached indexes",
-)
 def test_indexed_list_pop_keeps_lookup_indexes_consistent():
     """Verify indexed list pop keeps lookup indexes consistent."""
     organizations = _minimal_popolo().organizations
