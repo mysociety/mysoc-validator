@@ -1654,12 +1654,13 @@ class IndexedPeopleList(
             x for x in person2.identifiers if str(x) not in old_identifiers
         ]
 
-        person2.identifiers.extend(person_2_identifiers)
+        person1.identifiers.extend(person_2_identifiers)
 
         for m in person2.memberships():
             m.person_id = person1.id
 
         self.pop(person2.id)
+        self.invalidate_indexes()
         self.append(PersonRedirect(id=person2.id, redirect=person1.id))
 
         return self
