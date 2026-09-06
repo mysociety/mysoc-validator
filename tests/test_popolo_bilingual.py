@@ -65,6 +65,7 @@ def test_extra_class_matches_extra_annotation(model_type):
     # specifically guards against accidentally relying on a mixin default, or
     # copy-pasting another model's declaration, where the wrong value would
     # still resolve via inheritance instead of failing loudly.
+    """Verify extra class matches extra annotation."""
     assert "_extra_class" in model_type.__dict__
 
     # `ensure_extra` constructs `_extra_class` directly, so it must describe the
@@ -81,6 +82,7 @@ def test_extra_class_matches_extra_annotation(model_type):
 
 def test_supplemental_popolo_round_trips_without_changes(tmp_path: Path):
     # The complete bilingual fixture must retain its exact JSON representation.
+    """Verify supplemental popolo round trips without changes."""
     popolo = Popolo.model_validate(SUPPLEMENTAL_POPOLO)
     organization = popolo.organizations["senedd-committee-210781"]
     post = popolo.posts["senedd-committee-210781-chair"]
@@ -111,6 +113,7 @@ def test_supplemental_popolo_round_trips_without_changes(tmp_path: Path):
 
 def test_get_localised_value_rejects_field_not_on_model():
     # Getter calls must target a real field on the model.
+    """Verify get localised value rejects field not on model."""
     organization = Organization(id="body", name="Body")
 
     # A typo or unsupported field should fail instead of silently returning None.
@@ -120,6 +123,7 @@ def test_get_localised_value_rejects_field_not_on_model():
 
 def test_set_localised_value_creates_extra_when_missing():
     # Setter calls should safely create extra data when there is no extra to start
+    """Verify set localised value creates extra when missing."""
     organization = Organization(id="body", name="Corff / Body")
 
     assert organization.extra is None
@@ -133,6 +137,7 @@ def test_set_localised_value_creates_extra_when_missing():
 
 def test_set_localised_value_uses_concrete_type_and_serializes_unset_defaults():
     # Start without extra to create  it through the values
+    """Verify set localised value uses concrete type and serializes unset defaults."""
     organization = Organization(id="body", name="Corff / Body")
 
     organization.set_localised_value("name", "cy", "Corff")
@@ -154,6 +159,7 @@ def test_set_localised_value_uses_concrete_type_and_serializes_unset_defaults():
 
 def test_set_localised_value_preserves_unknown_extra_and_replaces_value():
     # Setter calls should safely create and update one translation entry leaving any unknown extras in place.
+    """Verify set localised value preserves unknown extra and replaces value."""
     organization = Organization.model_validate(
         {
             "id": "body",
@@ -179,6 +185,7 @@ def test_set_localised_value_preserves_unknown_extra_and_replaces_value():
 
 def test_set_localised_value_rejects_field_not_on_model():
     # Invalid setter calls must fail before changing the model.
+    """Verify set localised value rejects field not on model."""
     organization = Organization(id="body", name="Body")
 
     # The setter applies the same field guard as the getter.
@@ -191,6 +198,7 @@ def test_set_localised_value_rejects_field_not_on_model():
 
 def test_localised_values_are_independent_per_field():
     # One language may translate multiple fields, each keeping its own entry.
+    """Verify localised values are independent per field."""
     post = Post.model_validate(
         {
             "id": "bilingual-post",
@@ -212,6 +220,7 @@ def test_localised_values_are_independent_per_field():
 
 
 def test_organization_abstract_and_description_are_localisable():
+    """Verify organization abstract and description are localisable."""
     organization = Organization.model_validate(
         {
             "id": "finance-committee",

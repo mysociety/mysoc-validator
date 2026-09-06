@@ -24,21 +24,25 @@ class DemoDataModel(PersonInfo):
 
 
 def test_person_info_validates():
+    """Verify person info validates."""
     info = InfoCollection[PersonInfo].from_parlparse("social-media-commons")
     assert len(info.items) > 0
 
 
 def test_subclassed_info_validates():
+    """Verify subclassed info validates."""
     info = InfoCollection[SocialInfo].from_parlparse("social-media-commons")
     assert len(info.items) > 0
 
 
 def test_subclassed_info_missing_field():
+    """Verify subclassed info missing field."""
     with pytest.raises(ValidationError):
         InfoCollection[SocialInfoMissingField].from_parlparse("social-media-commons")
 
 
 def test_cons_info_validates():
+    """Verify cons info validates."""
     info = InfoCollection[ConsInfo].from_parlparse("constituency-links")
     assert len(info.items) > 0
 
@@ -55,6 +59,7 @@ example_xml_data = """
 
 
 def test_attr_xml():
+    """Verify attr xml."""
     item = DemoDataModel(
         person_id="uk.org.publicwhip/person/10001",
         regmem_info={"hello": ["yes", "no"]},

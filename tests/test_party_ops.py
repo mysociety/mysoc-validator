@@ -12,6 +12,7 @@ today = date.today()
 
 
 def test_add_alt_name():
+    """Verify add alt name."""
     popolo = Popolo.from_parlparse()
     person = popolo.persons["uk.org.publicwhip/person/10001"]
     person.add_alt_name(one_name="D Abbott")
@@ -22,6 +23,7 @@ def test_add_alt_name():
 
 
 def test_change_name():
+    """Verify change name."""
     popolo = Popolo.from_parlparse()
     person = popolo.persons["uk.org.publicwhip/person/10001"]
     person.change_main_name(
@@ -37,6 +39,7 @@ def test_change_name():
 
 
 def test_change_party():
+    """Verify change party."""
     popolo = Popolo.from_parlparse()
 
     person = popolo.persons["uk.org.publicwhip/person/25034"]

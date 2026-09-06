@@ -21,12 +21,14 @@ SP_DEBATE_WITH_STUB_DIVISION_SPEECHES_PATH = Path("data", "sp-debates2026-03-13.
 
 
 def test_transcript_load():
+    """Verify transcript load."""
     t = Transcript.from_xml_path(Path("data", "debates2023-03-28d.xml"))
 
     assert len(t.items) > 0
 
 
 def test_transcript_date():
+    """Verify transcript date."""
     t = Transcript.from_parlparse(
         date(2015, 1, 20),
         chamber=Transcript.Chamber.COMMONS,
@@ -37,6 +39,7 @@ def test_transcript_date():
 
 
 def test_transcript_round_trip():
+    """Verify transcript round trip."""
     t = Transcript.from_xml_path(Path("data", "debates2023-03-28d.xml"))
 
     dumped_xml = t.model_dump_xml()
@@ -49,11 +52,13 @@ def test_transcript_round_trip():
 
 
 def test_sp_written_answers_load():
+    """Verify sp written answers load."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     assert len(t.items) > 0
 
 
 def test_sp_written_answers_item_types():
+    """Verify sp written answers item types."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     types = [type(item).__name__ for item in t.items[:9]]
     assert types == [
@@ -70,6 +75,7 @@ def test_sp_written_answers_item_types():
 
 
 def test_sp_written_answers_source():
+    """Verify sp written answers source."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     source = t.items[0]
     assert isinstance(source, Source)
@@ -79,6 +85,7 @@ def test_sp_written_answers_source():
 
 
 def test_sp_written_answers_major_heading():
+    """Verify sp written answers major heading."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     heading = t.items[1]
     assert isinstance(heading, MajorHeading)
@@ -88,6 +95,7 @@ def test_sp_written_answers_major_heading():
 
 
 def test_sp_written_answers_minor_heading():
+    """Verify sp written answers minor heading."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     heading = t.items[4]
     assert isinstance(heading, MinorHeading)
@@ -96,6 +104,7 @@ def test_sp_written_answers_minor_heading():
 
 
 def test_sp_written_answers_question():
+    """Verify sp written answers question."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     ques = t.items[5]
     assert isinstance(ques, Question)
@@ -108,6 +117,7 @@ def test_sp_written_answers_question():
 
 
 def test_sp_written_answers_reply():
+    """Verify sp written answers reply."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     reply = t.items[6]
     assert isinstance(reply, Reply)
@@ -119,6 +129,7 @@ def test_sp_written_answers_reply():
 
 
 def test_sp_written_answers_round_trip():
+    """Verify sp written answers round trip."""
     t = Transcript.from_xml_path(SP_WRITTEN_ANSWERS_PATH)
     dumped_xml = t.model_dump_xml()
     t2 = Transcript.model_validate_xml(dumped_xml)
@@ -191,6 +202,7 @@ def test_uk_written_answers_file_round_trip():
 def test_gid_pattern_allows_hyphenated_chamber_segment(
     model: Type[Union[Question, Reply, MinorHeading]], id_value: str
 ) -> None:
+    """Verify gid pattern allows hyphenated chamber segment."""
     if model is MinorHeading:
         value = model(id=id_value, content={"text": "Heading", "raw": "Heading"})
     else:
@@ -207,6 +219,7 @@ def test_gid_pattern_allows_hyphenated_chamber_segment(
     ],
 )
 def test_gid_pattern_rejects_invalid_chamber_segment(id_value: str) -> None:
+    """Verify gid pattern rejects invalid chamber segment."""
     with pytest.raises(ValidationError):
         Question(id=id_value, items=[])
 
@@ -226,6 +239,7 @@ def test_sp_debate_with_stub_division_speeches_load():
 
 
 def test_sp_debate_stub_speeches_precede_every_division():
+    """Verify sp debate stub speeches precede every division."""
     t = Transcript.from_xml_path(SP_DEBATE_WITH_STUB_DIVISION_SPEECHES_PATH)
 
     for index, item in enumerate(t.items):
@@ -238,6 +252,7 @@ def test_sp_debate_stub_speeches_precede_every_division():
 
 
 def test_sp_debate_with_stub_division_speeches_round_trip():
+    """Verify sp debate with stub division speeches round trip."""
     t = Transcript.from_xml_path(SP_DEBATE_WITH_STUB_DIVISION_SPEECHES_PATH)
     dumped_xml = t.model_dump_xml()
     t2 = Transcript.model_validate_xml(dumped_xml)
