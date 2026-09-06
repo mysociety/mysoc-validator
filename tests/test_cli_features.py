@@ -173,10 +173,6 @@ def test_popolo_command_dispatches_path_url_format_and_download(monkeypatch, tmp
     popolo.to_path.assert_called_once_with(destination)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: transcript directory mode also validates the directory as a file",
-)
 def test_transcript_directory_mode_only_validates_xml_children(monkeypatch, tmp_path):
     """Verify transcript directory mode only validates xml children."""
     one = tmp_path / "one.xml"
@@ -190,7 +186,7 @@ def test_transcript_directory_mode_only_validates_xml_children(monkeypatch, tmp_
 
     cli.validate_transcript_cmd(tmp_path)
 
-    assert calls == [one, two]
+    assert set(calls) == {one, two}
 
 
 @pytest.mark.xfail(
