@@ -84,10 +84,6 @@ def test_detail_group_append_extend_and_source_override():
     assert group.detail_dict() == {"one": "1", "two": 2}
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: failed detail-group mutations leave duplicate data behind",
-)
 def test_duplicate_detail_append_is_atomic():
     """Verify duplicate detail append is atomic."""
     group = RegmemDetailGroup(root=[RegmemDetail[str](slug="name", value="first")])
