@@ -213,10 +213,6 @@ def test_indexed_list_lookups_and_custom_indexes_are_cached_and_invalidated():
     assert str(organizations["green"]) == "<Popolo.Organization: green>"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: IndexedList.__contains__ lets missing-key KeyError escape",
-)
 def test_indexed_list_contains_returns_false_for_missing_ids():
     """Verify indexed list contains returns false for missing ids."""
     assert "missing" not in _minimal_popolo().organizations
