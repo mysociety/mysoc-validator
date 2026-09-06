@@ -151,10 +151,6 @@ def test_entry_details_can_be_found_by_each_public_key():
     }
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: details_dict reduces already-flattened groups as model objects",
-)
 def test_entry_reduces_nested_detail_columns():
     """Verify entry reduces nested detail columns."""
     rows = [

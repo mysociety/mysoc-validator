@@ -367,7 +367,28 @@ class RegmemInfoBase(BaseModel):
 
     def details_dict(self, reduce: Optional[dict[str, list[str]]] = None):
         """
-        Condense the details into a dictionary of keys and values.
+        Condense the entry and its details into a dictionary of keys and values.
+
+        ``reduce`` can project fields from a container detail into top-level
+        columns. It maps the container's slug to the nested slugs to extract. For
+        example, given a ``payments`` detail whose value is::
+
+            [
+                {
+                    "name": "A",
+                    "amount": 1,
+                },
+                {
+                    "name": "B",
+                    "amount": 2,
+                },
+            ]
+
+        passing ``reduce={"payments": ["name", "amount"]}`` produces
+        ``name=["A", "B"]`` and ``amount=[1, 2]`` in the returned dictionary.
+        The original ``payments`` key is removed. A nested record that does not
+        contain a requested slug contributes no value to that projected column.
+        A reduce key that is not present in the details is ignored.
         """
         data: dict[str, Any] = {"id": self.comparable_id, "content": self.content}
         if self.date_registered:
@@ -376,15 +397,10 @@ class RegmemInfoBase(BaseModel):
             data["date_published"] = self.date_published.isoformat()
         data |= self.details.detail_dict()
 
-        def extract_discription(
-            list_of_groups: list[RegmemDetailGroup], slug: str
-        ) -> list[str]:
-            values = []
-            for group in list_of_groups:
-                for item in group:
-                    if item.slug == slug:
-                        values.append(item.value)  # type: ignore
-            return values  # type: ignore
+        def extract_description(
+            list_of_groups: list[dict[str, ValidDetailTypes]], slug: str
+        ) -> list[ValidDetailTypes]:
+            return [group[slug] for group in list_of_groups if slug in group]
 
         if reduce:
             for key, slugs in reduce.items():
@@ -392,7 +408,7 @@ class RegmemInfoBase(BaseModel):
                     for slug in slugs:
                         value = data[key]
                         if isinstance(value, list):
-                            data[slug] = extract_discription(value, slug)  # type: ignore
+                            data[slug] = extract_description(value, slug)  # type: ignore
                     # remove the original key
                     del data[key]
         return data
