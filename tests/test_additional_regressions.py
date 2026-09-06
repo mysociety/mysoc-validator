@@ -19,10 +19,6 @@ def test_untyped_boolean_interest_detail_preserves_boolean_type():
     assert detail.type == "boolean"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: merge_people extends the source person's identifiers",
-)
 def test_merge_people_moves_names_and_identifiers_and_installs_redirect():
     """Verify merge people moves names and identifiers and installs redirect."""
     popolo = Popolo.model_validate(
