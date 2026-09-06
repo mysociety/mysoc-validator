@@ -241,10 +241,6 @@ def test_one_part_alt_name_is_added_once():
     assert [name.nice_name() for name in person.names] == ["Banksy"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: empty integer-indexed collections do not initialize ID state",
-)
 def test_empty_integer_indexed_list_can_allocate_first_id():
     """Verify empty integer indexed list can allocate first id."""
     items = IndexedList[Membership]()

@@ -1186,7 +1186,7 @@ class IndexedList(RootModel[list[T]]):
             return
 
         if hasattr(self.root[0], "id") and isinstance(self.root[0].id, str):  # type: ignore
-            self._id_int_list = sorted([int(x.id.split("/")[-1]) for x in self.root])  # type: ignore
+            self._id_int = sorted([int(x.id.split("/")[-1]) for x in self.root])  # type: ignore
 
     def get_unassigned_id(self, *, start: int = 0, end: int = 999999) -> int:
         """
@@ -1194,16 +1194,16 @@ class IndexedList(RootModel[list[T]]):
         """
 
         # if we have no items, just return the start
-        if not self._id_int_list:
+        if not self._id_int:
             return start + 1
 
         # find the value that is the highest in the list before the specified end point
-        highest_allowed_value = bisect_left(self._id_int_list, end) - 1
+        highest_allowed_value = bisect_left(self._id_int, end) - 1
 
         if highest_allowed_value == -1:
             return start + 1
 
-        return self._id_int_list[highest_allowed_value] + 1
+        return self._id_int[highest_allowed_value] + 1
 
     def get_list_container_type(self) -> list[Type[T]]:
         """
