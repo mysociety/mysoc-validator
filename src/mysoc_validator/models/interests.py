@@ -349,10 +349,13 @@ class RegmemInfoBase(BaseModel):
         source: Optional[str] = None,
         **values: Union[ValidDetailTypes, pd.DataFrame],
     ):
-        import pandas as pd
+        try:
+            import pandas as pd
+        except ModuleNotFoundError:
+            pd = None  # type: ignore[assignment]
 
         for k, v in values.items():
-            if isinstance(v, pd.DataFrame):
+            if pd is not None and isinstance(v, pd.DataFrame):
                 self.details.append(
                     RegmemDetailContainer(value=df_to_details_group(v), slug=k),
                     source=source,

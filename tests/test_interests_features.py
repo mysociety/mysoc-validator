@@ -105,10 +105,6 @@ def test_parameterized_detail_lookup_supports_serialized_types():
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: scalar add_details unexpectedly requires undeclared pandas",
-)
 def test_entry_adds_scalar_details_without_optional_dataframe_dependency():
     """Verify entry adds scalar details without optional dataframe dependency."""
     entry = RegmemEntry(id="entry-1", content="Trip", date_registered="2024-01-02")
