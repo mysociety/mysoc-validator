@@ -261,20 +261,22 @@ class RegmemDetailGroup(RootModel[Any]):
         return len(self.root)
 
     def append(self, item: RegmemDetail[Any], *, source: Optional[str] = None):
+        self.check_unique_detail_names([*self.root, item])
         if source:
             item.source = source
         self.root.append(item)
-        self.check_unique_detail_names()
 
     def extend(self, items: list[RegmemDetail[Any]], *, source: Optional[str] = None):
+        self.check_unique_detail_names([*self.root, *items])
         if source:
             for item in items:
                 item.source = source
         self.root.extend(items)
-        self.check_unique_detail_names()
 
-    def check_unique_detail_names(self):
-        names = [x.slug for x in self.root]
+    def check_unique_detail_names(
+        self, items: Optional[list[RegmemDetail[Any]]] = None
+    ):
+        names = [x.slug for x in (self.root if items is None else items)]
         if len(names) != len(set(names)):
             duplicate_names = set([x for x in names if names.count(x) > 1])
             raise ValueError(f"Duplicate detail names in entry: {duplicate_names}")
