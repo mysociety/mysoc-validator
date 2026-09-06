@@ -234,10 +234,6 @@ def test_model_delete_removes_itself_from_parent_collection():
     assert popolo.organizations.get("labour") is None
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: one-part alternate names are appended twice",
-)
 def test_one_part_alt_name_is_added_once():
     """Verify one part alt name is added once."""
     person = Person(id="uk.org.publicwhip/person/2")

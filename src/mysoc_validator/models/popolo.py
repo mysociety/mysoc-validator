@@ -993,7 +993,6 @@ class Person(ModelInList, LocalisedLabelsMixin[PersonLocalisedFields]):
                     note="Alternate",
                     end_date=end_date,
                 )
-                self.names.append(alt_name)
             else:
                 raise ValueError(
                     "Either one_name or given and last name must be provided"
