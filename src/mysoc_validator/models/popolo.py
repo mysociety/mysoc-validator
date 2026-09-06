@@ -268,7 +268,7 @@ class ModelInList(StrictBaseModel):
 
     def delete(self):
         if self.parent:
-            own_id = getattr(self, self.get_index_on_field())
+            own_id = self.get_index_on_field()
             self.parent.pop(own_id)
 
     def parent_compatibility_check(self, parent: IndexedList[Any]) -> None:

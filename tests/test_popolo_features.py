@@ -227,10 +227,6 @@ def test_indexed_list_pop_keeps_lookup_indexes_consistent():
     assert organizations["labour"].name == "Labour"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SNAGGING: ModelInList.delete uses the identifier value as an attribute name",
-)
 def test_model_delete_removes_itself_from_parent_collection():
     """Verify model delete removes itself from parent collection."""
     popolo = _minimal_popolo()
