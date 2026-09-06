@@ -370,6 +370,7 @@ def validate(
         files = list(file.glob("*.xml")) + list(file.glob("*.json"))
         for f in tqdm(files):
             validate_interests_xml_or_json(f, quiet_success=True)
+        return
     if glob:
         files = list(file.parent.glob(file.name))
         for f in tqdm(files):
