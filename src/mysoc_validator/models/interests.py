@@ -65,7 +65,7 @@ def slugify(s: str) -> str:
 
 def df_to_details_group(df: pd.DataFrame) -> list[RegmemDetailGroup]:
     groups: list[RegmemDetailGroup] = []
-    for row in df.to_dict(orient="records"):  # type: ignore
+    for row in df.to_dict(orient="records"):
         row_group = RegmemDetailGroup()
 
         for k, v in row.items():
@@ -408,7 +408,7 @@ class RegmemInfoBase(BaseModel):
                     for slug in slugs:
                         value = data[key]
                         if isinstance(value, list):
-                            data[slug] = extract_description(value, slug)  # type: ignore
+                            data[slug] = extract_description(value, slug)
                     # remove the original key
                     del data[key]
         return data

@@ -18,7 +18,7 @@ from .enum_helpers import MiniEnum
 
 # nest_asyncio's global patch is incompatible with Python 3.14's asyncio internals.
 if sys.version_info < (3, 14):
-    nest_asyncio.apply()  # type: ignore
+    nest_asyncio.apply()
 
 
 DEFAULT_TIMEOUT = httpx.Timeout(30.0, connect=15.0)
