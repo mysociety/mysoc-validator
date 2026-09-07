@@ -82,7 +82,7 @@ from typing import Annotated, Any, Dict, List
 from lxml import etree
 
 # Quick alias to avoid the private typing error
-EtreeElement = Annotated[etree._Element, None]  # type: ignore
+EtreeElement = Annotated[etree._Element, None]
 
 
 def transfer_mixed_content(source: EtreeElement, target: EtreeElement) -> EtreeElement:
@@ -158,7 +158,7 @@ def element_to_dict(
             key = key.decode()
         if isinstance(value, bytes):
             value = value.decode()
-        data[key] = value  # type: ignore
+        data[key] = value
 
     sub_content: list[dict[str, Any]] = []
     used_tag_as_attr: list[str] = []
@@ -252,7 +252,7 @@ def dict_to_etree(
                         item_data = {"@tag": key[1:], "@text": json.dumps(item_data)}
                     elif isinstance(item_data, str):
                         item_data = {"@tag": key[1:], "@text": item_data}
-                    element.append(dict_to_etree(item_data, tag_as_attr, mixed_content))  # type: ignore
+                    element.append(dict_to_etree(item_data, tag_as_attr, mixed_content))
 
     return element
 

@@ -17,7 +17,7 @@ parser = jsonschema2md.Parser(examples_as_yaml=False)
 
 def write_schemas(type: type[BaseModel]):
     schema = type.model_json_schema()
-    markdown = "".join(parser.parse_schema(schema))  # type: ignore
+    markdown = "".join(parser.parse_schema(schema))
     title = schema["title"]
     slug = title.lower().replace(" ", "_")
 

@@ -169,7 +169,7 @@ class XMLModelMeta(ModelMetaclass):
         **kwargs: Any,
     ) -> type:
         # from where the class is being defined
-        caller_globals = sys._getframe(abstract_level).f_globals  # type: ignore
+        caller_globals = sys._getframe(abstract_level).f_globals
         # merge caller_globals with current globals
         caller_globals = {**caller_globals, **globals()}
 
@@ -248,7 +248,7 @@ class XMLModelMeta(ModelMetaclass):
             _create_model_module,
             **kwargs,
         )
-        new_cls.set_xml_options()  # type: ignore
+        new_cls.set_xml_options()
         return new_cls
 
 
@@ -306,7 +306,7 @@ class BaseXMLModel(BaseModel, metaclass=XMLModelMeta):
             # recursively get the tags from the sub classes
             for sub_class in extract_real_classes(data.annotation):
                 if hasattr(sub_class, "__as_attr__"):
-                    cls.__as_attr__.extend(sub_class.__as_attr__)  # type: ignore
+                    cls.__as_attr__.extend(sub_class.__as_attr__)
                     cls.__mixed_content__.extend(sub_class.__mixed_content__)  # type: ignore
         # remove duplicates
         cls.__as_attr__ = list(set(cls.__as_attr__))

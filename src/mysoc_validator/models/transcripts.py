@@ -300,7 +300,7 @@ class Division(StrictBaseXMLModel, tags=["division"]):
 
 def extract_tag(v: Any) -> str:
     if isinstance(v, dict):
-        return v["@tag"]  # type: ignore
+        return v["@tag"]
     elif hasattr(v, "tag"):
         return v.tag
     else:
