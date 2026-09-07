@@ -22,8 +22,8 @@ class MiniEnum(Generic[TA]):
 
     @classmethod
     def options(cls) -> Iterator[TA]:
-        for option in cls.__dict__.values():
-            if isinstance(option, cls._enum_type):
+        for name, option in cls.__dict__.items():
+            if not name.startswith("_") and isinstance(option, cls._enum_type):
                 yield option
 
 
